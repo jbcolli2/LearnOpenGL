@@ -11,6 +11,39 @@
 //#include <glad/glad.h>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+
+
+void processInput(sf::Window& window, bool& running)
+{
+    // handle events
+    sf::Event event;
+    while (window.pollEvent(event))
+    {
+        if (event.type == sf::Event::Closed)
+        {
+            // end the program
+            running = false;
+        }
+        else if (event.type == sf::Event::Resized)
+        {
+            // adjust the viewport when the window is resized
+            glViewport(0, 0, event.size.width, event.size.height);
+        }
+    }
+    
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q))
+    {
+        running = false;
+    }
+    
+    
+}
+
+
+
+
+
 
 int main(int argc, const char * argv[]) {
     
@@ -24,31 +57,18 @@ int main(int argc, const char * argv[]) {
 
     sf::Window window(sf::VideoMode(800, 600), "OpenGL", sf::Style::Default, settings);
     
-    
+    window.setActive(true);
     
     
     // run the main loop
         bool running = true;
         while (running)
         {
-            // handle events
-            sf::Event event;
-            while (window.pollEvent(event))
-            {
-                if (event.type == sf::Event::Closed)
-                {
-                    // end the program
-                    running = false;
-                }
-                else if (event.type == sf::Event::Resized)
-                {
-                    // adjust the viewport when the window is resized
-                    glViewport(0, 0, event.size.width, event.size.height);
-                }
-            }
-
+            processInput(window, running);
+            
             // clear the buffers
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClearColor(1.0f, 0.0f, 0.5f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
 
             // draw...
 
@@ -59,3 +79,8 @@ int main(int argc, const char * argv[]) {
     
     return 0;
 }
+
+
+
+
+
