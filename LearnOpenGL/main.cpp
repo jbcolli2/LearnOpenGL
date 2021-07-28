@@ -15,9 +15,9 @@
 
 
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-
-void draw()
+void initObjects(unsigned int& VAO, unsigned int& shaderProgram)
 {
     float verts[] = {
         -.5f, -.5f, 0.0f,
@@ -33,7 +33,7 @@ void draw()
     "layout (location = 0) in vec3 pos;\n"
     "void main()\n"
     "{\n"
-    "gl_Position = vec4(pos, 0.0f);\n"
+    "gl_Position = vec4(pos.x,pos.y,pos.z, 1.0f);\n"
     "}\0";
 
     unsigned int vertShader;
@@ -59,7 +59,7 @@ void draw()
     "out vec4 FragColor;\n"
     "void main()\n"
     "{\n"
-        "FragColor = vec4(1.0f, 0.1f, 1.0f, 1.0f);\n"
+        "FragColor = vec4(0.3f, 0.1f, 1.0f, 1.0f);\n"
     "}\0";
 
     unsigned int fragShader;
@@ -78,7 +78,6 @@ void draw()
     }
 
 
-    unsigned int shaderProgram;
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertShader);
     glAttachShader(shaderProgram, fragShader);
@@ -91,11 +90,11 @@ void draw()
         std::cout << "ShaderProgram::Linkerr::Fail  " << infoLog << std::endl;
     }
 
-    
+    glDeleteShader(vertShader);
+    glDeleteShader(fragShader);
     
 
     //******* VBO/VAO   ***************
-    unsigned int VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
     
@@ -109,25 +108,12 @@ void draw()
     glEnableVertexAttribArray(0);
 
     //********* VAO **************
-    
+
+}
 
 
-
-    glUseProgram(shaderProgram);
-    glDeleteShader(vertShader);
-    glDeleteShader(fragShader);
-
-
-    
-    glEnableVertexAttribArray(0);
-
-
-    
-    
-    
-    
-    
-    
+void draw()
+{
     glClearColor(0.0f,0.0f,0.0f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
@@ -138,10 +124,7 @@ void draw()
 
 
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0,0, width, height);
-};
+
 
 
 void processInput(GLFWwindow* window)
@@ -173,7 +156,7 @@ int main(int argc, const char * argv[]) {
         return -1;
     }
     glfwMakeContextCurrent(window);
-    
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
     //GLAD
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -182,10 +165,11 @@ int main(int argc, const char * argv[]) {
         return -1;
     }
     
+        
     
-    glViewport(0,0,800, 600);
     
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    unsigned int VAO, shaderProgram;
+    initObjects(VAO, shaderProgram);
     
     
     //Main loop
@@ -193,7 +177,8 @@ int main(int argc, const char * argv[]) {
     {
         processInput(window);
         
-        
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
         draw();
         
         glfwSwapBuffers(window);
@@ -208,5 +193,8 @@ int main(int argc, const char * argv[]) {
 
 
 
-
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0,0, width, height);
+};
 
