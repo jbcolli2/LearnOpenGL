@@ -7,47 +7,15 @@
 
 
 #define GL_SILENCE_DEPRECATION
-
-#ifdef __APPLE__
-#define glGenVertexArrays glGenVertexArraysAPPLE
-#define glBindVertexArray glBindVertexArrayAPPLE
-#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-#endif
-
-
 #include <iostream>
-//#include <glad/glad.h>
-#include <SFML/OpenGL.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 
-void processInput(sf::Window& window, bool& running)
-{
-    // handle events
-    sf::Event event;
-    while (window.pollEvent(event))
-    {
-        if (event.type == sf::Event::Closed)
-        {
-            // end the program
-            running = false;
-        }
-        else if (event.type == sf::Event::Resized)
-        {
-            // adjust the viewport when the window is resized
-            glViewport(0, 0, event.size.width, event.size.height);
-        }
-    }
-    
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q))
-    {
-        running = false;
-    }
-    
-    
-}
 
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 void initObjects(unsigned int& VAO, unsigned int& shaderProgram)
 {
@@ -91,7 +59,7 @@ void initObjects(unsigned int& VAO, unsigned int& shaderProgram)
     "out vec4 FragColor;\n"
     "void main()\n"
     "{\n"
-        "FragColor = vec4(1.0f, 0.1f, 1.0f, 1.0f);\n"
+        "FragColor = vec4(0.3f, 0.1f, 1.0f, 1.0f);\n"
     "}\0";
 
     unsigned int fragShader;
@@ -155,49 +123,78 @@ void draw()
 
 
 
-int main(int argc, const char * argv[]) {
-    
-    sf::ContextSettings settings;
-    settings.depthBits = 24;
-    settings.stencilBits = 8;
-    settings.antialiasingLevel = 0;
-    settings.attributeFlags = sf::ContextSettings::Attribute::Core;
-    settings.majorVersion = 3;
-    settings.minorVersion = 3;
 
-    sf::Window window(sf::VideoMode(800, 600), "OpenGL", sf::Style::Default, settings);
-    
-    window.setActive(true);
-    
-    unsigned int VAO;
-    unsigned int shaderProgram;
-    initObjects(VAO, shaderProgram);
-    
-    
-    // run the main loop
-        bool running = true;
-        while (running)
-        {
-            processInput(window, running);
-            
-            // clear the buffers
-            glClearColor(1.0f, 0.0f, 0.5f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
 
-            glUseProgram(shaderProgram);
-            glBindVertexArray(VAO);
-            
-            draw();
 
-            // end the current frame (internally swaps the front and back buffers)
-            window.display();
-        }
-    
-    
-    return 0;
+
+void processInput(GLFWwindow* window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE))
+    {
+        glfwSetWindowShouldClose(window, true);
+    }
 }
 
 
 
 
+
+int main(int argc, const char * argv[]) {
+    
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    
+    
+    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    if(window == NULL)
+    {
+        std::cout << "Failed to create glfw window\n";
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    
+    //GLAD
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+    
+        
+    
+    
+    unsigned int VAO, shaderProgram;
+    initObjects(VAO, shaderProgram);
+    
+    
+    //Main loop
+    while(!glfwWindowShouldClose(window))
+    {
+        processInput(window);
+        
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        draw();
+        
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    
+    
+    glfwTerminate();
+    return 0;
+    
+}
+
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0,0, width, height);
+};
 
