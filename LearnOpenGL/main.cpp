@@ -62,22 +62,24 @@ int main(int argc, const char * argv[]) {
     Shader shader;
     shader.makeProgram();
     
-    float vertsTri[] = {
-        -0.9f, -.5f, 0.0f,
-        -.5f,  -.5f, 0.0f,
-        -.5f, .5f,  0.0f
-    };
+    Scene scene;
     
-    Triangle triangle(vertsTri);
-    
-    
-    float vertsSq[] = {
-            .25f, 0.0f, 0.0f,
-            .75f, 0.0f, 0.0f,
-            .75f, .75f, 0.0f,
-            .25f, .75f, 0.0f
-        };
-    Square square(vertsSq);
+//    float vertsTri[] = {
+//        -0.9f, -.5f, 0.0f,
+//        -.5f,  -.5f, 0.0f,
+//        -.5f, .5f,  0.0f
+//    };
+//
+//    Triangle triangle(vertsTri);
+//
+//
+//    float vertsSq[] = {
+//            .25f, 0.0f, 0.0f,
+//            .75f, 0.0f, 0.0f,
+//            .75f, .75f, 0.0f,
+//            .25f, .75f, 0.0f
+//        };
+//    Square square(vertsSq);
     
     
 //    unsigned int VAO;
@@ -94,8 +96,7 @@ int main(int argc, const char * argv[]) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        triangle.draw();
-        square.draw();
+        scene.draw();
         
         glfwSwapBuffers(window);
         glfwPollEvents();
