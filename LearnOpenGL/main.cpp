@@ -11,114 +11,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-
-
-
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
-void initObjects(unsigned int& VAO, unsigned int& shaderProgram)
-{
-    float verts[] = {
-        -.5f, -.5f, 0.0f,
-        .5f,  -.5f, 0.0f,
-        0.0f, .5f,  0.0f
-    };
-
-
-
-
-    // Vertex Shader
-    const char* vertShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 pos;\n"
-    "void main()\n"
-    "{\n"
-    "gl_Position = vec4(pos.x,pos.y,pos.z, 1.0f);\n"
-    "}\0";
-
-    unsigned int vertShader;
-    vertShader = glCreateShader(GL_VERTEX_SHADER);
-
-    glShaderSource(vertShader, 1, &vertShaderSource, NULL);
-    glCompileShader(vertShader);
-
-    // Check compile status
-    int vertSuccess;
-    char infoLog[512];
-    glGetShaderiv(vertShader, GL_COMPILE_STATUS, &vertSuccess);
-    if(!vertSuccess)
-    {
-        glGetShaderInfoLog(vertShader, 512, NULL, infoLog);
-        std::cout << "VertexShader::Compile::Fail  " << infoLog << std::endl;
-    }
-
-
-
-    // Fragment Shader
-    const char* fragShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-        "FragColor = vec4(0.3f, 0.1f, 1.0f, 1.0f);\n"
-    "}\0";
-
-    unsigned int fragShader;
-    fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    glShaderSource(fragShader, 1, &fragShaderSource, NULL);
-    glCompileShader(fragShader);
-
-    // Check compile status
-    int fragSuccess;
-    glGetShaderiv(fragShader, GL_COMPILE_STATUS, &fragSuccess);
-    if(!fragSuccess)
-    {
-        glGetShaderInfoLog(fragShader, 512, NULL, infoLog);
-        std::cout << "FragmentShader::Compile::Fail  " << infoLog << std::endl;
-    }
-
-
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertShader);
-    glAttachShader(shaderProgram, fragShader);
-    glLinkProgram(shaderProgram);
-    int linkSuccess;
-    glGetShaderiv(shaderProgram, GL_LINK_STATUS, &linkSuccess);
-    if(!fragSuccess)
-    {
-        glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ShaderProgram::Linkerr::Fail  " << infoLog << std::endl;
-    }
-
-    glDeleteShader(vertShader);
-    glDeleteShader(fragShader);
-    
-
-    //******* VBO/VAO   ***************
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    //********* VAO **************
-
-}
-
-
-void draw()
-{
-    glClearColor(0.0f,0.0f,0.0f,1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-}
+#include "BasicDraw.hpp"
+#include "Shader.hpp"
 
 
 
@@ -127,13 +21,12 @@ void draw()
 
 
 
-void processInput(GLFWwindow* window)
-{
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE))
-    {
-        glfwSetWindowShouldClose(window, true);
-    }
-}
+
+
+
+
+
+
 
 
 
@@ -166,10 +59,29 @@ int main(int argc, const char * argv[]) {
     }
     
         
+    Shader shader;
+    shader.makeProgram();
+    
+    float vertsTri[] = {
+        -0.9f, -.5f, 0.0f,
+        -.5f,  -.5f, 0.0f,
+        -.5f, .5f,  0.0f
+    };
+    
+    Triangle triangle(vertsTri);
     
     
-    unsigned int VAO, shaderProgram;
-    initObjects(VAO, shaderProgram);
+    float vertsSq[] = {
+            .25f, 0.0f, 0.0f,
+            .75f, 0.0f, 0.0f,
+            .75f, .75f, 0.0f,
+            .25f, .75f, 0.0f
+        };
+    Square square(vertsSq);
+    
+    
+//    unsigned int VAO;
+//    initObjects(VAO);
     
     
     //Main loop
@@ -177,9 +89,13 @@ int main(int argc, const char * argv[]) {
     {
         processInput(window);
         
-        glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        draw();
+        shader.useProgram();
+        
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        triangle.draw();
+        square.draw();
         
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -193,8 +109,4 @@ int main(int argc, const char * argv[]) {
 
 
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0,0, width, height);
-};
 
