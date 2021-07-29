@@ -17,20 +17,18 @@ Shader::Shader(const char* vertFile, const char* fragFile)
 {
     vertShader = "#version 330 core\n"
     "layout (location = 0) in vec3 pos;\n"
-    "out vec4 vertColor;\n"
     "void main()\n"
     "{\n"
     "gl_Position = vec4(pos.x,pos.y,pos.z, 1.0f);\n"
-    "vertColor = vec4(pos.x*.5 + .5, 0.0, pos.y*.5 + .5, 1.0f);\n"
     "}\0";
     
     
     fragShader = "#version 330 core\n"
     "out vec4 FragColor;\n"
-    "in vec4 vertColor;\n"
+    "uniform vec4 ourColor;\n"
     "void main()\n"
     "{\n"
-        "FragColor = vertColor;\n"
+        "FragColor = ourColor;\n"
     "}\0";
 }
 
@@ -92,4 +90,10 @@ void Shader::makeProgram()
 
     glDeleteShader(vertShader);
     glDeleteShader(fragShader);
+    
+    
+    
+    
+    // ****** Uniform ********//
+    vertColorLocation = glGetUniformLocation(program, "ourColor");
 }

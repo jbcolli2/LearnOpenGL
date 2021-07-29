@@ -31,10 +31,10 @@ public:
         
         
         float vertsSq[] = {
-                .25f, 0.0f, 0.0f,
-                .75f, 0.0f, 0.0f,
-                .75f, .75f, 0.0f,
-                .25f, .75f, 0.0f
+                0.0f, 0.0f, 0.0f,
+                .5f, 0.0f, 0.0f,
+                .5f, .75f, 0.0f,
+                0.0f, .75f, 0.0f
             };
         v_shapes.emplace_back(std::make_unique<Square>(vertsSq));
     };

@@ -10,6 +10,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <cmath>
 
 #include "BasicDraw.hpp"
 #include "Shader.hpp"
@@ -92,6 +93,11 @@ int main(int argc, const char * argv[]) {
         processInput(window);
         
         shader.useProgram();
+        
+        float timeValue = glfwGetTime();
+        float purpleColor = (sin(3*timeValue) *0.5f) + 0.5f;
+        
+        glUniform4f(shader.vertColorLocation, purpleColor*0.5f, 0.0f, purpleColor, 1.0f);
         
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);

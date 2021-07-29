@@ -20,6 +20,8 @@ class Shader
     
     
 public:
+    int vertColorLocation;
+    
     Shader(const char* vertFile = "", const char* fragFile = "");
     
     void makeProgram();
