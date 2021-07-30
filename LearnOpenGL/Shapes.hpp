@@ -9,8 +9,32 @@
 #define Shapes_h
 #define GL_SILENCE_DEPRECATION
 
+#include <vector>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+
+
+
+struct VertData
+{
+    float x,y,z;
+    
+    VertData(float x, float y, float z) : x(x), y(y), z(z) {};
+};
+
+struct VertColorData
+{
+    float x,y,z;
+    float r,g,b;
+    
+    VertColorData(float x, float y, float z, float r, float g, float b) :
+    x(x), y(y), z(z), r(r), g(g), b(b) {};
+};
+
+
+
 
 
 class Shape
@@ -24,11 +48,12 @@ public:
 class Triangle : public Shape
 {
     unsigned int VAO;
-    float verts[9];
+    float* verts;
 
     
 public:
-    Triangle(float verts[9]);
+    Triangle(std::vector<VertData> verts);
+    Triangle(std::vector<VertColorData> verts);
     
     void virtual draw() override;
 };
@@ -39,12 +64,12 @@ public:
 class Square : public Shape
 {
     unsigned int VAO;
-    float verts[12];
-    unsigned int indices[6];
+    std::vector<float> verts;
+    std::vector<unsigned int> indices = {0,1,2, 0, 2,3};
 
     
 public:
-    Square(float verts[12], bool clockwise = true);
+    Square(std::vector<VertData> verts, bool clockwise = true);
     
     void virtual draw() override;
 };

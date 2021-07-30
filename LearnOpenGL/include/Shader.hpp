@@ -18,15 +18,20 @@ class Shader
     
     std::string vertShader, fragShader;
     
-    
-public:
     int vertColorLocation;
+
+public:
     
     Shader(const char* vertFile = "", const char* fragFile = "");
     
     void makeProgram();
     
     void useProgram(){ glUseProgram(program);};
+    
+    void setColorUniform(float r, float g, float b, float a)
+    {
+        glUniform4f(vertColorLocation, r, g, b, a);
+    }
 };
 
 

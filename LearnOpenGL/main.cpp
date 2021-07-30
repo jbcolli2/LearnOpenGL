@@ -94,10 +94,7 @@ int main(int argc, const char * argv[]) {
         
         shader.useProgram();
         
-        float timeValue = glfwGetTime();
-        float purpleColor = (sin(3*timeValue) *0.5f) + 0.5f;
         
-        glUniform4f(shader.vertColorLocation, purpleColor*0.5f, 0.0f, purpleColor, 1.0f);
         
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);

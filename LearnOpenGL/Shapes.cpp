@@ -11,12 +11,9 @@
 #include "Shapes.hpp"
 
 
-Triangle::Triangle(float verts[9])
+Triangle::Triangle(std::vector<VertData> vert)
 {
-    for(int ii = 0; ii < 9; ii++)
-    {
-        this->verts[ii] = verts[ii];
-    }
+//    this->verts = verts;
     
     //******* VBO/VAO   ***************
     glGenVertexArrays(1, &VAO);
@@ -26,7 +23,7 @@ Triangle::Triangle(float verts[9])
     glGenBuffers(1, &VBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(this->verts), this->verts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vert.size()*sizeof(VertData), &vert[0], GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -55,19 +52,10 @@ void Triangle::draw()
 
 
 
-Square::Square(float verts[12], bool clockwise)
+Square::Square(std::vector<VertData> vert, bool clockwise)
 {
-    for(int ii = 0; ii < 12; ii++)
-    {
-        this->verts[ii] = verts[ii];
-    }
+//    this->verts = vert;
     
-    indices[0] = 0;
-    indices[1] = 1;
-    indices[2] = 2;
-    indices[3] = 0;
-    indices[4] = 2;
-    indices[5] = 3;
     
     //******* VBO/VAO   ***************
     glGenVertexArrays(1, &VAO);
@@ -78,10 +66,10 @@ Square::Square(float verts[12], bool clockwise)
     glGenBuffers(1, &EBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(this->verts), this->verts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vert.size() * sizeof(VertData), &vert.front(), GL_STATIC_DRAW);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(this->indices), this->indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices.front(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);

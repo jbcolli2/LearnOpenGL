@@ -21,21 +21,32 @@ class Scene
     
 public:
     Scene() {
-        float vertsTri[] = {
-            -0.9f, -.5f, 0.0f,
-            -.5f,  -.5f, 0.0f,
-            -.5f, .5f,  0.0f
+
+        
+        std::vector<VertData> vertsTri = {
+            VertData(-.9f, -.5f, 0.0f),
+            VertData(-.5f, -.5f, 0.0f),
+            VertData(-.5f, .5f, 0.0f)
         };
+        
         
         v_shapes.emplace_back(std::make_unique<Triangle>(vertsTri));
         
         
-        float vertsSq[] = {
-                0.0f, 0.0f, 0.0f,
-                .5f, 0.0f, 0.0f,
-                .5f, .75f, 0.0f,
-                0.0f, .75f, 0.0f
-            };
+//        float vertsSq[] = {
+//                0.0f, 0.0f, 0.0f,
+//                .5f, 0.0f, 0.0f,
+//                .5f, .75f, 0.0f,
+//                0.0f, .75f, 0.0f
+//            };
+        
+        std::vector<VertData> vertsSq = {
+            VertData(0.0f, 0.0f, 0.0f),
+            VertData(.5f, 0.0f, 0.0f),
+            VertData(.5f, .75f, 0.0f),
+            VertData(0.0f, .75f, 0.0f)
+        };
+        
         v_shapes.emplace_back(std::make_unique<Square>(vertsSq));
     };
     
