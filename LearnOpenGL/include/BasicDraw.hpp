@@ -24,32 +24,37 @@ public:
     Scene() {
 
         
-        std::vector<VertData> vertsTri = {
-            VertData(-.9f, -.5f, 0.0f),
-            VertData(-.5f, -.5f, 0.0f),
-            VertData(-.5f, .5f, 0.0f)
+//        std::vector<VertData> vertsTri = {
+//            VertData(-.9f, -.5f, 0.0f),
+//            VertData(-.5f, -.5f, 0.0f),
+//            VertData(-.5f, .5f, 0.0f)
+//        };
+        
+        std::vector<VertColorData> vertsTri = {
+            VertColorData(-.9f, -.5f, 0.0f, 1.0f, 0.0f, 0.0f),
+            VertColorData(-.5f, -.5f, 0.0f, 1.0f, 0.0f, 0.0f),
+            VertColorData(-.5f, .5f, 0.0f, 0.0f, 0.0f, 1.0f)
         };
         
         
-//        std::unique_ptr<Triangle<VertData>> tri(new Triangle<VertData>(vertsTri));
-        v_shapes.emplace_back(std::make_unique<Triangle<VertData>>(vertsTri));
+        v_shapes.emplace_back(std::make_unique<Triangle<VertColorData>>(vertsTri));
         
         
-//        float vertsSq[] = {
-//                0.0f, 0.0f, 0.0f,
-//                .5f, 0.0f, 0.0f,
-//                .5f, .75f, 0.0f,
-//                0.0f, .75f, 0.0f
-//            };
         
-        std::vector<VertData> vertsSq = {
-            VertData(0.0f, 0.0f, 0.0f),
-            VertData(.5f, 0.0f, 0.0f),
-            VertData(.5f, .75f, 0.0f),
-            VertData(0.0f, .75f, 0.0f)
+//        std::vector<VertData> vertsSq = {
+//            VertData(0.0f, 0.0f, 0.0f),
+//            VertData(.5f, 0.0f, 0.0f),
+//            VertData(.5f, .75f, 0.0f),
+//            VertData(0.0f, .75f, 0.0f)
+//        };
+//
+        std::vector<VertColorData> vertsSq = {
+            VertColorData(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
+            VertColorData(.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+            VertColorData(.5f, .75f, 0.0f, 0.0f, 0.0f, 1.0f),
+            VertColorData(0.0f, .75f, 0.0f, 1.0f, 1.0f, 1.0f)
         };
-        
-        v_shapes.emplace_back(std::make_unique<Square<VertData>>(vertsSq));
+        v_shapes.emplace_back(std::make_unique<Square<VertColorData>>(vertsSq));
     };
     
     

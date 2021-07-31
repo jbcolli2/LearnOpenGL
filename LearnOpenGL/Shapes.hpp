@@ -60,7 +60,7 @@ class Square : public Shape
 
     
 public:
-    Square(std::vector<VertData> verts, bool clockwise = true);
+    Square(std::vector<T> verts, bool clockwise = true);
     
     void virtual draw() override;
 };
@@ -121,7 +121,7 @@ void Triangle<T>::draw()
 
 
 template <class T>
-Square<T>::Square(std::vector<VertData> vert, bool clockwise)
+Square<T>::Square(std::vector<T> vert, bool clockwise)
 {
     this->verts = vert;
     
