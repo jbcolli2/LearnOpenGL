@@ -59,32 +59,13 @@ int main(int argc, const char * argv[]) {
         return -1;
     }
     
-        
-    Shader shader;
+    std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
+    Shader shader("/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/Chap5.vs", "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/Chap6.frag");
     shader.makeProgram();
     
     Scene scene;
     
-//    float vertsTri[] = {
-//        -0.9f, -.5f, 0.0f,
-//        -.5f,  -.5f, 0.0f,
-//        -.5f, .5f,  0.0f
-//    };
-//
-//    Triangle triangle(vertsTri);
-//
-//
-//    float vertsSq[] = {
-//            .25f, 0.0f, 0.0f,
-//            .75f, 0.0f, 0.0f,
-//            .75f, .75f, 0.0f,
-//            .25f, .75f, 0.0f
-//        };
-//    Square square(vertsSq);
-    
-    
-//    unsigned int VAO;
-//    initObjects(VAO);
+
     
     
     //Main loop

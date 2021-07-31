@@ -22,7 +22,7 @@ class Shader
 
 public:
     
-    Shader(const char* vertFile = "", const char* fragFile = "");
+    Shader(const char* vsPath = "", const char* fsPath = "");
     
     void makeProgram();
     
@@ -32,6 +32,10 @@ public:
     {
         glUniform4f(vertColorLocation, r, g, b, a);
     }
+    
+    
+private:
+    std::string loadShaderFile(const char* path);
 };
 
 

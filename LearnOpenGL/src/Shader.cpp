@@ -8,31 +8,18 @@
 #define GL_SILENCE_DEPRECATION
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
 
 #include "Shader.hpp"
 
 
 
-Shader::Shader(const char* vertFile, const char* fragFile)
+Shader::Shader(const char* vsPath, const char* fsPath)
 {
-    vertShader = "#version 330 core\n"
-    "layout (location = 0) in vec3 pos;\n"
-    "layout (location = 1) in vec3 color;\n"
-    "out vec3 ourColor;\n"
-    "void main()\n"
-    "{\n"
-    "gl_Position = vec4(pos.x,pos.y,pos.z, 1.0f);\n"
-    "ourColor = color;\n"
-    "}\0";
-    
-    
-    fragShader = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "in vec3 ourColor;\n"
-    "void main()\n"
-    "{\n"
-        "FragColor = vec4(ourColor, 1.0);\n"
-    "}\0";
+    vertShader = loadShaderFile(vsPath);
+    fragShader = loadShaderFile(fsPath);
 }
 
 
@@ -99,4 +86,31 @@ void Shader::makeProgram()
     
     // ****** Uniform ********//
 //    vertColorLocation = glGetUniformLocation(program, "ourColor");
+}
+
+
+
+
+
+std::string Shader::loadShaderFile(const char *path)
+{
+    std::ifstream shaderFile(path);
+    try {
+        std::stringstream shaderStream;
+        shaderStream << shaderFile.rdbuf();
+        
+        shaderFile.close();
+        
+        return shaderStream.str();
+    } catch (std::ifstream::failure e) {
+        std::cout << "Error reading shader file at " << path << std::endl;
+        shaderFile.close();
+        return std::string("");
+    }
+    
+    
+    
+    
+    
+    
 }
