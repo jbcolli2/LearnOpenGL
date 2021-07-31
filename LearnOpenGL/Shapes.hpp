@@ -14,24 +14,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "OpenGLUtil.hpp"
 
 
 
-struct VertData
-{
-    float x,y,z;
-    
-    VertData(float x, float y, float z) : x(x), y(y), z(z) {};
-};
 
-struct VertColorData
-{
-    float x,y,z;
-    float r,g,b;
-    
-    VertColorData(float x, float y, float z, float r, float g, float b) :
-    x(x), y(y), z(z), r(r), g(g), b(b) {};
-};
 
 
 
@@ -45,26 +32,30 @@ public:
     void virtual draw() = 0;
 };
 
+
+
+template <class T>
 class Triangle : public Shape
 {
     unsigned int VAO;
-    float* verts;
+    std::vector<T> verts;
 
     
 public:
-    Triangle(std::vector<VertData> verts);
-    Triangle(std::vector<VertColorData> verts);
+    Triangle(std::vector<T> vert);
+    
+//    Triangle(std::vector<VertColorData> verts);
     
     void virtual draw() override;
 };
 
 
 
-
+template <class T>
 class Square : public Shape
 {
     unsigned int VAO;
-    std::vector<float> verts;
+    std::vector<T> verts;
     std::vector<unsigned int> indices = {0,1,2, 0, 2,3};
 
     
@@ -73,6 +64,93 @@ public:
     
     void virtual draw() override;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+template <class T>
+Triangle<T>::Triangle(std::vector<T> vert)
+{
+    verts = vert;
+    //******* VBO/VAO   ***************
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    
+    loadVBOData(verts);
+
+    rglVertexAttribPointer(vert[0]);
+    
+    
+    glEnableVertexAttribArray(0);
+    //********* VAO **************
+}
+
+
+
+
+
+template <class T>
+void Triangle<T>::draw()
+{
+    glBindVertexArray(VAO);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+
+
+
+
+
+template <class T>
+Square<T>::Square(std::vector<VertData> vert, bool clockwise)
+{
+    this->verts = vert;
+    
+    
+    //******* VBO/VAO   ***************
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    
+    loadVBOData(verts);
+    
+    loadEBOData(indices);
+
+    rglVertexAttribPointer(vert[0]);
+    
+    
+    
+    //********* VAO **************
+    
+}
+
+
+
+template <class T>
+void Square<T>::draw()
+{
+    glBindVertexArray(VAO);
+    
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
 
 
 

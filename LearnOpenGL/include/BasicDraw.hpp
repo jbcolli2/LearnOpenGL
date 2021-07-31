@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <vector>
+
 #include "Shapes.hpp"
 
 
@@ -30,7 +31,8 @@ public:
         };
         
         
-        v_shapes.emplace_back(std::make_unique<Triangle>(vertsTri));
+//        std::unique_ptr<Triangle<VertData>> tri(new Triangle<VertData>(vertsTri));
+        v_shapes.emplace_back(std::make_unique<Triangle<VertData>>(vertsTri));
         
         
 //        float vertsSq[] = {
@@ -47,7 +49,7 @@ public:
             VertData(0.0f, .75f, 0.0f)
         };
         
-        v_shapes.emplace_back(std::make_unique<Square>(vertsSq));
+        v_shapes.emplace_back(std::make_unique<Square<VertData>>(vertsSq));
     };
     
     
