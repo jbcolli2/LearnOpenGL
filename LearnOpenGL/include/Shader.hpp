@@ -27,6 +27,11 @@ public:
     
     void useProgram(){ glUseProgram(program);};
     
+    void setUniform1f(const std::string& uniformName, float f)
+    {
+        glUniform1f(glGetUniformLocation(program, uniformName.c_str()), f);
+    }
+    
     void setUniform4f(const std::string& uniformName, float r, float g, float b, float a)
     {
         glUniform4f(glGetUniformLocation(program, uniformName.c_str()), r, g, b, a);

@@ -60,13 +60,13 @@ int main(int argc, const char * argv[]) {
     }
     
     std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    Shader shader(shaderFolder + "Chap6_Ex1.vs", shaderFolder + "Chap6.frag");
+    Shader shader(shaderFolder + "Chap6_Ex2.vs", shaderFolder + "Chap6.frag");
     shader.makeProgram();
     
     Scene scene;
     
 
-    
+    float horzMove = 0.0f;
     
     //Main loop
     while(!glfwWindowShouldClose(window))
@@ -75,6 +75,8 @@ int main(int argc, const char * argv[]) {
         
         shader.useProgram();
         
+        horzMove += .01f;
+        shader.setUniform1f("horzMove", horzMove);
         
         
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
