@@ -18,19 +18,23 @@ class Shader
     
     std::string vertShader, fragShader;
     
-    int vertColorLocation;
 
 public:
     
-    Shader(const char* vsPath = "", const char* fsPath = "");
+    Shader(std::string vsPath = "", std::string fsPath = "");
     
     void makeProgram();
     
     void useProgram(){ glUseProgram(program);};
     
-    void setColorUniform(float r, float g, float b, float a)
+    void setUniform4f(const std::string& uniformName, float r, float g, float b, float a)
     {
-        glUniform4f(vertColorLocation, r, g, b, a);
+        glUniform4f(glGetUniformLocation(program, uniformName.c_str()), r, g, b, a);
+    }
+    
+    void setUniform1i(const std::string& uniformName, int i)
+    {
+        glUniform1i(glGetUniformLocation(program, uniformName.c_str()), i);
     }
     
     

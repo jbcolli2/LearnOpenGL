@@ -16,10 +16,10 @@
 
 
 
-Shader::Shader(const char* vsPath, const char* fsPath)
+Shader::Shader(std::string vsPath, std::string fsPath)
 {
-    vertShader = loadShaderFile(vsPath);
-    fragShader = loadShaderFile(fsPath);
+    vertShader = loadShaderFile(vsPath.c_str());
+    fragShader = loadShaderFile(fsPath.c_str());
 }
 
 
