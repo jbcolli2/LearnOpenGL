@@ -42,8 +42,8 @@ protected:
     void loadTexture(const char* filename)
     {
         int width, height, nrChannels;
-        unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
-        
+        unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
+
         if(data)
         {
             glGenTextures(1, &texture);
@@ -66,29 +66,29 @@ protected:
 
 
 
-template <class T>
+template <class VertT>
 class Triangle : public Shape
 {
 
-    std::vector<T> verts;
+    std::vector<VertT> verts;
 public:
-    Triangle(std::vector<T> vert);
+    Triangle(std::vector<VertT> vert);
     
     void virtual draw() override;
 };
 
 
 
-template <class T>
+template <class VertT>
 class Square : public Shape
 {
-    unsigned int VAO, texture;
-    std::vector<T> verts;
+    std::vector<VertT> verts;
     std::vector<unsigned int> indices = {0,1,2, 0, 2,3};
 
     
 public:
-    Square(std::vector<T> verts, bool clockwise = true);
+    Square(std::vector<VertT> vert, bool clockwise = true);
+    Square(std::vector<VertT> vert, const char* textureFile, bool clockwise = true);
     
     void virtual draw() override;
 };
@@ -114,8 +114,8 @@ public:
 
 
 
-template <class T>
-Triangle<T>::Triangle(std::vector<T> vert)
+template <class VertT>
+Triangle<VertT>::Triangle(std::vector<VertT> vert)
 {
     verts = vert;
     //******* VBO/VAO   ***************
@@ -135,8 +135,8 @@ Triangle<T>::Triangle(std::vector<T> vert)
 
 
 
-template <class T>
-void Triangle<T>::draw()
+template <class VertT>
+void Triangle<VertT>::draw()
 {
     glBindVertexArray(VAO);
     
@@ -148,8 +148,8 @@ void Triangle<T>::draw()
 
 
 
-template <class T>
-Square<T>::Square(std::vector<T> vert, bool clockwise)
+template <class VertT>
+Square<VertT>::Square(std::vector<VertT> vert, bool clockwise)
 {
     this->verts = vert;
     
@@ -171,9 +171,17 @@ Square<T>::Square(std::vector<T> vert, bool clockwise)
 }
 
 
+template <class VertT>
+Square<VertT>::Square(std::vector<VertT> vert, const char* textureFile, bool clockwise) : Square(vert, clockwise)
+{
+    //********* VAO **************
+    loadTexture(textureFile);
+}
 
-template <class T>
-void Square<T>::draw()
+
+
+template <class VertT>
+void Square<VertT>::draw()
 {
     glBindVertexArray(VAO);
     

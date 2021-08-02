@@ -24,37 +24,49 @@ public:
     Scene() {
 
         
-//        std::vector<VertData> vertsTri = {
-//            VertData(-.9f, -.5f, 0.0f),
-//            VertData(-.5f, -.5f, 0.0f),
-//            VertData(-.5f, .5f, 0.0f)
-//        };
-        
-        std::vector<VertColorData> vertsTri = {
-            VertColorData(-.9f, -.5f, 0.0f, 1.0f, 0.0f, 0.0f),
-            VertColorData(-.5f, -.5f, 0.0f, 1.0f, 0.0f, 0.0f),
-            VertColorData(-.5f, .5f, 0.0f, 0.0f, 0.0f, 1.0f)
-        };
-        
-        
-        v_shapes.emplace_back(std::make_unique<Triangle<VertColorData>>(vertsTri));
-        
-        
-        
-//        std::vector<VertData> vertsSq = {
-//            VertData(0.0f, 0.0f, 0.0f),
-//            VertData(.5f, 0.0f, 0.0f),
-//            VertData(.5f, .75f, 0.0f),
-//            VertData(0.0f, .75f, 0.0f)
+//        std::vector<Vert3x3f> vertsTri = {
+//            Vert3x3f(-.9f, -.5f, 0.0f, 1.0f, 0.0f, 0.0f),
+//            Vert3x3f(-.5f, -.5f, 0.0f, 1.0f, 0.0f, 0.0f),
+//            Vert3x3f(-.5f, .5f, 0.0f, 0.0f, 0.0f, 1.0f)
 //        };
 //
-        std::vector<VertColorData> vertsSq = {
-            VertColorData(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
-            VertColorData(.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-            VertColorData(.5f, .75f, 0.0f, 0.0f, 0.0f, 1.0f),
-            VertColorData(0.0f, .75f, 0.0f, 1.0f, 1.0f, 1.0f)
+//
+//        v_shapes.emplace_back(std::make_unique<Triangle<Vert3x3f>>(vertsTri));
+        
+        
+        
+//        std::vector<Vert3x3f> vertsSq = {
+//            Vert3x3f(-.5f, -.5f, 0.0f,   1.0f, 0.0f, 0.0f),
+//            Vert3x3f(.5f, -.5f, 0.0f,    0.0f, 1.0f, 0.0f),
+//            Vert3x3f(.5f, .5f, 0.0f,     0.0f, 0.0f, 1.0f),
+//            Vert3x3f(-.5f, .5f, 0.0f,    1.0f, 1.0f, 1.0f)
+//        };
+//
+//
+//        v_shapes.emplace_back(std::make_unique<Square <Vert3x3f> >(vertsSq));
+        
+        
+        
+        
+        
+//        std::vector<Vert3x3x2f> vertsTri = {
+//            Vert3x3x2f(-.9f, -.5f, 0.0f, 1.0f, 0.0f, 0.0, 0, 0),
+//            Vert3x3x2f(-.5f, -.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0, 0),
+//            Vert3x3x2f(-.5f, .5f, 0.0f, 0.0f, 0.0f, 1.0f, 0, 0)
+//        };
+//
+//
+//        v_shapes.emplace_back(std::make_unique<Triangle<Vert3x3x2f>>(vertsTri));
+        
+        std::vector<Vert3x3x2f> vertsSq = {
+            Vert3x3x2f(-.5f, -.5f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f),
+            Vert3x3x2f(.5f, -.5f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f),
+            Vert3x3x2f(.5f, .5f, 0.0f,     0.0f, 0.0f, 1.0f,   1.0f, 1.0f),
+            Vert3x3x2f(-.5f, .5f, 0.0f,    1.0f, 1.0f, 1.0f,   0.0f, 1.0f)
         };
-        v_shapes.emplace_back(std::make_unique<Square<VertColorData>>(vertsSq));
+
+
+        v_shapes.emplace_back(std::make_unique<Square <Vert3x3x2f> >(vertsSq,"/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/container.jpeg"));
     };
     
     
