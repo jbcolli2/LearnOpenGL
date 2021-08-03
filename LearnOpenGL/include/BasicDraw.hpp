@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <vector>
+#include <string>
 
 #include "Shapes.hpp"
 
@@ -65,8 +66,12 @@ public:
             Vert3x3x2f(-.5f, .5f, 0.0f,    1.0f, 1.0f, 1.0f,   0.0f, 1.0f)
         };
 
+        
+        std::string imageFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/";
 
-        v_shapes.emplace_back(std::make_unique<Square <Vert3x3x2f> >(vertsSq,"/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/container.jpeg"));
+        v_shapes.emplace_back(std::make_unique<Square <Vert3x3x2f> >(vertsSq));
+        v_shapes[0]->loadTexture(imageFolder + "container.jpeg");
+        v_shapes[0]->loadTextureAlpha(imageFolder + "awesomeface.png");
     };
     
     

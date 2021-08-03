@@ -10,6 +10,7 @@
 #define GL_SILENCE_DEPRECATION
 
 #include <vector>
+#include <string>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -29,26 +30,30 @@ class Shape
 {
     
 protected:
-    unsigned int VAO, texture;
+    unsigned int VAO;
+    std::vector<unsigned int> textures;
 
     
 public:
     Shape() {};
+    virtual ~Shape() {};
     void virtual draw() = 0;
   
     
     
-protected:
-    void loadTexture(const char* filename)
+    void loadTexture(std::string filename, unsigned int rgbFlag = GL_RGB)
     {
         int width, height, nrChannels;
-        unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
+        unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
 
         if(data)
         {
-            glGenTextures(1, &texture);
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            textures.push_back(0);
+
+            glActiveTexture(GL_TEXTURE0 + textures.size() - 1);
+            glGenTextures(1, &textures.back());
+            glBindTexture(GL_TEXTURE_2D, textures.back());
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
             
             stbi_image_free(data);
@@ -57,6 +62,11 @@ protected:
         {
             std::cout << "Failure to load texture " << filename << std::endl;
         }
+    }
+    
+    void loadTextureAlpha(std::string filename)
+    {
+        loadTexture(filename, GL_RGBA);
     }
 };
 
@@ -88,7 +98,7 @@ class Square : public Shape
     
 public:
     Square(std::vector<VertT> vert, bool clockwise = true);
-    Square(std::vector<VertT> vert, const char* textureFile, bool clockwise = true);
+    
     
     void virtual draw() override;
 };
@@ -171,18 +181,17 @@ Square<VertT>::Square(std::vector<VertT> vert, bool clockwise)
 }
 
 
-template <class VertT>
-Square<VertT>::Square(std::vector<VertT> vert, const char* textureFile, bool clockwise) : Square(vert, clockwise)
-{
-    //********* VAO **************
-    loadTexture(textureFile);
-}
 
 
 
 template <class VertT>
 void Square<VertT>::draw()
 {
+    for(int ii = 0; ii < textures.size(); ++ii)
+    {
+        glActiveTexture(GL_TEXTURE0 + ii);
+        glBindTexture(GL_TEXTURE_2D, textures[ii]);
+    }
     glBindVertexArray(VAO);
     
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

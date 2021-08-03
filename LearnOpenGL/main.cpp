@@ -84,7 +84,8 @@ int main(int argc, const char * argv[]) {
         
         shader.useProgram();
         
-        
+        shader.setUniform1i("tex1", 0);
+        shader.setUniform1i("tex2", 1);
         
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
