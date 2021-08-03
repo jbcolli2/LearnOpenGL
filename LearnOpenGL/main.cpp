@@ -70,7 +70,7 @@ int main(int argc, const char * argv[]) {
     
     
     std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    Shader shader(shaderFolder + "Chap7.vs", shaderFolder + "Chap7.frag");
+    Shader shader(shaderFolder + "Chap7.vs", shaderFolder + "Chap7_Ex1.frag");
     shader.makeProgram();
     
     Scene scene;

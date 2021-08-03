@@ -16,6 +16,7 @@
 
 
 
+
 class Scene
 {
     std::vector< std::unique_ptr<Shape> > v_shapes;
@@ -71,6 +72,7 @@ public:
 
         v_shapes.emplace_back(std::make_unique<Square <Vert3x3x2f> >(vertsSq));
         v_shapes[0]->loadTexture(imageFolder + "container.jpeg");
+        stbi_set_flip_vertically_on_load(true);
         v_shapes[0]->loadTextureAlpha(imageFolder + "awesomeface.png");
     };
     
