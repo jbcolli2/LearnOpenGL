@@ -53,6 +53,7 @@ public:
             glActiveTexture(GL_TEXTURE0 + textures.size() - 1);
             glGenTextures(1, &textures.back());
             glBindTexture(GL_TEXTURE_2D, textures.back());
+            
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
             
@@ -67,6 +68,19 @@ public:
     void loadTextureAlpha(std::string filename)
     {
         loadTexture(filename, GL_RGBA);
+    }
+    
+    
+    void bindTexture(int i = 0, GLenum target = GL_TEXTURE_2D)
+    {
+        if(textures.size() > i)
+        {
+            glBindTexture(target, textures[i]);
+        }
+        else
+        {
+            std::cout << "Error binding texture, "<< i <<  "is bigger than number of textures\n";
+        }
     }
 };
 

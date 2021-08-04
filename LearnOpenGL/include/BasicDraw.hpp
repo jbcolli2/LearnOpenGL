@@ -74,6 +74,8 @@ public:
         v_shapes[0]->loadTexture(imageFolder + "container.jpeg");
         stbi_set_flip_vertically_on_load(true);
         v_shapes[0]->loadTextureAlpha(imageFolder + "awesomeface.png");
+        
+
     };
     
     
@@ -99,21 +101,7 @@ public:
 
 
 
-//****** Basic GLFW Stuff ********//
 
-void processInput(GLFWwindow* window)
-{
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE))
-    {
-        glfwSetWindowShouldClose(window, true);
-    }
-}
-
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0,0, width, height);
-};
 
 
 #endif /* BasicDraw_h */

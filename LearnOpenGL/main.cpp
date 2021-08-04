@@ -11,6 +11,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
+#include <algorithm>
 
 #include "BasicDraw.hpp"
 #include "Shader.hpp"
@@ -24,6 +25,8 @@
 
 
 
+void processInput(GLFWwindow* window);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 
 
@@ -75,17 +78,27 @@ int main(int argc, const char * argv[]) {
     
     Scene scene;
     
-
+    float mixValue = 0.0f;
     
     //Main loop
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
+        if(glfwGetKey(window, GLFW_KEY_UP))
+        {
+            mixValue += .01;
+        }
+        if(glfwGetKey(window, GLFW_KEY_DOWN))
+        {
+            mixValue -= .01;
+        }
         
+        mixValue = std::clamp(mixValue, 0.0f, 1.0f);
         shader.useProgram();
         
         shader.setUniform1i("tex1", 0);
         shader.setUniform1i("tex2", 1);
+        shader.setUniform1f("mixValue", mixValue);
         
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -105,3 +118,21 @@ int main(int argc, const char * argv[]) {
 
 
 
+
+
+
+//****** Basic GLFW Stuff ********//
+
+void processInput(GLFWwindow* window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE))
+    {
+        glfwSetWindowShouldClose(window, true);
+    }
+}
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0,0, width, height);
+};
