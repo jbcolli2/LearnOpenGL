@@ -12,6 +12,9 @@
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <algorithm>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "BasicDraw.hpp"
 #include "Shader.hpp"
@@ -76,9 +79,12 @@ int main(int argc, const char * argv[]) {
     Shader shader(shaderFolder + "Chap8.vs", shaderFolder + "Chap8.frag");
     shader.makeProgram();
     
-    Scene scene;
+    Scene scene(shader);
     
-    
+    glm::mat4 transform = glm::mat4(1.0f);
+    transform = glm::translate(transform, glm::vec3(0.25f, 0.25f, 0.25f));
+    float rotAngle = 0;
+
     //Main loop
     while(!glfwWindowShouldClose(window))
     {
@@ -87,11 +93,7 @@ int main(int argc, const char * argv[]) {
         
         shader.useProgram();
         
-        shader.setUniform1i("tex1", 0);
-        shader.setUniform1i("tex2", 1);
         
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
         
         scene.draw();
         

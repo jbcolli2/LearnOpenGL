@@ -10,6 +10,8 @@
 
 #include <GLFW/glfw3.h>
 #include <string>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
 class Shader
@@ -40,6 +42,12 @@ public:
     void setUniform1i(const std::string& uniformName, int i)
     {
         glUniform1i(glGetUniformLocation(program, uniformName.c_str()), i);
+    }
+    
+    
+    void setUniformMatrix4f(const std::string& uniformName, glm::mat4 mat)
+    {
+        glUniformMatrix4fv(glGetUniformLocation(program, uniformName.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
     }
     
     
