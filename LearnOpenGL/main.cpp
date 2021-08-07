@@ -12,6 +12,9 @@
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <algorithm>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "BasicDraw.hpp"
 #include "Shader.hpp"
@@ -73,35 +76,24 @@ int main(int argc, const char * argv[]) {
     
     
     std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    Shader shader(shaderFolder + "Chap7.vs", shaderFolder + "Chap7_Ex1.frag");
+    Shader shader(shaderFolder + "Chap8.vs", shaderFolder + "Chap8.frag");
     shader.makeProgram();
     
-    Scene scene;
+    Scene scene(shader);
     
-    float mixValue = 0.0f;
-    
+    glm::mat4 transform = glm::mat4(1.0f);
+    transform = glm::translate(transform, glm::vec3(0.25f, 0.25f, 0.25f));
+    float rotAngle = 0;
+
     //Main loop
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
-        if(glfwGetKey(window, GLFW_KEY_UP))
-        {
-            mixValue += .01;
-        }
-        if(glfwGetKey(window, GLFW_KEY_DOWN))
-        {
-            mixValue -= .01;
-        }
         
-        mixValue = std::clamp(mixValue, 0.0f, 1.0f);
+        
         shader.useProgram();
         
-        shader.setUniform1i("tex1", 0);
-        shader.setUniform1i("tex2", 1);
-        shader.setUniform1f("mixValue", mixValue);
         
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
         
         scene.draw();
         

@@ -13,6 +13,7 @@
 #include <string>
 
 #include "Shapes.hpp"
+#include "Shader.hpp"
 
 
 
@@ -20,10 +21,11 @@
 class Scene
 {
     std::vector< std::unique_ptr<Shape> > v_shapes;
+    Shader shader;
     
     
 public:
-    Scene() {
+    Scene(Shader shader) : shader(shader) {
 
         
 //        std::vector<Vert3x3f> vertsTri = {
@@ -84,13 +86,36 @@ public:
     
     void draw()
     {
-        glClearColor(0.0f,0.0f,0.0f,1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+
+        shader.setUniform1i("tex1", 0);
+        shader.setUniform1i("tex2", 1);
         
-        for(int ii = 0; ii < v_shapes.size(); ++ii)
-        {
-            v_shapes[ii]->draw();
-        }
+        glm::mat4 transform = glm::mat4(1.0f);
+        transform = glm::translate(transform, glm::vec3(0.5f, 0.0f, 0.0f));
+        transform = glm::scale(transform, glm::vec3(0.3f, .3f, .3f));
+        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.f, 0.f, 1.0f));
+
+        
+        shader.setUniformMatrix4f("transform", transform);
+        
+        
+        v_shapes[0]->draw();
+        
+        
+        transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 0.0f, 0.0f));
+        float scale_x = -std::sin(glfwGetTime());
+        float scale_y = std::cos(glfwGetTime());
+        transform = glm::scale(transform, glm::vec3(scale_x, scale_y, 0.f));
+        shader.setUniformMatrix4f("transform", transform);
+
+        v_shapes[0]->draw();
+//        for(int ii = 0; ii < v_shapes.size(); ++ii)
+//        {
+//            v_shapes[ii]->draw();
+//        }
         
     };
 };
