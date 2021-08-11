@@ -11,12 +11,13 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb_image.h>
+
 #include "OpenGLUtil.hpp"
 
 
@@ -30,8 +31,8 @@ class Shape
 {
     
 protected:
-    unsigned int VAO;
-    std::vector<unsigned int> textures;
+    unsigned int m_VAO;
+    std::vector<unsigned int> m_textures;
 
     
 public:
@@ -48,11 +49,11 @@ public:
 
         if(data)
         {
-            textures.push_back(0);
+            m_textures.push_back(0);
 
-            glActiveTexture(GL_TEXTURE0 + textures.size() - 1);
-            glGenTextures(1, &textures.back());
-            glBindTexture(GL_TEXTURE_2D, textures.back());
+            glActiveTexture(GL_TEXTURE0 + m_textures.size() - 1);
+            glGenTextures(1, &m_textures.back());
+            glBindTexture(GL_TEXTURE_2D, m_textures.back());
             
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
@@ -73,9 +74,9 @@ public:
     
     void bindTexture(int i = 0, GLenum target = GL_TEXTURE_2D)
     {
-        if(textures.size() > i)
+        if(m_textures.size() > i)
         {
-            glBindTexture(target, textures[i]);
+            glBindTexture(target, m_textures[i]);
         }
         else
         {
@@ -119,6 +120,39 @@ public:
 
 
 
+template <class VertT>
+class Box : public Shape
+{
+    float m_width, m_length, m_height;
+    std::vector<VertT> m_verts;
+    
+    
+    
+public:
+    Box(std::vector<VertT> verts);
+    
+    void virtual draw() override;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -143,8 +177,8 @@ Triangle<VertT>::Triangle(std::vector<VertT> vert)
 {
     verts = vert;
     //******* VBO/VAO   ***************
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
     
     loadVBOData(verts);
 
@@ -152,7 +186,7 @@ Triangle<VertT>::Triangle(std::vector<VertT> vert)
     
     
     glEnableVertexAttribArray(0);
-    //********* VAO **************
+    //********* m_VAO **************
 }
 
 
@@ -162,7 +196,7 @@ Triangle<VertT>::Triangle(std::vector<VertT> vert)
 template <class VertT>
 void Triangle<VertT>::draw()
 {
-    glBindVertexArray(VAO);
+    glBindVertexArray(m_VAO);
     
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
@@ -179,8 +213,8 @@ Square<VertT>::Square(std::vector<VertT> vert, bool clockwise)
     
     
     //******* VBO/VAO   ***************
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
     
     loadVBOData(verts);
     
@@ -190,7 +224,7 @@ Square<VertT>::Square(std::vector<VertT> vert, bool clockwise)
     
     
     
-    //********* VAO **************
+    //********* m_VAO **************
     
 }
 
@@ -201,15 +235,55 @@ Square<VertT>::Square(std::vector<VertT> vert, bool clockwise)
 template <class VertT>
 void Square<VertT>::draw()
 {
-    for(int ii = 0; ii < textures.size(); ++ii)
+    for(int ii = 0; ii < m_textures.size(); ++ii)
     {
         glActiveTexture(GL_TEXTURE0 + ii);
-        glBindTexture(GL_TEXTURE_2D, textures[ii]);
+        glBindTexture(GL_TEXTURE_2D, m_textures[ii]);
     }
-    glBindVertexArray(VAO);
+    glBindVertexArray(m_VAO);
     
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
+
+
+
+
+
+
+//-----------  Box  ---------------------//
+template <class VertT>
+Box<VertT>::Box(std::vector<VertT> verts) : m_verts(verts)
+{
+    //******* VBO/VAO   ***************
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+    
+    loadVBOData(m_verts);
+    
+
+    rglVertexAttribPointer(m_verts[0]);
+    
+    
+    
+    //********* VAO **************
+    
+    
+}
+
+
+template <class VertT>
+void Box<VertT>::draw()
+{
+    for(int ii = 0; ii < m_textures.size(); ++ii)
+    {
+        glActiveTexture(GL_TEXTURE0 + ii);
+        glBindTexture(GL_TEXTURE_2D, m_textures[ii]);
+    }
+    glBindVertexArray(m_VAO);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+}
+
 
 
 

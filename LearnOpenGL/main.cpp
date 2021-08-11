@@ -12,14 +12,12 @@
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <algorithm>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+//#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/gtc/type_ptr.hpp>
 
-#include "BasicDraw.hpp"
-#include "Shader.hpp"
-
-
+#include "Scene.hpp"
+//#include "Shader.hpp"
 
 
 
@@ -28,7 +26,8 @@
 
 
 
-void processInput(GLFWwindow* window);
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 
@@ -79,16 +78,14 @@ int main(int argc, const char * argv[]) {
     Shader shader(shaderFolder + "Chap8.vs", shaderFolder + "Chap8.frag");
     shader.makeProgram();
     
-    Scene scene(shader);
+    Scene scene(shader, window);
     
-    glm::mat4 transform = glm::mat4(1.0f);
-    transform = glm::translate(transform, glm::vec3(0.25f, 0.25f, 0.25f));
-    float rotAngle = 0;
+    
 
     //Main loop
     while(!glfwWindowShouldClose(window))
     {
-        processInput(window);
+        scene.processInput();
         
         
         shader.useProgram();
@@ -113,15 +110,7 @@ int main(int argc, const char * argv[]) {
 
 
 
-//****** Basic GLFW Stuff ********//
 
-void processInput(GLFWwindow* window)
-{
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE))
-    {
-        glfwSetWindowShouldClose(window, true);
-    }
-}
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

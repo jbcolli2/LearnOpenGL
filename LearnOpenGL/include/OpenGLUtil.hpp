@@ -17,14 +17,14 @@
 
 
 
-void rglVertexAttribPointer(Vert3f v)
+inline void rglVertexAttribPointer(Vert3f v)
 {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 };
 
 
-void rglVertexAttribPointer(Vert3x3f v)
+inline void rglVertexAttribPointer(Vert3x3f v)
 {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -34,7 +34,7 @@ void rglVertexAttribPointer(Vert3x3f v)
 };
 
 
-void rglVertexAttribPointer(Vert3x3x2f v)
+inline void rglVertexAttribPointer(Vert3x3x2f v)
 {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
