@@ -26,7 +26,7 @@ class Scene
     GLFWwindow* m_window;
     
     
-    float m_pitch, m_yaw;
+    float m_pitch, m_yaw, m_test=800.f/600.f;
     std::vector<glm::vec3> m_positions = {
         glm::vec3(0.f, 0.f, -4.f),
         glm::vec3(-0.2f, 0.7f, -4.f),
