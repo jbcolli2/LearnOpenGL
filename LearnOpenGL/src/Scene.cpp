@@ -14,7 +14,7 @@
 
 Scene::Scene(Shader shader, GLFWwindow* window) : m_shader(shader), m_window(window)
 {
-    m_pitch = glm::radians(30.f);
+    m_pitch = glm::radians(90.f);
     m_yaw = 0.f;
     
     
@@ -141,17 +141,24 @@ void Scene::draw()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    m_yaw = (float)glfwGetTime()*glm::radians(30.f);
+//    m_yaw = (float)glfwGetTime()*glm::radians(30.f);
 
+    
+    // Camera setup
+    glm::vec3 cam_p(0.f, 0.f, 0.f);
+    glm::vec3 cam_d(glm::sin(m_yaw)*glm::sin(m_pitch), glm::cos(m_pitch), -glm::cos(m_yaw)*glm::sin(m_pitch));
+    glm::vec3 target_p = cam_p + cam_d;
+    glm::mat4 view = glm::lookAt(cam_p, target_p, glm::vec3(0.f, 1.0f, 0.f));
+    
+    
 
     m_shader.setUniform1i("tex1", 0);
     m_shader.setUniform1i("tex2", 1);
     
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, m_pitch, glm::vec3(1.0f, 0.f, 0.0f));
-    model = glm::rotate(model, m_yaw, glm::vec3(0.f, 1.f, 0.f));
+    model = glm::rotate(model, 0.f, glm::vec3(1.0f, 0.f, 0.0f));
+    model = glm::rotate(model, 0.f, glm::vec3(0.f, 1.f, 0.f));
     
-    glm::mat4 view = glm::mat4(1.f);
     
     glm::mat4 proj = glm::perspective(glm::radians(45.f), 800.f/600.f, 0.1f, 100.f);
     
@@ -159,8 +166,8 @@ void Scene::draw()
     {
         model = glm::mat4(1.0f);
         model = glm::translate(model, vec);
-        model = glm::rotate(model, m_pitch, glm::vec3(1.0f, 0.f, 0.0f));
-        model = glm::rotate(model, m_yaw, glm::vec3(0.f, 1.f, 0.f));
+        model = glm::rotate(model, 0.f, glm::vec3(1.0f, 0.f, 0.0f));
+        model = glm::rotate(model, 0.f, glm::vec3(0.f, 1.f, 0.f));
         
         
 
@@ -193,21 +200,21 @@ void Scene::processInput()
     
     if(glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        m_pitch -= .1f;
+        m_pitch -= .03f;
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        m_pitch += .1f;
+        m_pitch += .03f;
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        m_test -= .1f;
+        m_yaw -= .03f;
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        m_test += .1f;
+        m_yaw += .03f;
     }
 }
