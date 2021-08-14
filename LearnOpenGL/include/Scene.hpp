@@ -15,6 +15,7 @@
 
 #include "Shapes.hpp"
 #include "Shader.hpp"
+#include "Camera.hpp"
 
 
 
@@ -24,6 +25,8 @@ class Scene
     std::vector< std::unique_ptr<Shape> > m_shapes;
     Shader m_shader;
     GLFWwindow* m_window;
+    
+    Camera m_cam;
     
     
     float m_pitch, m_yaw, m_test=800.f/600.f;

@@ -151,6 +151,7 @@ void Scene::draw()
     glm::mat4 view = glm::lookAt(cam_p, target_p, glm::vec3(0.f, 1.0f, 0.f));
     
     
+    view = m_cam.getViewMatrix();
 
     m_shader.setUniform1i("tex1", 0);
     m_shader.setUniform1i("tex2", 1);
@@ -200,21 +201,21 @@ void Scene::processInput()
     
     if(glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        m_pitch -= .03f;
+        m_cam.turnUp(.05f);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        m_pitch += .03f;
+        m_cam.turnDown(.05f);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        m_yaw -= .03f;
+        m_cam.turnLeft(.05f);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        m_yaw += .03f;
+        m_cam.turnRight(.05f);
     }
 }
