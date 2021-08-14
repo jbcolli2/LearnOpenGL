@@ -23,6 +23,7 @@ Scene::Scene(Shader shader, GLFWwindow* window) : m_shader(shader), m_window(win
     
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, Scene::GLFWCallbackWrapper::mousePosCallback);
+    glfwSetScrollCallback(window, Scene::GLFWCallbackWrapper::scrollCallback);
 
     
     
@@ -164,7 +165,7 @@ void Scene::draw()
     model = glm::rotate(model, 0.f, glm::vec3(0.f, 1.f, 0.f));
     
     
-    glm::mat4 proj = glm::perspective(glm::radians(45.f), 800.f/600.f, 0.1f, 100.f);
+    glm::mat4 proj = glm::perspective(glm::radians(m_fov), 800.f/600.f, 0.1f, 100.f);
     
     for(auto vec : m_positions)
     {
@@ -268,4 +269,20 @@ void Scene::mouse_callback(GLFWwindow* window, double xpos, double ypos)
     m_cam.turnYaw(xoffset);
     m_cam.turnPitch(yoffset);
     
+}
+
+
+
+
+
+void Scene::scroll_callback(GLFWwindow* window, double xInc, double yInc)
+{
+    m_fov += (float)yInc;
+    
+    if(m_fov < 1.f)
+        m_fov = 1.f;
+    
+    if(m_fov > 45.f)
+        m_fov = 45.f;
+        
 }

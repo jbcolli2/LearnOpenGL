@@ -31,6 +31,7 @@ class Scene
     float m_lastMousePosX, m_lastMousePosY;
     bool m_firstMouse;
     const float m_sensitivity = 0.1f;
+    float m_fov = 45.f;
     
     float m_test=800.f/600.f;
     
@@ -69,6 +70,11 @@ public:
             GLFWCallbackWrapper::m_scene->mouse_callback(window, xpos, ypos);
         };
         
+        static void scrollCallback(GLFWwindow* window, double xInc, double yInc)
+        {
+            GLFWCallbackWrapper::m_scene->scroll_callback(window, xInc, yInc);
+        };
+        
         static void setScene(Scene* scene)
         {
             GLFWCallbackWrapper::m_scene = scene;
@@ -82,6 +88,7 @@ public:
 private:
     void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+    void scroll_callback(GLFWwindow* window, double xInc, double yInc);
     
     
     

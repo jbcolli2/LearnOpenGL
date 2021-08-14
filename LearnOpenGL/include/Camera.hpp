@@ -33,7 +33,10 @@ public:
     
     void turnYaw(float yawIncrement) {m_yaw += yawIncrement;
         m_camRight = -glm::normalize(glm::cross(m_up, m_camDir));};
-    void turnPitch(float pitchIncrement) {m_pitch += pitchIncrement;};
+    void turnPitch(float pitchIncrement) {m_pitch += pitchIncrement;
+        if(m_pitch > 89) m_pitch = 89;
+        if(m_pitch < -89) m_pitch = -89;
+    };
     
     void moveLeft(float posIncrement) {m_camPos -= m_camRight*posIncrement;};
     void moveRight(float posIncrement) {m_camPos += m_camRight*posIncrement;};
