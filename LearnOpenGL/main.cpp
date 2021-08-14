@@ -55,7 +55,6 @@ int main(int argc, const char * argv[]) {
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
     //GLAD
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -69,7 +68,8 @@ int main(int argc, const char * argv[]) {
     
     
     
-    
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
     
     
     

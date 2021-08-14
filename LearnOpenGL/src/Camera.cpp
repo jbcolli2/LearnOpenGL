@@ -14,6 +14,7 @@
 
 Camera::Camera(glm::vec3 camPos, glm::vec3 camDir) : m_camPos(camPos), m_camDir(camDir)
 {
+    m_camRight = glm::vec3(1.f, 0.f, 0.f);
     m_pitch = glm::acos(m_camDir.y)-M_PI_2;
     if(m_camDir.x == 0)
     {

@@ -28,8 +28,12 @@ class Scene
     
     Camera m_cam;
     
+    float m_lastMousePosX, m_lastMousePosY;
+    bool m_firstMouse;
+    const float m_sensitivity = 0.1f;
     
-    float m_pitch, m_yaw, m_test=800.f/600.f;
+    float m_test=800.f/600.f;
+    
     
     std::vector<glm::vec3> m_positions = {
         glm::vec3(0.f, 0.f, -2.f),
@@ -48,6 +52,36 @@ public:
     void draw();
     
     void processInput();
+    
+    
+    
+    
+    class GLFWCallbackWrapper
+    {
+    public:
+        GLFWCallbackWrapper() = delete;
+        GLFWCallbackWrapper(const GLFWCallbackWrapper&) = delete;
+        GLFWCallbackWrapper(GLFWCallbackWrapper&&) = delete;
+        ~GLFWCallbackWrapper() = delete;
+        
+        static void mousePosCallback(GLFWwindow* window, double xpos, double ypos)
+        {
+            GLFWCallbackWrapper::m_scene->mouse_callback(window, xpos, ypos);
+        };
+        
+        static void setScene(Scene* scene)
+        {
+            GLFWCallbackWrapper::m_scene = scene;
+        }
+        
+    private:
+        static Scene* m_scene;
+    };
+    
+    
+private:
+    void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+    void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     
     
     
