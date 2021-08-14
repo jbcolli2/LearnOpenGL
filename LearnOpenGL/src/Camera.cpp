@@ -23,12 +23,12 @@ Camera::Camera(glm::vec3 camPos, glm::vec3 camDir) : m_camPos(camPos), m_camDir(
         }
         else
         {
-            m_yaw = M_PI;
+            m_yaw = 90.f;
         }
     }
     else
     {
-        m_yaw = glm::atan(m_camDir.z/m_camDir.x);
+        m_yaw = glm::degrees(glm::atan(m_camDir.z/m_camDir.x));
     }
     
 }
@@ -37,9 +37,11 @@ Camera::Camera(glm::vec3 camPos, glm::vec3 camDir) : m_camPos(camPos), m_camDir(
 glm::mat4 Camera::getViewMatrix()
 {
     float radius = m_camPos.length();
-    m_camDir.x = glm::sin(m_yaw)*glm::sin(-m_pitch+M_PI_2);
-    m_camDir.y = glm::cos(-m_pitch+M_PI_2);
-    m_camDir.z = -glm::cos(m_yaw)*glm::sin(-m_pitch+M_PI_2);
+    float yaw_rad = glm::radians(m_yaw);
+    float pitch_rad = glm::radians(m_pitch);
+    m_camDir.x = glm::sin(yaw_rad)*glm::sin(-pitch_rad+M_PI_2);
+    m_camDir.y = glm::cos(-pitch_rad+M_PI_2);
+    m_camDir.z = -glm::cos(yaw_rad)*glm::sin(-pitch_rad+M_PI_2);
 //    m_camDir = glm::normalize(m_camDir);
     
     return glm::lookAt(m_camPos, m_camPos + radius*m_camDir, m_up);

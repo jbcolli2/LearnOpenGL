@@ -194,6 +194,7 @@ void Scene::draw()
 
 void Scene::processInput()
 {
+    float inc = 1.f;
     if(glfwGetKey(m_window, GLFW_KEY_ESCAPE))
     {
         glfwSetWindowShouldClose(m_window, true);
@@ -201,21 +202,21 @@ void Scene::processInput()
     
     if(glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        m_cam.turnUp(.05f);
+        m_cam.turnUp(inc);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        m_cam.turnDown(.05f);
+        m_cam.turnDown(inc);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        m_cam.turnLeft(.05f);
+        m_cam.turnLeft(inc);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        m_cam.turnRight(.05f);
+        m_cam.turnRight(inc);
     }
 }
