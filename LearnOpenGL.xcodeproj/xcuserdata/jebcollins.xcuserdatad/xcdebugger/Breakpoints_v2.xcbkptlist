@@ -7,16 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "1FDC8E98-E08D-445A-A8F6-AC6E1B69EDEA"
+            uuid = "7C081E7B-1345-4111-8C56-0A923C39BEAC"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "LearnOpenGL/src/Scene.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "253"
-            endingLineNumber = "253"
-            landmarkName = "Scene::mouse_callback(window, xpos, ypos)"
+            startingLineNumber = "179"
+            endingLineNumber = "179"
+            landmarkName = "Scene::draw()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

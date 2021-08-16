@@ -196,9 +196,9 @@ void Scene::draw()
 
 
 
-void Scene::processInput()
+void Scene::processInput(float deltaTime)
 {
-    float inc = 0.1f;
+    float inc = 0.03f*deltaTime;
     if(glfwGetKey(m_window, GLFW_KEY_ESCAPE))
     {
         glfwSetWindowShouldClose(m_window, true);

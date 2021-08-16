@@ -52,7 +52,7 @@ public:
     
     void draw();
     
-    void processInput();
+    void processInput(float deltaTime);
     
     
     

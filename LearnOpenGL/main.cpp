@@ -80,12 +80,16 @@ int main(int argc, const char * argv[]) {
     
     Scene scene(shader, window);
     
-    
+    float currentFrame = 0.f;
+    float lastFrame = 0.f;
+    float deltaTime = 0.f;
 
     //Main loop
     while(!glfwWindowShouldClose(window))
     {
-        scene.processInput();
+        currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        scene.processInput(deltaTime);
         
         
         shader.useProgram();
