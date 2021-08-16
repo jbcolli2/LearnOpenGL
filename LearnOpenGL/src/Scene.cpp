@@ -14,7 +14,7 @@
 
 Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
-Scene::Scene(Shader shader, GLFWwindow* window) : m_shader(shader), m_window(window), m_firstMouse(true)
+Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
 {
     
     Scene::GLFWCallbackWrapper::setScene(this);
@@ -25,6 +25,12 @@ Scene::Scene(Shader shader, GLFWwindow* window) : m_shader(shader), m_window(win
     glfwSetCursorPosCallback(window, Scene::GLFWCallbackWrapper::mousePosCallback);
     glfwSetScrollCallback(window, Scene::GLFWCallbackWrapper::scrollCallback);
 
+    
+    
+    std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
+    m_shader = Shader(shaderFolder + "Chap8.vs", shaderFolder + "Chap8.frag");
+    m_shader.makeProgram();
+    
     
     
     //        std::vector<Vert3x3f> vertsTri = {
@@ -151,7 +157,7 @@ void Scene::draw()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
 
-    
+    m_shader.useProgram();
     
     
     
@@ -198,7 +204,7 @@ void Scene::draw()
 
 void Scene::processInput(float deltaTime)
 {
-    float inc = 0.03f*deltaTime;
+    float inc = 0.75f*deltaTime;
     if(glfwGetKey(m_window, GLFW_KEY_ESCAPE))
     {
         glfwSetWindowShouldClose(m_window, true);

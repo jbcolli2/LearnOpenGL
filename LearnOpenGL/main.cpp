@@ -74,11 +74,9 @@ int main(int argc, const char * argv[]) {
     
     
     
-    std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    Shader shader(shaderFolder + "Chap8.vs", shaderFolder + "Chap8.frag");
-    shader.makeProgram();
     
-    Scene scene(shader, window);
+    
+    Scene scene(window);
     
     float currentFrame = 0.f;
     float lastFrame = 0.f;
@@ -89,10 +87,10 @@ int main(int argc, const char * argv[]) {
     {
         currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
         scene.processInput(deltaTime);
         
         
-        shader.useProgram();
         
         
         

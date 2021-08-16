@@ -48,7 +48,7 @@ class Scene
     
     
 public:
-    Scene(Shader m_shader, GLFWwindow* window);
+    Scene(GLFWwindow* window);
     
     void draw();
     
