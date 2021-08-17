@@ -39,6 +39,11 @@ public:
         glUniform4f(glGetUniformLocation(program, uniformName.c_str()), r, g, b, a);
     }
     
+    void setUniform3f(const std::string& uniformName, float r, float g, float b)
+    {
+        glUniform3f(glGetUniformLocation(program, uniformName.c_str()), r, g, b);
+    }
+    
     void setUniform1i(const std::string& uniformName, int i)
     {
         glUniform1i(glGetUniformLocation(program, uniformName.c_str()), i);

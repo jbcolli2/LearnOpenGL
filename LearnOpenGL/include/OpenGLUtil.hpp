@@ -44,10 +44,16 @@ inline void rglVertexAttribPointer(Vert3x3x2f v)
     
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
-    
-    
-    
-    
+ 
+};
+
+
+
+inline void rglVertexAttribPointer(Vert3x_x_f v)
+{
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
 };
 
 
@@ -56,24 +62,28 @@ inline void rglVertexAttribPointer(Vert3x3x2f v)
 
 
 template <class T>
-void loadVBOData(std::vector<T> vec)
+unsigned int loadVBOData(std::vector<T> vec)
 {
     unsigned int VBO;
     glGenBuffers(1, &VBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vec.size()*sizeof(T), &vec[0], GL_STATIC_DRAW);
+    
+    return VBO;
 }
 
 
 template <class T>
-void loadEBOData(std::vector<T> vec)
+unsigned int loadEBOData(std::vector<T> vec)
 {
     unsigned int EBO;
     glGenBuffers(1, &EBO);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, vec.size() * sizeof(T), &vec.front(), GL_STATIC_DRAW);
+    
+    return EBO;
 }
 
 #endif /* OpenGLUtil_h */

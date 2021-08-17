@@ -28,8 +28,11 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     
     
     std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    m_shader = Shader(shaderFolder + "Chap8.vs", shaderFolder + "Chap8.frag");
-    m_shader.makeProgram();
+    m_objShader = Shader(shaderFolder + "lightingShader.vert", shaderFolder + "lightingShader.frag");
+    m_objShader.makeProgram();
+    
+    m_lightShader = Shader(shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
+    m_lightShader.makeProgram();
     
     
     
@@ -135,10 +138,15 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
         Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
         Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f)
     };
-    m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(vertsBox));
+    Box<Vert3x3x2f> box(vertsBox);
+//    m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(vertsBox));
+    m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(box));
     m_shapes[0]->loadTexture(imageFolder + "container.jpeg");
     stbi_set_flip_vertically_on_load(true);
     m_shapes[0]->loadTextureAlpha(imageFolder + "awesomeface.png");
+    
+    Box<Vert3x3x2f> light = box;
+    m_shapes.emplace_back( std::make_unique<Box <Vert3x3x2f> >(light) );
             
 
     
@@ -157,14 +165,14 @@ void Scene::draw()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
 
-    m_shader.useProgram();
+    m_objShader.useProgram();
     
-    
+    m_objShader.setUniform3f("objColor", 1.f, 0.5f, 0.2f);
+    m_objShader.setUniform3f("lightColor", 0.5f, 1.f, 0.8f);
     
     glm::mat4 view = m_cam.getViewMatrix();
 
-    m_shader.setUniform1i("tex1", 0);
-    m_shader.setUniform1i("tex2", 1);
+    
     
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, 0.f, glm::vec3(1.0f, 0.f, 0.0f));
@@ -183,9 +191,9 @@ void Scene::draw()
         
 
         
-        m_shader.setUniformMatrix4f("model", model);
-        m_shader.setUniformMatrix4f("view", view);
-        m_shader.setUniformMatrix4f("proj", proj);
+        m_objShader.setUniformMatrix4f("model", model);
+        m_objShader.setUniformMatrix4f("view", view);
+        m_objShader.setUniformMatrix4f("proj", proj);
         
         
         m_shapes[0]->draw();
@@ -194,10 +202,18 @@ void Scene::draw()
     
     
     
-//        for(int ii = 0; ii < m_shapes.size(); ++ii)
-//        {
-//            m_shapes[ii]->draw();
-//        }
+    
+    
+    
+    m_lightShader.useProgram();
+    
+    model = glm::translate(glm::mat4(1.f), glm::vec3(1.f, 0.5f, -3.f));
+    model = glm::scale(model, glm::vec3(0.2f));
+    m_lightShader.setUniformMatrix4f("model", model);
+    m_lightShader.setUniformMatrix4f("view", view);
+    m_lightShader.setUniformMatrix4f("proj", proj);
+    
+    m_shapes[1]->draw();
 }
 
 

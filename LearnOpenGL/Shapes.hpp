@@ -31,7 +31,7 @@ class Shape
 {
     
 protected:
-    unsigned int m_VAO;
+    unsigned int m_VAO, m_VBO;
     std::vector<unsigned int> m_textures;
 
     
@@ -130,6 +130,7 @@ class Box : public Shape
     
 public:
     Box(std::vector<VertT> verts);
+    Box(const Box& otherBox);
     
     void virtual draw() override;
 };
@@ -258,7 +259,7 @@ Box<VertT>::Box(std::vector<VertT> verts) : m_verts(verts)
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
     
-    loadVBOData(m_verts);
+    m_VBO = loadVBOData(m_verts);
     
 
     rglVertexAttribPointer(m_verts[0]);
@@ -268,6 +269,21 @@ Box<VertT>::Box(std::vector<VertT> verts) : m_verts(verts)
     //********* VAO **************
     
     
+}
+
+
+
+template <class VertT>
+Box<VertT>::Box(const Box& otherBox)
+{
+    m_VBO = otherBox.m_VBO;
+    m_verts = otherBox.m_verts;
+    
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    
+    rglVertexAttribPointer(m_verts[0]);
 }
 
 

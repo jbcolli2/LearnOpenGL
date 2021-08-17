@@ -39,4 +39,14 @@ struct Vert3x3x2f
 };
 
 
+struct Vert3x_x_f
+{
+    float x,y,z;
+    
+    
+    Vert3x_x_f(float x, float y, float z) :
+    x(x), y(y), z(z) {};
+};
+
+
 #endif /* VertexData_h */

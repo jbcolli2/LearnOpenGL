@@ -23,7 +23,7 @@
 class Scene
 {
     std::vector< std::unique_ptr<Shape> > m_shapes;
-    Shader m_shader;
+    Shader m_objShader, m_lightShader;
     GLFWwindow* m_window;
     
     Camera m_cam;
@@ -38,7 +38,7 @@ class Scene
     
     std::vector<glm::vec3> m_positions = {
         glm::vec3(0.f, 0.f, -2.f),
-        glm::vec3(-0.7f, 0.7f, -2.f),
+//        glm::vec3(-0.7f, 0.7f, -2.f),
 //        glm::vec3(0.6f, -1.f, -2.f),
 //        glm::vec3(0.45f, 0.f, -9.f),
 //        glm::vec3(0.4f, 1.f, -3.f),
