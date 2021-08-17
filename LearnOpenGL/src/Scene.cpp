@@ -167,8 +167,8 @@ void Scene::draw()
 
     m_objShader.useProgram();
     
-    m_objShader.setUniform3f("objColor", 1.f, 0.5f, 0.2f);
-    m_objShader.setUniform3f("lightColor", 0.5f, 1.f, 0.8f);
+    m_objShader.setUniform3f("objColor", 0.f, 1.f, 0.2f);
+    m_objShader.setUniform3f("lightColor", 1.f, 1.f, 1.f);
     
     glm::mat4 view = m_cam.getViewMatrix();
 
@@ -215,6 +215,14 @@ void Scene::draw()
     
     m_shapes[1]->draw();
 }
+
+
+
+
+
+
+
+
 
 
 

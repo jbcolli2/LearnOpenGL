@@ -8,5 +8,8 @@ uniform vec3 lightColor;
 
 void main()
 {
-    FragColor = vec4(lightColor*objColor, 1.0);
+    float ambIntensity = 0.1;
+    vec3 ambLight = ambIntensity * lightColor;
+    vec3 result = ambLight * objColor;
+    FragColor = vec4(result, 1.0);
 }
