@@ -189,6 +189,7 @@ void Scene::draw()
         model = glm::translate(model, vec);
         model = glm::rotate(model, 0.f, glm::vec3(1.0f, 0.f, 0.0f));
         model = glm::rotate(model, 0.f, glm::vec3(0.f, 1.f, 0.f));
+        model = glm::scale(model, glm::vec3(2.f, 0.5f, 1.f));
         
         
 
@@ -230,7 +231,7 @@ void Scene::draw()
 
 void Scene::processInput(float deltaTime)
 {
-    float inc = 0.75f*deltaTime;
+    float inc = 0.85f*deltaTime;
     if(glfwGetKey(m_window, GLFW_KEY_ESCAPE))
     {
         glfwSetWindowShouldClose(m_window, true);

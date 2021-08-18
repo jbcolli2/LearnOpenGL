@@ -9,6 +9,7 @@ out vec4 FragColor;
 uniform vec3 objColor;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
+uniform mat4 view;
 
 
 void main()
@@ -17,7 +18,7 @@ void main()
     vec3 ambLight = ambIntensity * lightColor;
     
     vec3 norm = normalize(Normal);
-    vec3 lightDir = lightPos-FragPos;
+    vec3 lightDir = vec3(view*vec4(lightPos,1.0))-FragPos;
     float diffIntensity = max( dot(norm, lightDir), 0.0);
     
     vec3 result = (ambLight + (diffIntensity * lightColor)) * objColor;
