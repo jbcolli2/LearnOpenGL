@@ -164,7 +164,7 @@ void Scene::draw()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    glm::vec3 lightPos(0.9f, .5f, -1.f);
+    glm::vec3 lightPos(0.1f, 0.f, -1.f);
 
     m_objShader.useProgram();
     
@@ -189,7 +189,7 @@ void Scene::draw()
         model = glm::translate(model, vec);
         model = glm::rotate(model, 0.f, glm::vec3(1.0f, 0.f, 0.0f));
         model = glm::rotate(model, 0.f, glm::vec3(0.f, 1.f, 0.f));
-        model = glm::scale(model, glm::vec3(2.f, 0.5f, 1.f));
+//        model = glm::scale(model, glm::vec3(2.f, 0.9f, 1.f));
         
         
 

@@ -20,7 +20,15 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 lightDir = vec3(view*vec4(lightPos,1.0))-FragPos;
     float diffIntensity = max( dot(norm, lightDir), 0.0);
+    vec3 diffLight = diffIntensity*lightColor;
     
-    vec3 result = (ambLight + (diffIntensity * lightColor)) * objColor;
+    int specularity = 128;
+    float specIntensity = 0.8;
+    vec3 reflectDir = normalize(reflect(-lightDir, norm));
+    vec3 viewDir = normalize(-FragPos);
+    float spec = pow(max(dot(reflectDir, viewDir), 0.0), specularity);
+    vec3 specLight = specIntensity*spec*lightColor;
+    
+    vec3 result = (ambLight + diffLight + specLight) * objColor;
     FragColor = vec4(result, 1.0);
 }
