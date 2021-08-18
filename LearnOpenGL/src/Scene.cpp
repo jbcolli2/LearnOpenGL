@@ -90,53 +90,53 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     float length = .5;
     float height = .5;
     std::vector<Vert3x3x2f> vertsBox = {
-        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f), // front
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f), // front
+        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f),
         
-        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
+        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f),
         
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f), // back
-        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f), // back
+        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f),
         
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
+        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
         
-        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f), //top
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f), //top
+        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
         
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f),
+        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
         
-        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f), //bottom
-        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f), //bottom
+        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
         
-        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f),
+        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
         
-        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f), //right
-        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f),
+        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f), //right
+        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
         
-        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f),
+        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
+        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
         
-        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f), //left
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f), //left
+        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
         
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f)
+        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f)
     };
     Box<Vert3x3x2f> box(vertsBox);
 //    m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(vertsBox));
@@ -164,11 +164,13 @@ void Scene::draw()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
+    glm::vec3 lightPos(0.9f, .5f, -1.f);
 
     m_objShader.useProgram();
     
-    m_objShader.setUniform3f("objColor", 0.f, 1.f, 0.2f);
+    m_objShader.setUniform3f("objColor", 0.8f, 0.1f, 1.f);
     m_objShader.setUniform3f("lightColor", 1.f, 1.f, 1.f);
+    m_objShader.setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
     
     glm::mat4 view = m_cam.getViewMatrix();
 
@@ -207,7 +209,7 @@ void Scene::draw()
     
     m_lightShader.useProgram();
     
-    model = glm::translate(glm::mat4(1.f), glm::vec3(1.f, 0.5f, -3.f));
+    model = glm::translate(glm::mat4(1.f), lightPos);
     model = glm::scale(model, glm::vec3(0.2f));
     m_lightShader.setUniformMatrix4f("model", model);
     m_lightShader.setUniformMatrix4f("view", view);
