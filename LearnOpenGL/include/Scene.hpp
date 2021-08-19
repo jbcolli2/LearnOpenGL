@@ -45,6 +45,7 @@ class Scene
 //        glm::vec3(-0.3f, -1.f, -12.f),
 //        glm::vec3(-0.6f, 0.5f, -3.f)
     };
+    glm::vec3 m_lightPos{0.f, 0.0f, -1.f};
     
     
 public:

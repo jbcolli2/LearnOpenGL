@@ -18,7 +18,7 @@ void main()
     vec3 ambLight = ambIntensity * lightColor;
     
     vec3 norm = normalize(Normal);
-    vec3 lightDir = vec3(view*vec4(lightPos,1.0))-FragPos;
+    vec3 lightDir = normalize(vec3(view*vec4(lightPos,1.0))-FragPos);
     float diffIntensity = max( dot(norm, lightDir), 0.0);
     vec3 diffLight = diffIntensity*lightColor;
     

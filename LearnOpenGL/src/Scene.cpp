@@ -164,13 +164,12 @@ void Scene::draw()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    glm::vec3 lightPos(0.1f, 0.f, -1.f);
 
     m_objShader.useProgram();
     
     m_objShader.setUniform3f("objColor", 0.8f, 0.1f, 1.f);
     m_objShader.setUniform3f("lightColor", 1.f, 1.f, 1.f);
-    m_objShader.setUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
+    m_objShader.setUniform3f("lightPos", m_lightPos.x, m_lightPos.y, m_lightPos.z);
     
     glm::mat4 view = m_cam.getViewMatrix();
 
@@ -210,7 +209,7 @@ void Scene::draw()
     
     m_lightShader.useProgram();
     
-    model = glm::translate(glm::mat4(1.f), lightPos);
+    model = glm::translate(glm::mat4(1.f), m_lightPos);
     model = glm::scale(model, glm::vec3(0.2f));
     m_lightShader.setUniformMatrix4f("model", model);
     m_lightShader.setUniformMatrix4f("view", view);
@@ -265,6 +264,36 @@ void Scene::processInput(float deltaTime)
     if(glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
     {
         m_cam.moveDown(inc);
+    }
+    
+    if(glfwGetKey(m_window, GLFW_KEY_I) == GLFW_PRESS)
+    {
+        m_lightPos.z -= inc;
+    }
+    
+    if(glfwGetKey(m_window, GLFW_KEY_K) == GLFW_PRESS)
+    {
+        m_lightPos.z += inc;
+    }
+    
+    if(glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
+    {
+        m_lightPos.x += inc;
+    }
+    
+    if(glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS)
+    {
+        m_lightPos.x -= inc;
+    }
+    
+    if(glfwGetKey(m_window, GLFW_KEY_O) == GLFW_PRESS)
+    {
+        m_lightPos.y += inc;
+    }
+    
+    if(glfwGetKey(m_window, GLFW_KEY_U) == GLFW_PRESS)
+    {
+        m_lightPos.y -= inc;
     }
 }
 
