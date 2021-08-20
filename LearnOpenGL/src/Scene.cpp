@@ -28,7 +28,7 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     
     
     std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    m_objShader = Shader(shaderFolder + "lightingShader.vert", shaderFolder + "lightingShader.frag");
+    m_objShader = Shader(shaderFolder + "Gourand.vert", shaderFolder + "Gourand.frag");
     m_objShader.makeProgram();
     
     m_lightShader = Shader(shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
@@ -210,7 +210,7 @@ void Scene::draw()
     m_lightShader.useProgram();
     
     model = glm::translate(glm::mat4(1.f), m_lightPos);
-    model = glm::scale(model, glm::vec3(0.2f));
+    model = glm::scale(model, glm::vec3(0.05f));
     m_lightShader.setUniformMatrix4f("model", model);
     m_lightShader.setUniformMatrix4f("view", view);
     m_lightShader.setUniformMatrix4f("proj", proj);
