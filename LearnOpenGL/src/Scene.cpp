@@ -28,11 +28,13 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     
     
     std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    m_objShader = Shader(shaderFolder + "Gourand.vert", shaderFolder + "Gourand.frag");
+    m_objShader = Shader(shaderFolder + "Phong.vert", shaderFolder + "Phong.frag");
     m_objShader.makeProgram();
     
-    m_lightShader = Shader(shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
-    m_lightShader.makeProgram();
+    m_light = Light(glm::vec3(0.f, 0.f, -1.f), glm::vec3(1.f, 1.f, 1.f), shaderFolder + "lightShader.vert",
+                    shaderFolder + "lightShader.frag");
+//    m_lightShader = Shader(shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
+//    m_lightShader.makeProgram();
     
     
     
@@ -167,9 +169,14 @@ void Scene::draw()
 
     m_objShader.useProgram();
     
-    m_objShader.setUniform3f("objColor", 0.8f, 0.1f, 1.f);
     m_objShader.setUniform3f("lightColor", 1.f, 1.f, 1.f);
     m_objShader.setUniform3f("lightPos", m_lightPos.x, m_lightPos.y, m_lightPos.z);
+    
+    // Material properties
+    m_objShader.setUniform3f("material.ambient", 0.1f, 0.1f, 0.1f);
+    m_objShader.setUniform3f("material.diffuse", 1.f, 1.f, 1.f);
+    m_objShader.setUniform3f("material.specular", 1.f, 1.f, 1.f);
+    m_objShader.setUniform1i("material.shininess", 64);
     
     glm::mat4 view = m_cam.getViewMatrix();
 
@@ -202,20 +209,10 @@ void Scene::draw()
     }
     
     
+    m_light.translate(m_lightPos - m_light.getPosition());
+    m_light.draw(view, proj);
     
     
-    
-    
-    
-    m_lightShader.useProgram();
-    
-    model = glm::translate(glm::mat4(1.f), m_lightPos);
-    model = glm::scale(model, glm::vec3(0.05f));
-    m_lightShader.setUniformMatrix4f("model", model);
-    m_lightShader.setUniformMatrix4f("view", view);
-    m_lightShader.setUniformMatrix4f("proj", proj);
-    
-    m_shapes[1]->draw();
 }
 
 

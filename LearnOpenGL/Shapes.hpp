@@ -129,6 +129,7 @@ class Box : public Shape
     
     
 public:
+    Box();
     Box(std::vector<VertT> verts);
     Box(const Box& otherBox);
     
@@ -252,6 +253,30 @@ void Square<VertT>::draw()
 
 
 //-----------  Box  ---------------------//
+template <typename VertT>
+Box<VertT>::Box()
+{
+    VertT vert;
+    m_verts.push_back(vert);
+    
+    //******* VBO/VAO   ***************
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+    
+    m_VBO = loadVBOData(m_verts);
+    
+
+    rglVertexAttribPointer(m_verts[0]);
+    
+    
+    
+    //********* VAO **************
+}
+
+
+
+
+
 template <class VertT>
 Box<VertT>::Box(std::vector<VertT> verts) : m_verts(verts)
 {
