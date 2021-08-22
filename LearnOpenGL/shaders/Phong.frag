@@ -36,6 +36,6 @@ void main()
     float specAngleCoeff = pow(max(dot(reflectDir, viewDir), 0.0), material.shininess);
     vec3 specLight = material.specular*specAngleCoeff*lightColor;
     
-    vec3 result = (ambLight + diffLight + specLight) * objColor;
+    vec3 result = (ambLight + diffLight + specLight);
     FragColor = vec4(result, 1.0);
 }

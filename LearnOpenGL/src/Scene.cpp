@@ -173,9 +173,9 @@ void Scene::draw()
     m_objShader.setUniform3f("lightPos", m_lightPos.x, m_lightPos.y, m_lightPos.z);
     
     // Material properties
-    m_objShader.setUniform3f("material.ambient", 0.1f, 0.1f, 0.1f);
-    m_objShader.setUniform3f("material.diffuse", 1.f, 1.f, 1.f);
-    m_objShader.setUniform3f("material.specular", 1.f, 1.f, 1.f);
+    m_objShader.setUniform3f("material.ambient", 0.1f, 0.f, 0.08f);
+    m_objShader.setUniform3f("material.diffuse", 1.f, 0.f, .8f);
+    m_objShader.setUniform3f("material.specular", .5f, .5f, .5f);
     m_objShader.setUniform1i("material.shininess", 64);
     
     glm::mat4 view = m_cam.getViewMatrix();
