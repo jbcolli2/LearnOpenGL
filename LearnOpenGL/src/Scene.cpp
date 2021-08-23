@@ -31,9 +31,8 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     m_objShader = Shader(shaderFolder + "Phong.vert", shaderFolder + "Phong.frag");
     m_objShader.makeProgram();
     
-    float lightColorChange = 0.5f*(glm::sin(glfwGetTime())+1);
-    glm::vec3 lightColor{lightColorChange, 0.f, 1.f - lightColorChange};
-    m_light = Light(m_lightPos, glm::vec3(.2f), glm::vec3(.5f), glm::vec3(1.f),
+    
+    m_light = Light(m_lightPos, glm::vec3(1.f), glm::vec3(1.f), glm::vec3(1.f),
                     shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
 //    m_lightShader = Shader(shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
 //    m_lightShader.makeProgram();
@@ -143,10 +142,10 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
         Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f)
     };
     Material boxMat;
-    boxMat.ambient = glm::vec3(.8f, 0.f, .6f);
-    boxMat.diffuse = boxMat.ambient;
-    boxMat.specular = glm::vec3(.5f);
-    boxMat.shininess = 64;
+    boxMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
+    boxMat.diffuse = glm::vec3(.07568f, .61424f, .07568f);
+    boxMat.specular = glm::vec3(.633f, .727811f, .633f);
+    boxMat.shininess = .6f*128.f;
     Box<Vert3x3x2f> box(vertsBox, boxMat);
     m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(box));
     
@@ -174,9 +173,7 @@ void Scene::draw()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    float lightColorChange = 0.5f*(glm::sin(glfwGetTime())+1);
-    glm::vec3 lightColor{lightColorChange, 0.0f*lightColorChange, 1.f - lightColorChange};
-    m_light.setAmbientDiffuse(lightColor, .2f);
+    
 
     m_objShader.useProgram();
     
@@ -192,7 +189,7 @@ void Scene::draw()
     m_objShader.setUniform3f("material.ambient", boxMat.ambient.r, boxMat.ambient.g, boxMat.ambient.b);
     m_objShader.setUniform3f("material.diffuse", boxMat.diffuse.r, boxMat.diffuse.g, boxMat.diffuse.b);
     m_objShader.setUniform3f("material.specular", boxMat.specular.r, boxMat.specular.g, boxMat.specular.b);
-    m_objShader.setUniform1i("material.shininess", boxMat.shininess);
+    m_objShader.setUniform1f("material.shininess", boxMat.shininess);
     
     glm::mat4 view = m_cam.getViewMatrix();
 
