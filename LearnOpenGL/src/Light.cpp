@@ -10,8 +10,8 @@
 #include "Light.hpp"
 
 
-Light::Light(const glm::vec3& position, const glm::vec3 color, const std::string& vertFilename,
-      const std::string& fragFilename) : m_position(position), m_color(color)
+Light::Light(const glm::vec3& position, const glm::vec3& ambient, const glm::vec3 diffuse,
+             const glm::vec3& specular, const std::string& vertFilename, const std::string& fragFilename) : m_position(position), m_ambient(ambient), m_diffuse(diffuse), m_specular(specular)
 {
     m_uniformScale = 0.05f;
     
@@ -90,8 +90,7 @@ void Light::draw(const glm::mat4& view, const glm::mat4& proj)
     m_shader.useProgram();
     
     
-    m_shader.setUniform3f("lightColor", m_color.r, m_color.g, m_color.b);
-    m_shader.setUniform3f("lightPos", m_position.x, m_position.y, m_position.z);
+    m_shader.setUniform3f("lightColor", m_diffuse.r, m_diffuse.g, m_diffuse.b);
     
     m_shader.setUniformMatrix4f("model", m_model);
     m_shader.setUniformMatrix4f("view", m_view);

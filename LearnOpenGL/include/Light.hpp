@@ -19,7 +19,8 @@
 
 class Light
 {
-    glm::vec3 m_position;
+private:
+    glm::vec3 m_position, m_ambient, m_diffuse, m_specular;
     float m_uniformScale;
     glm::vec3 m_color;
     
@@ -33,8 +34,8 @@ class Light
     
 public:
     Light() = default;
-    Light(const glm::vec3& position, const glm::vec3 color, const std::string& vertFilename,
-          const std::string& fragFilename);
+    Light(const glm::vec3& position, const glm::vec3& ambient, const glm::vec3 diffuse,
+          const glm::vec3& specular, const std::string& vertFilename, const std::string& fragFilename);
     
     void draw(const glm::mat4& view, const glm::mat4& proj);
     
@@ -43,7 +44,20 @@ public:
     void setPosition(const glm::vec3& position);
     void setScale(float uniformScale) {m_uniformScale = uniformScale;};
     
+    void setAmbientDiffuse(const glm::vec3& color, float ambientFactor)
+    {
+        m_ambient = ambientFactor * color;
+        m_diffuse = color;
+    };
+    void setSpecular(const glm::vec3& color)
+    {
+        m_specular = color;
+    };
+    
     glm::vec3 getPosition() { return m_position;};
+    glm::vec3 getAmbient() {return m_ambient;};
+    glm::vec3 getDiffuse() {return m_diffuse;};
+    glm::vec3 getSpecular() {return m_specular;};
 };
 
 #endif /* Light_h */

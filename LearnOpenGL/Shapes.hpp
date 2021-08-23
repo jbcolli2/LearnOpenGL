@@ -18,11 +18,18 @@
 
 #include <stb_image.h>
 
+#include <glm/glm.hpp>
 #include "OpenGLUtil.hpp"
 
 
 
-
+struct Material
+{
+    glm::vec3 ambient = glm::vec3(1.f);
+    glm::vec3 diffuse = glm::vec3(1.f);
+    glm::vec3 specular = glm::vec3(1.f, 0.f, 0.f);
+    int shininess = 1;
+};
 
 
 
@@ -33,11 +40,15 @@ class Shape
 protected:
     unsigned int m_VAO, m_VBO;
     std::vector<unsigned int> m_textures;
+    
+    Material m_material;
 
     
 public:
     Shape() {};
     virtual ~Shape() {};
+    
+    Material getMaterial() {return m_material;};
     void virtual draw() = 0;
   
     
@@ -130,7 +141,8 @@ class Box : public Shape
     
 public:
     Box();
-    Box(std::vector<VertT> verts);
+//    Box(std::vector<VertT> verts);
+    Box(std::vector<VertT> verts, Material material = Material());
     Box(const Box& otherBox);
     
     void virtual draw() override;
@@ -277,9 +289,35 @@ Box<VertT>::Box()
 
 
 
-template <class VertT>
-Box<VertT>::Box(std::vector<VertT> verts) : m_verts(verts)
+//template <class VertT>
+//Box<VertT>::Box(std::vector<VertT> verts) : m_verts(verts)
+//{
+//    m_material.ambient = glm::vec3(.5f);
+//    m_material.diffuse = glm::vec3(1.f);
+//    m_material.specular = glm::vec3(0.f);
+//    m_material.shininess = 1;
+//
+//    //******* VBO/VAO   ***************
+//    glGenVertexArrays(1, &m_VAO);
+//    glBindVertexArray(m_VAO);
+//
+//    m_VBO = loadVBOData(m_verts);
+//
+//
+//    rglVertexAttribPointer(m_verts[0]);
+//
+//
+//
+//    //********* VAO **************
+//
+//
+//}
+
+
+template <typename VertT>
+Box<VertT>::Box(std::vector<VertT> verts, Material material) : m_verts(verts)
 {
+    m_material = material;
     //******* VBO/VAO   ***************
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
@@ -292,8 +330,6 @@ Box<VertT>::Box(std::vector<VertT> verts) : m_verts(verts)
     
     
     //********* VAO **************
-    
-    
 }
 
 
@@ -303,6 +339,7 @@ Box<VertT>::Box(const Box& otherBox)
 {
     m_VBO = otherBox.m_VBO;
     m_verts = otherBox.m_verts;
+    m_material = otherBox.m_material;
     
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
