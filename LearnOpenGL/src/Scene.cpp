@@ -28,11 +28,14 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     
     
     std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    m_objShader = Shader(shaderFolder + "Gourand.vert", shaderFolder + "Gourand.frag");
+    m_objShader = Shader(shaderFolder + "Phong.vert", shaderFolder + "Phong.frag");
     m_objShader.makeProgram();
     
-    m_lightShader = Shader(shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
-    m_lightShader.makeProgram();
+    
+    m_light = Light(m_lightPos, glm::vec3(1.f), glm::vec3(1.f), glm::vec3(1.f),
+                    shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
+//    m_lightShader = Shader(shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
+//    m_lightShader.makeProgram();
     
     
     
@@ -138,12 +141,18 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
         Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
         Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f)
     };
-    Box<Vert3x3x2f> box(vertsBox);
-//    m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(vertsBox));
+    Material boxMat;
+    boxMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
+    boxMat.diffuse = glm::vec3(.07568f, .61424f, .07568f);
+    boxMat.specular = glm::vec3(.633f, .727811f, .633f);
+    boxMat.shininess = .6f*128.f;
+    Box<Vert3x3x2f> box(vertsBox, boxMat);
     m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(box));
-    m_shapes[0]->loadTexture(imageFolder + "container.jpeg");
-    stbi_set_flip_vertically_on_load(true);
-    m_shapes[0]->loadTextureAlpha(imageFolder + "awesomeface.png");
+    
+    
+//    m_shapes[0]->loadTexture(imageFolder + "container.jpeg");
+//    stbi_set_flip_vertically_on_load(true);
+//    m_shapes[0]->loadTextureAlpha(imageFolder + "awesomeface.png");
     
     Box<Vert3x3x2f> light = box;
     m_shapes.emplace_back( std::make_unique<Box <Vert3x3x2f> >(light) );
@@ -164,12 +173,23 @@ void Scene::draw()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
+    
 
     m_objShader.useProgram();
     
-    m_objShader.setUniform3f("objColor", 0.8f, 0.1f, 1.f);
     m_objShader.setUniform3f("lightColor", 1.f, 1.f, 1.f);
     m_objShader.setUniform3f("lightPos", m_lightPos.x, m_lightPos.y, m_lightPos.z);
+    m_objShader.setUniform3f("light.position", m_lightPos.x, m_lightPos.y, m_lightPos.z);
+    m_objShader.setUniform3f("light.ambient", m_light.getAmbient().r, m_light.getAmbient().g, m_light.getAmbient().b);
+    m_objShader.setUniform3f("light.diffuse", m_light.getDiffuse().r, m_light.getDiffuse().g, m_light.getDiffuse().b);
+    m_objShader.setUniform3f("light.specular", m_light.getSpecular().r, m_light.getSpecular().g, m_light.getSpecular().b);
+    
+    // Material properties
+    Material boxMat = m_shapes[0]->getMaterial();
+    m_objShader.setUniform3f("material.ambient", boxMat.ambient.r, boxMat.ambient.g, boxMat.ambient.b);
+    m_objShader.setUniform3f("material.diffuse", boxMat.diffuse.r, boxMat.diffuse.g, boxMat.diffuse.b);
+    m_objShader.setUniform3f("material.specular", boxMat.specular.r, boxMat.specular.g, boxMat.specular.b);
+    m_objShader.setUniform1f("material.shininess", boxMat.shininess);
     
     glm::mat4 view = m_cam.getViewMatrix();
 
@@ -202,20 +222,10 @@ void Scene::draw()
     }
     
     
+    m_light.translate(m_lightPos - m_light.getPosition());
+    m_light.draw(view, proj);
     
     
-    
-    
-    
-    m_lightShader.useProgram();
-    
-    model = glm::translate(glm::mat4(1.f), m_lightPos);
-    model = glm::scale(model, glm::vec3(0.05f));
-    m_lightShader.setUniformMatrix4f("model", model);
-    m_lightShader.setUniformMatrix4f("view", view);
-    m_lightShader.setUniformMatrix4f("proj", proj);
-    
-    m_shapes[1]->draw();
 }
 
 
