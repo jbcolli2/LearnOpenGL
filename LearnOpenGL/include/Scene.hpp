@@ -38,7 +38,7 @@ class Scene
     
     
     std::vector<glm::vec3> m_positions = {
-        glm::vec3(0.5f, 1.f, -2.f),
+        glm::vec3(0.5f, .75f, -4.f),
 //        glm::vec3(-0.7f, 0.7f, -2.f),
 //        glm::vec3(0.6f, -1.f, -2.f),
 //        glm::vec3(0.45f, 0.f, -9.f),
@@ -46,7 +46,7 @@ class Scene
 //        glm::vec3(-0.3f, -1.f, -12.f),
 //        glm::vec3(-0.6f, 0.5f, -3.f)
     };
-    glm::vec3 m_lightPos{1.f, 1.5f, -1.f};
+    glm::vec3 m_lightPos{1.f, 1.f, -3.f};
     
     Light m_light;
     

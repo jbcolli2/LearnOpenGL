@@ -32,6 +32,14 @@ struct Material
 };
 
 
+struct TextureMaterial
+{
+    unsigned int ambdiffID = 0;
+    unsigned int specID = 1;
+    float shininess = 1;
+};
+
+
 
 
 class Shape
@@ -42,6 +50,7 @@ protected:
     std::vector<unsigned int> m_textures;
     
     Material m_material;
+    TextureMaterial m_texMaterial;
 
     
 public:
@@ -49,6 +58,7 @@ public:
     virtual ~Shape() {};
     
     Material getMaterial() {return m_material;};
+    TextureMaterial getTexMaterial() {return m_texMaterial;};
     void virtual draw() = 0;
   
     
@@ -62,14 +72,17 @@ public:
         {
             m_textures.push_back(0);
 
-            glActiveTexture(GL_TEXTURE0 + m_textures.size() - 1);
+//            glActiveTexture(GL_TEXTURE0 + m_textures.size() - 1);
+            
             glGenTextures(1, &m_textures.back());
+            glActiveTexture(GL_TEXTURE0 + 2);
             glBindTexture(GL_TEXTURE_2D, m_textures.back());
             
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
             
             stbi_image_free(data);
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
         else
         {
@@ -142,7 +155,7 @@ class Box : public Shape
 public:
     Box();
 //    Box(std::vector<VertT> verts);
-    Box(std::vector<VertT> verts, Material material = Material());
+    Box(std::vector<VertT> verts, Material material = Material(), TextureMaterial texMaterial = TextureMaterial());
     Box(const Box& otherBox);
     
     void virtual draw() override;
@@ -315,9 +328,11 @@ Box<VertT>::Box()
 
 
 template <typename VertT>
-Box<VertT>::Box(std::vector<VertT> verts, Material material) : m_verts(verts)
+Box<VertT>::Box(std::vector<VertT> verts, Material material, TextureMaterial texMaterial) : m_verts(verts)
 {
     m_material = material;
+    m_texMaterial = texMaterial;
+    
     //******* VBO/VAO   ***************
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
