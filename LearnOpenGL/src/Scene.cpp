@@ -31,8 +31,8 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     m_objShader = Shader(shaderFolder + "Phong.vert", shaderFolder + "PhongLightMap.frag");
     m_objShader.makeProgram();
     
-    
-    m_light = Light(m_lightPos, glm::vec3(1.f), glm::vec3(1.f), glm::vec3(1.f),
+    glm::vec3 diffLight{1.f};
+    m_light = Light(m_lightPos, .2f*diffLight, diffLight, glm::vec3(1.f),
                     shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
 //    m_lightShader = Shader(shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
 //    m_lightShader.makeProgram();
@@ -150,7 +150,7 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     TextureMaterial boxTex;
     boxTex.ambdiffID = 0;
     boxTex.specID = 1;
-    boxTex.shininess = 32;
+    boxTex.shininess = 128;
     
     Box<Vert3x3x2f> box(vertsBox, boxMat, boxTex);
     m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(box));
@@ -160,8 +160,8 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
 //    m_shapes[0]->loadTexture(imageFolder + "container.jpeg");
     stbi_set_flip_vertically_on_load(true);
 //    m_shapes[0]->loadTextureAlpha(imageFolder + "awesomeface.png");
-    m_shapes[0]->loadTextureAlpha(imageFolder + "container2.png");
-    m_shapes[0]->loadTextureAlpha(imageFolder + "container2_specular.png");
+    m_shapes[0]->loadTextureAlpha(imageFolder + "container2.png", boxTex.ambdiffID);
+    m_shapes[0]->loadTextureAlpha(imageFolder + "container2_specular.png", boxTex.specID);
     
     
     Box<Vert3x3x2f> light = box;

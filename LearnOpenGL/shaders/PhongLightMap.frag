@@ -43,7 +43,7 @@ void main()
     vec3 reflectDir = normalize(reflect(-lightDir, norm));
     vec3 viewDir = normalize(-FragPos);
     float specAngleCoeff = pow(max(dot(reflectDir, viewDir), 0.0), material.shininess);
-    vec3 specLight = specAngleCoeff*vec3(texture(material.specular,UV))*light.specular;
+    vec3 specLight = specAngleCoeff*(1-vec3(texture(material.specular,UV)))*light.specular;
     
     vec3 result = (ambLight + diffLight + specLight);
     FragColor = vec4(result, 1.0);

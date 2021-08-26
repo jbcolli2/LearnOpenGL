@@ -63,7 +63,7 @@ public:
   
     
     
-    void loadTexture(std::string filename, unsigned int rgbFlag = GL_RGB)
+    void loadTexture(std::string filename, unsigned int texUnit, unsigned int rgbFlag = GL_RGB)
     {
         int width, height, nrChannels;
         unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
@@ -72,10 +72,9 @@ public:
         {
             m_textures.push_back(0);
 
-//            glActiveTexture(GL_TEXTURE0 + m_textures.size() - 1);
             
             glGenTextures(1, &m_textures.back());
-            glActiveTexture(GL_TEXTURE0 + 2);
+            glActiveTexture(GL_TEXTURE0 + texUnit);
             glBindTexture(GL_TEXTURE_2D, m_textures.back());
             
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
@@ -90,9 +89,9 @@ public:
         }
     }
     
-    void loadTextureAlpha(std::string filename)
+    void loadTextureAlpha(std::string filename, unsigned int texUnit)
     {
-        loadTexture(filename, GL_RGBA);
+        loadTexture(filename, texUnit, GL_RGBA);
     }
     
     
