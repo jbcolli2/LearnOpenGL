@@ -81,7 +81,6 @@ public:
             glGenerateMipmap(GL_TEXTURE_2D);
             
             stbi_image_free(data);
-            glBindTexture(GL_TEXTURE_2D, 0);
         }
         else
         {
@@ -261,11 +260,6 @@ Square<VertT>::Square(std::vector<VertT> vert, bool clockwise)
 template <class VertT>
 void Square<VertT>::draw()
 {
-    for(int ii = 0; ii < m_textures.size(); ++ii)
-    {
-        glActiveTexture(GL_TEXTURE0 + ii);
-        glBindTexture(GL_TEXTURE_2D, m_textures[ii]);
-    }
     glBindVertexArray(m_VAO);
     
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -366,11 +360,6 @@ Box<VertT>::Box(const Box& otherBox)
 template <class VertT>
 void Box<VertT>::draw()
 {
-    for(int ii = 0; ii < m_textures.size(); ++ii)
-    {
-        glActiveTexture(GL_TEXTURE0 + ii);
-        glBindTexture(GL_TEXTURE_2D, m_textures[ii]);
-    }
     glBindVertexArray(m_VAO);
     
     glDrawArrays(GL_TRIANGLES, 0, 36);

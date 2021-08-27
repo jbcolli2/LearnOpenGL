@@ -28,7 +28,7 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     
     
     std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    m_objShader = Shader(shaderFolder + "Phong.vert", shaderFolder + "PhongLightMap.frag");
+    m_objShader = Shader(shaderFolder + "Phong.vert", shaderFolder + "Chap15_Ex3.frag");
     m_objShader.makeProgram();
     
     glm::vec3 diffLight{1.f};
@@ -156,10 +156,9 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(box));
     
     
-    glActiveTexture(GL_TEXTURE0+2);
-//    m_shapes[0]->loadTexture(imageFolder + "container.jpeg");
+    m_shapes[0]->loadTexture(imageFolder + "matrix.jpeg", 2);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     stbi_set_flip_vertically_on_load(true);
-//    m_shapes[0]->loadTextureAlpha(imageFolder + "awesomeface.png");
     m_shapes[0]->loadTextureAlpha(imageFolder + "container2.png", boxTex.ambdiffID);
     m_shapes[0]->loadTextureAlpha(imageFolder + "container2_specular.png", boxTex.specID);
     
@@ -203,6 +202,9 @@ void Scene::draw()
     m_objShader.setUniform1f("material.shininess", boxTex.shininess);
     m_objShader.setUniform1i("material.diffuse", boxTex.ambdiffID);
     m_objShader.setUniform1i("material.specular", boxTex.specID);
+    m_objShader.setUniform1i("emissive", 2);
+    m_objShader.setUniform1f("emisIntensity", .5f*(glm::sin(glfwGetTime())+1) );
+    m_objShader.setUniform1f("time", glfwGetTime());
     
     glm::mat4 view = m_cam.getViewMatrix();
 

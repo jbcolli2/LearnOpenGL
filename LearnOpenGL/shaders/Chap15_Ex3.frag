@@ -26,6 +26,8 @@ struct Light
 uniform Material material;
 uniform Light light;
 uniform sampler2D emissive;
+uniform float emisIntensity;
+uniform float time;
 
 
 
@@ -46,6 +48,9 @@ void main()
     float specAngleCoeff = pow(max(dot(reflectDir, viewDir), 0.0), material.shininess);
     vec3 specLight = specAngleCoeff*vec3(texture(material.specular,UV))*light.specular;
     
-    vec3 result = (ambLight + diffLight + specLight + vec3(texture(emissive,UV)));
+    vec2 emUV = vec2(UV.x, UV.y + .2*time);
+    vec3 emisLight = emisIntensity*vec3(texture(emissive,emUV));
+    
+    vec3 result = (ambLight + diffLight + specLight + emisLight);
     FragColor = vec4(result, 1.0);
 }
