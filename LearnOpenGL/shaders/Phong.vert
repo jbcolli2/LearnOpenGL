@@ -2,9 +2,11 @@
 
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aUV;
 
 out vec3 Normal;
 out vec3 FragPos;
+out vec2 UV;
 
 
 uniform mat4 model;
@@ -17,4 +19,5 @@ void main()
     FragPos = vec3(view*model*vec4(pos, 1.0));
     mat3 invTransModel = mat3(inverse(transpose(view*model)));
     Normal = invTransModel*aNormal;
+    UV = aUV;
 }

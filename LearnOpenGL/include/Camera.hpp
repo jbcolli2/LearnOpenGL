@@ -29,7 +29,7 @@ public:
     Camera(glm::vec3 camPos = glm::vec3(0.f,0.f,0.f), glm::vec3 camDir = glm::vec3(0.f, 0.f, 1.f));
     
     void setPosition(glm::vec3 position) {m_camPos = position;};
-    void setDirection(glm::vec3 direction) {m_camDir = direction;};
+//    void setDirection(glm::vec3 direction) {m_camDir = direction;};
     
     void turnYaw(float yawIncrement) {m_yaw += yawIncrement;
         m_camRight = -glm::normalize(glm::cross(m_up, m_camDir));};

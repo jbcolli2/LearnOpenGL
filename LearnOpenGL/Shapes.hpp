@@ -32,6 +32,14 @@ struct Material
 };
 
 
+struct TextureMaterial
+{
+    unsigned int ambdiffID = 0;
+    unsigned int specID = 1;
+    float shininess = 1;
+};
+
+
 
 
 class Shape
@@ -42,6 +50,7 @@ protected:
     std::vector<unsigned int> m_textures;
     
     Material m_material;
+    TextureMaterial m_texMaterial;
 
     
 public:
@@ -49,11 +58,12 @@ public:
     virtual ~Shape() {};
     
     Material getMaterial() {return m_material;};
+    TextureMaterial getTexMaterial() {return m_texMaterial;};
     void virtual draw() = 0;
   
     
     
-    void loadTexture(std::string filename, unsigned int rgbFlag = GL_RGB)
+    void loadTexture(std::string filename, unsigned int texUnit, unsigned int rgbFlag = GL_RGB)
     {
         int width, height, nrChannels;
         unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
@@ -62,8 +72,9 @@ public:
         {
             m_textures.push_back(0);
 
-            glActiveTexture(GL_TEXTURE0 + m_textures.size() - 1);
+            
             glGenTextures(1, &m_textures.back());
+            glActiveTexture(GL_TEXTURE0 + texUnit);
             glBindTexture(GL_TEXTURE_2D, m_textures.back());
             
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
@@ -77,9 +88,9 @@ public:
         }
     }
     
-    void loadTextureAlpha(std::string filename)
+    void loadTextureAlpha(std::string filename, unsigned int texUnit)
     {
-        loadTexture(filename, GL_RGBA);
+        loadTexture(filename, texUnit, GL_RGBA);
     }
     
     
@@ -142,7 +153,7 @@ class Box : public Shape
 public:
     Box();
 //    Box(std::vector<VertT> verts);
-    Box(std::vector<VertT> verts, Material material = Material());
+    Box(std::vector<VertT> verts, Material material = Material(), TextureMaterial texMaterial = TextureMaterial());
     Box(const Box& otherBox);
     
     void virtual draw() override;
@@ -249,11 +260,6 @@ Square<VertT>::Square(std::vector<VertT> vert, bool clockwise)
 template <class VertT>
 void Square<VertT>::draw()
 {
-    for(int ii = 0; ii < m_textures.size(); ++ii)
-    {
-        glActiveTexture(GL_TEXTURE0 + ii);
-        glBindTexture(GL_TEXTURE_2D, m_textures[ii]);
-    }
     glBindVertexArray(m_VAO);
     
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -315,9 +321,11 @@ Box<VertT>::Box()
 
 
 template <typename VertT>
-Box<VertT>::Box(std::vector<VertT> verts, Material material) : m_verts(verts)
+Box<VertT>::Box(std::vector<VertT> verts, Material material, TextureMaterial texMaterial) : m_verts(verts)
 {
     m_material = material;
+    m_texMaterial = texMaterial;
+    
     //******* VBO/VAO   ***************
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
@@ -352,11 +360,6 @@ Box<VertT>::Box(const Box& otherBox)
 template <class VertT>
 void Box<VertT>::draw()
 {
-    for(int ii = 0; ii < m_textures.size(); ++ii)
-    {
-        glActiveTexture(GL_TEXTURE0 + ii);
-        glBindTexture(GL_TEXTURE_2D, m_textures[ii]);
-    }
     glBindVertexArray(m_VAO);
     
     glDrawArrays(GL_TRIANGLES, 0, 36);
