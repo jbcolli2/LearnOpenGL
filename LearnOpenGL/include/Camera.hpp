@@ -8,6 +8,10 @@
 #ifndef Camera_h
 #define Camera_h
 
+#include <stdio.h>
+#include <iostream>
+
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -53,6 +57,24 @@ public:
     void moveBackward(float posIncrement) {m_camPos -= posIncrement*m_camDir;};
     
     void lookAt(glm::vec3 target) {m_camDir = target - m_camPos;};
+    
+    
+    void setFOV(float fov) {m_fov = fov;};
+    void incFOV(float inc)
+    {
+        m_fov += inc;
+        if(m_fov < 1.f)
+        {
+            m_fov = 1.f;
+        }
+        else if(m_fov > 45.f)
+        {
+            m_fov = 45.f;
+        }
+    };
+    void setAspectRatio(float aspectRatio) {m_aspectRatio = aspectRatio;};
+    void setNearField(float nearField) {m_nearField = nearField;};
+    void setFarField(float farField) {m_farField = farField;};
     
     
     glm::mat4 getViewMatrix();

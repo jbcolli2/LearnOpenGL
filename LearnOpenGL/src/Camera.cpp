@@ -5,7 +5,7 @@
 //  Created by Jeb Collins on 8/13/21.
 //
 
-#include <stdio.h>
+
 
 #include "Camera.hpp"
 
@@ -47,4 +47,11 @@ glm::mat4 Camera::getViewMatrix()
 //    m_camDir = glm::normalize(m_camDir);
     
     return glm::lookAt(m_camPos, m_camPos + radius*m_camDir, m_up);
+}
+
+
+
+glm::mat4 Camera::getProjMatrix()
+{
+    return glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearField, m_farField);
 }

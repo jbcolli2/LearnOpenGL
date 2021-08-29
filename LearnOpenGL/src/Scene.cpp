@@ -14,11 +14,14 @@
 
 Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
-Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
+Scene::Scene(GLFWwindow* window, int width, int height, float fov,
+             float nearField, float farField) : m_window(window), m_firstMouse(true), m_width(width),
+    m_height(height)
 {
     
     Scene::GLFWCallbackWrapper::setScene(this);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetFramebufferSizeCallback(window, Scene::GLFWCallbackWrapper::frameBufferSizeCallback);
     glfwSetCursorPosCallback(window, Scene::GLFWCallbackWrapper::mousePosCallback);
     glfwSetScrollCallback(window, Scene::GLFWCallbackWrapper::scrollCallback);
 
@@ -40,15 +43,12 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
                     shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
     
     
-    
+    //  Setup the camera
+    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField);
 
 
 
     // The Box
-    
-    float width = .5;
-    float length = .5;
-    float height = .5;
     std::vector<Vert3x3x2f> vertsBox = genBoxVerts<Vert3x3x2f>();
     
     
@@ -75,7 +75,6 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
     m_shapes[0]->loadAmbDiffTexture(imageFolder + "container2.png", 0);
     m_shapes[0]->loadSpecTexture(imageFolder + "container2_specular.png", 1);
     
-    m_shapes[0]->setSpecTexUnit(3);
     
     Box<Vert3x3x2f> light = box;
     m_shapes.emplace_back( std::make_unique<Box <Vert3x3x2f> >(light) );
@@ -103,8 +102,6 @@ void Scene::draw()
     
     
     // Set Light uniforms
-    m_objShader.setUniform3f("lightColor", 1.f, 1.f, 1.f);
-    m_objShader.setUniform3f("lightPos", m_lightPos.x, m_lightPos.y, m_lightPos.z);
     m_objShader.setUniform3f("light.position", m_lightPos.x, m_lightPos.y, m_lightPos.z);
     m_objShader.setUniform3f("light.ambient", m_light.getAmbient().r, m_light.getAmbient().g, m_light.getAmbient().b);
     m_objShader.setUniform3f("light.diffuse", m_light.getDiffuse().r, m_light.getDiffuse().g, m_light.getDiffuse().b);
@@ -125,23 +122,23 @@ void Scene::draw()
     
     
     m_view = m_cam.getViewMatrix();
-    m_proj = glm::perspective(glm::radians(m_fov), 800.f/600.f, 0.1f, 100.f);
-    
+    m_proj = m_cam.getProjMatrix();
+    m_objShader.setUniformMatrix4f("view", m_view);
+    m_objShader.setUniformMatrix4f("proj", m_proj);
+
     
     
     
     
     for(auto vec : m_positions)
     {
-        m_model = glm::mat4(1.0f);
+        m_model = ID4;
         m_model = glm::translate(m_model, vec);
         
         
 
         
         m_objShader.setUniformMatrix4f("model", m_model);
-        m_objShader.setUniformMatrix4f("view", m_view);
-        m_objShader.setUniformMatrix4f("proj", m_proj);
         
         
         m_shapes[0]->draw();
@@ -241,6 +238,9 @@ void Scene::processInput(float deltaTime)
 
 void Scene::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+    m_width = width;
+    m_height = height;
+    m_cam.setAspectRatio(float(width)/float(height));
     glViewport(0,0, width, height);
 }
 
@@ -275,14 +275,9 @@ void Scene::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void Scene::scroll_callback(GLFWwindow* window, double xInc, double yInc)
 {
-    m_fov += (float)yInc;
-    
-    if(m_fov < 1.f)
-        m_fov = 1.f;
-    
-    if(m_fov > 45.f)
-        m_fov = 45.f;
-        
+    float fov_inc = (float)yInc;
+            
+    m_cam.incFOV(fov_inc);
 }
 
 

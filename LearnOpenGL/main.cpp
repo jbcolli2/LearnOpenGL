@@ -47,7 +47,11 @@ int main(int argc, const char * argv[]) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     
     
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    int width = 800;
+    int height = 600;
+    
+    
+    GLFWwindow* window = glfwCreateWindow(width, height, "LearnOpenGL", NULL, NULL);
     if(window == NULL)
     {
         std::cout << "Failed to create glfw window\n";
@@ -76,7 +80,7 @@ int main(int argc, const char * argv[]) {
     
     
     
-    Scene scene(window);
+    Scene scene(window, width, height);
     
     float currentFrame = 0.f;
     float lastFrame = 0.f;

@@ -34,10 +34,15 @@ class Scene
     glm::vec3 m_lightPos{1.f, 1.f, -3.f};
     Camera m_cam;
     
+    
+    //******* Mouse Input ***********//
     float m_lastMousePosX, m_lastMousePosY;
     bool m_firstMouse;
     const float m_mouseSensitivity = 0.1f;
-    float m_fov = 45.f;
+    
+    
+    //*******  Camera/Window Variables *******//
+    int m_width, m_height;
     
     
     
@@ -51,6 +56,7 @@ class Scene
 //        glm::vec3(-0.6f, 0.5f, -3.f)
     };
     
+    glm::mat4 ID4 = glm::mat4(1.f);
     glm::mat4 m_model, m_view, m_proj;
     
     
@@ -58,7 +64,7 @@ class Scene
     
     
 public:
-    Scene(GLFWwindow* window);
+    Scene(GLFWwindow* window, int width, int height, float fov = 45.f, float nearField = .1f, float farField = 100.f);
     
     void draw();
     
@@ -74,6 +80,11 @@ public:
         GLFWCallbackWrapper(const GLFWCallbackWrapper&) = delete;
         GLFWCallbackWrapper(GLFWCallbackWrapper&&) = delete;
         ~GLFWCallbackWrapper() = delete;
+        
+        static void frameBufferSizeCallback(GLFWwindow* window, int width, int height)
+        {
+            GLFWCallbackWrapper::m_scene->framebuffer_size_callback(window, width, height);
+        };
         
         static void mousePosCallback(GLFWwindow* window, double xpos, double ypos)
         {
