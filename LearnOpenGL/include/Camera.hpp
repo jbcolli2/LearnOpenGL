@@ -18,22 +18,29 @@
 class Camera
 {
     float m_pitch, m_yaw;
+    float m_fov, m_aspectRatio, m_nearField, m_farField;
     glm::vec3 m_camPos, m_camDir, m_camRight;
     glm::vec3 m_up = glm::vec3(0.f, 1.f, 0.f);
     
-    glm::vec4 m_viewMatrix;
+    glm::vec4 m_viewMatrix, m_projMatrix;
     
     
     
 public:
-    Camera(glm::vec3 camPos = glm::vec3(0.f,0.f,0.f), glm::vec3 camDir = glm::vec3(0.f, 0.f, 1.f));
+    Camera(float fov = 45.f, float aspectRatio = 4.f/3.f, float nearField = 0.1f, float farField = 100.f,
+           glm::vec3 camPos = glm::vec3(0.f,0.f,0.f), glm::vec3 camDir = glm::vec3(0.f, 0.f, 1.f));
     
     void setPosition(glm::vec3 position) {m_camPos = position;};
 //    void setDirection(glm::vec3 direction) {m_camDir = direction;};
     
-    void turnYaw(float yawIncrement) {m_yaw += yawIncrement;
-        m_camRight = -glm::normalize(glm::cross(m_up, m_camDir));};
-    void turnPitch(float pitchIncrement) {m_pitch += pitchIncrement;
+    void turnYaw(float yawIncrement)
+    {
+        m_yaw += yawIncrement;
+        m_camRight = -glm::normalize(glm::cross(m_up, m_camDir));
+    };
+    void turnPitch(float pitchIncrement)
+    {
+        m_pitch += pitchIncrement;
         if(m_pitch > 89) m_pitch = 89;
         if(m_pitch < -89) m_pitch = -89;
     };
@@ -49,6 +56,7 @@ public:
     
     
     glm::mat4 getViewMatrix();
+    glm::mat4 getProjMatrix();
     
 };
 

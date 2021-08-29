@@ -18,149 +18,64 @@ Scene::Scene(GLFWwindow* window) : m_window(window), m_firstMouse(true)
 {
     
     Scene::GLFWCallbackWrapper::setScene(this);
-    
-    
-    
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, Scene::GLFWCallbackWrapper::mousePosCallback);
     glfwSetScrollCallback(window, Scene::GLFWCallbackWrapper::scrollCallback);
 
     
     
+    
+    // Load and compile the shaders
     std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
     m_objShader = Shader(shaderFolder + "Phong.vert", shaderFolder + "PhongLightMap.frag");
     m_objShader.makeProgram();
     
+    
+    
+    
+    
+    // Create Light object
     glm::vec3 diffLight{1.f};
     m_light = Light(m_lightPos, .2f*diffLight, diffLight, glm::vec3(1.f),
                     shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
-//    m_lightShader = Shader(shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
-//    m_lightShader.makeProgram();
     
     
     
-    //        std::vector<Vert3x3f> vertsTri = {
-    //            Vert3x3f(-.9f, -.5f, 0.0f, 1.0f, 0.0f, 0.0f),
-    //            Vert3x3f(-.5f, -.5f, 0.0f, 1.0f, 0.0f, 0.0f),
-    //            Vert3x3f(-.5f, .5f, 0.0f, 0.0f, 0.0f, 1.0f)
-    //        };
-    //
-    //
-    //        m_shapes.emplace_back(std::make_unique<Triangle<Vert3x3f>>(vertsTri));
-            
-            
-            
-    //        std::vector<Vert3x3f> vertsSq = {
-    //            Vert3x3f(-.5f, -.5f, 0.0f,   1.0f, 0.0f, 0.0f),
-    //            Vert3x3f(.5f, -.5f, 0.0f,    0.0f, 1.0f, 0.0f),
-    //            Vert3x3f(.5f, .5f, 0.0f,     0.0f, 0.0f, 1.0f),
-    //            Vert3x3f(-.5f, .5f, 0.0f,    1.0f, 1.0f, 1.0f)
-    //        };
-    //
-    //
-    //        m_shapes.emplace_back(std::make_unique<Square <Vert3x3f> >(vertsSq));
-            
-            
-            
-            
-            
-    //        std::vector<Vert3x3x2f> vertsTri = {
-    //            Vert3x3x2f(-.9f, -.5f, 0.0f, 1.0f, 0.0f, 0.0, 0, 0),
-    //            Vert3x3x2f(-.5f, -.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0, 0),
-    //            Vert3x3x2f(-.5f, .5f, 0.0f, 0.0f, 0.0f, 1.0f, 0, 0)
-    //        };
-    //
-    //
-    //        m_shapes.emplace_back(std::make_unique<Triangle<Vert3x3x2f>>(vertsTri));
-            
-    std::vector<Vert3x3x2f> vertsSq = {
-        Vert3x3x2f(-.5f, -.5f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f),
-        Vert3x3x2f(.5f, -.5f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f),
-        Vert3x3x2f(.5f, .5f, 0.0f,     0.0f, 0.0f, 1.0f,   1.0f, 1.0f),
-        Vert3x3x2f(-.5f, .5f, 0.0f,    1.0f, 1.0f, 1.0f,   0.0f, 1.0f)
-    };
 
 
-    std::string imageFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/";
 
-//    m_shapes.emplace_back(std::make_unique<Square <Vert3x3x2f> >(vertsSq));
-//    m_shapes[0]->loadTexture(imageFolder + "container.jpeg");
-//    stbi_set_flip_vertically_on_load(true);
-//    m_shapes[0]->loadTextureAlpha(imageFolder + "awesomeface.png");
-    
+    // The Box
     
     float width = .5;
     float length = .5;
     float height = .5;
-    std::vector<Vert3x3x2f> vertsBox = {
-        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f), // front
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f), // back
-        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f), //top
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f), //bottom
-        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(0.5f*width, -0.5f*height, 0.5f*length, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f), //right
-        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(0.5f*width, -0.5f*height, -0.5f*length, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, -0.5f*length, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
-        Vert3x3x2f(0.5f*width, 0.5f*height, 0.5f*length, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f*width, -0.5f*height, 0.5f*length, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f), //left
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f*width, -0.5f*height, -0.5f*length, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, -0.5f*length, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f*width, 0.5f*height, 0.5f*length, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f)
-    };
+    std::vector<Vert3x3x2f> vertsBox = genBoxVerts<Vert3x3x2f>();
+    
+    
     Material boxMat;
     boxMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
     boxMat.diffuse = glm::vec3(.07568f, .61424f, .07568f);
     boxMat.specular = glm::vec3(.633f, .727811f, .633f);
     boxMat.shininess = .6f*128.f;
     
-    TextureMaterial boxTex;
-    boxTex.ambdiffID = 0;
-    boxTex.specID = 1;
-    boxTex.shininess = 128;
     
-    Box<Vert3x3x2f> box(vertsBox, boxMat, boxTex);
+    
+    Box<Vert3x3x2f> box(vertsBox, boxMat);
     m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(box));
     
     
-    m_shapes[0]->loadTexture(imageFolder + "matrix.jpeg", 2);
-    stbi_set_flip_vertically_on_load(true);
-    m_shapes[0]->loadTextureAlpha(imageFolder + "container2.png", boxTex.ambdiffID);
-    m_shapes[0]->loadTextureAlpha(imageFolder + "container2_specular.png", boxTex.specID);
     
+    
+    
+    // The Textures
+    
+    std::string imageFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/";
+
+    stbi_set_flip_vertically_on_load(true);
+    m_shapes[0]->loadAmbDiffTexture(imageFolder + "container2.png", 0);
+    m_shapes[0]->loadSpecTexture(imageFolder + "container2_specular.png", 1);
+    
+    m_shapes[0]->setSpecTexUnit(3);
     
     Box<Vert3x3x2f> light = box;
     m_shapes.emplace_back( std::make_unique<Box <Vert3x3x2f> >(light) );
@@ -185,6 +100,9 @@ void Scene::draw()
 
     m_objShader.useProgram();
     
+    
+    
+    // Set Light uniforms
     m_objShader.setUniform3f("lightColor", 1.f, 1.f, 1.f);
     m_objShader.setUniform3f("lightPos", m_lightPos.x, m_lightPos.y, m_lightPos.z);
     m_objShader.setUniform3f("light.position", m_lightPos.x, m_lightPos.y, m_lightPos.z);
@@ -192,46 +110,46 @@ void Scene::draw()
     m_objShader.setUniform3f("light.diffuse", m_light.getDiffuse().r, m_light.getDiffuse().g, m_light.getDiffuse().b);
     m_objShader.setUniform3f("light.specular", m_light.getSpecular().r, m_light.getSpecular().g, m_light.getSpecular().b);
     
-    // Material properties
+    
+    
+    // Set Material uniforms
     Material boxMat = m_shapes[0]->getMaterial();
-    TextureMaterial boxTex = m_shapes[0]->getTexMaterial();
-//    m_objShader.setUniform3f("material.ambient", boxMat.ambient.r, boxMat.ambient.g, boxMat.ambient.b);
-//    m_objShader.setUniform3f("material.diffuse", boxMat.diffuse.r, boxMat.diffuse.g, boxMat.diffuse.b);
-//    m_objShader.setUniform3f("material.specular", boxMat.specular.r, boxMat.specular.g, boxMat.specular.b);
-    m_objShader.setUniform1f("material.shininess", boxTex.shininess);
-    m_objShader.setUniform1i("material.diffuse", boxTex.ambdiffID);
-    m_objShader.setUniform1i("material.specular", boxTex.specID);
+    m_objShader.setUniform1f("material.shininess", boxMat.shininess);
+    m_objShader.setUniform1i("material.diffuse", boxMat.ambdiffTexUnit);
+    m_objShader.setUniform1i("material.specular", boxMat.specTexUnit);
     m_objShader.setUniform1i("emissive", 2);
     
-    glm::mat4 view = m_cam.getViewMatrix();
-
     
     
     
     
-    glm::mat4 model;
     
-    glm::mat4 proj = glm::perspective(glm::radians(m_fov), 800.f/600.f, 0.1f, 100.f);
+    m_view = m_cam.getViewMatrix();
+    m_proj = glm::perspective(glm::radians(m_fov), 800.f/600.f, 0.1f, 100.f);
+    
+    
+    
+    
     
     for(auto vec : m_positions)
     {
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, vec);
+        m_model = glm::mat4(1.0f);
+        m_model = glm::translate(m_model, vec);
         
         
 
         
-        m_objShader.setUniformMatrix4f("model", model);
-        m_objShader.setUniformMatrix4f("view", view);
-        m_objShader.setUniformMatrix4f("proj", proj);
+        m_objShader.setUniformMatrix4f("model", m_model);
+        m_objShader.setUniformMatrix4f("view", m_view);
+        m_objShader.setUniformMatrix4f("proj", m_proj);
         
         
         m_shapes[0]->draw();
     }
     
     
-    m_light.translate(m_lightPos - m_light.getPosition());
-    m_light.draw(view, proj);
+    m_light.setPosition(m_lightPos);
+    m_light.draw(m_view, m_proj);
     
     
 }
@@ -342,8 +260,8 @@ void Scene::mouse_callback(GLFWwindow* window, double xpos, double ypos)
     m_lastMousePosX = xpos;
     m_lastMousePosY = ypos;
     
-    xoffset *= m_sensitivity;
-    yoffset *= m_sensitivity;
+    xoffset *= m_mouseSensitivity;
+    yoffset *= m_mouseSensitivity;
     
     
     m_cam.turnYaw(xoffset);
@@ -365,4 +283,64 @@ void Scene::scroll_callback(GLFWwindow* window, double xInc, double yInc)
     if(m_fov > 45.f)
         m_fov = 45.f;
         
+}
+
+
+
+
+
+template <typename VertT>
+std::vector<VertT> Scene::genBoxVerts()
+{
+    std::vector<Vert3x3x2f> vertsBox = {
+        Vert3x3x2f(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f), // front
+        Vert3x3x2f(0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f),
+        
+        Vert3x3x2f(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
+        Vert3x3x2f(0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f),
+        
+        Vert3x3x2f(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f), // back
+        Vert3x3x2f(0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f),
+        
+        Vert3x3x2f(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
+        Vert3x3x2f(0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
+        
+        Vert3x3x2f(-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f), //top
+        Vert3x3x2f(0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+        
+        Vert3x3x2f(0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+        
+        Vert3x3x2f(-0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f), //bottom
+        Vert3x3x2f(0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
+        
+        Vert3x3x2f(0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
+        
+        Vert3x3x2f(0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f), //right
+        Vert3x3x2f(0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
+        
+        Vert3x3x2f(0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
+        Vert3x3x2f(0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
+        
+        Vert3x3x2f(-0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f), //left
+        Vert3x3x2f(-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(-0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
+        
+        Vert3x3x2f(-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+        Vert3x3x2f(-0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
+        Vert3x3x2f(-0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f)
+    };
+    
+    return vertsBox;
 }

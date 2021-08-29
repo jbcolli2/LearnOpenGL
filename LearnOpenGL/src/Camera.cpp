@@ -12,7 +12,8 @@
 
 
 
-Camera::Camera(glm::vec3 camPos, glm::vec3 camDir) : m_camPos(camPos), m_camDir(camDir)
+Camera::Camera(float fov, float aspectRatio, float nearField, float farField, glm::vec3 camPos, glm::vec3 camDir) : m_camPos(camPos), m_camDir(camDir), m_fov(fov),
+    m_aspectRatio(aspectRatio), m_nearField(nearField), m_farField(farField)
 {
     m_camRight = glm::vec3(1.f, 0.f, 0.f);
     m_pitch = glm::acos(m_camDir.y)-M_PI_2;

@@ -49,6 +49,11 @@ public:
         glUniform1i(glGetUniformLocation(program, uniformName.c_str()), i);
     }
     
+    void setUniformTex(const std::string& uniformName, int i)
+    {
+        setUniform1i(uniformName, i);
+    }
+    
     
     void setUniformMatrix4f(const std::string& uniformName, glm::mat4 mat)
     {

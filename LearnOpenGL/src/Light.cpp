@@ -116,7 +116,8 @@ void Light::translate(const glm::vec3& delta)
 void Light::setPosition(const glm::vec3& position)
 {
     m_position = position;
-    m_model = glm::translate(id, m_position);
+    m_model = glm::scale(id, glm::vec3(m_uniformScale));
+    m_model = glm::translate(m_model, m_position);
 }
 
 

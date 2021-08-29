@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <stdio.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -27,17 +28,16 @@ struct Material
 {
     glm::vec3 ambient = glm::vec3(1.f);
     glm::vec3 diffuse = glm::vec3(1.f);
-    glm::vec3 specular = glm::vec3(1.f, 0.f, 0.f);
+    glm::vec3 specular = glm::vec3(1.f);
+    
+    unsigned int ambdiffTexID = 0;
+    unsigned int specTexID = 0;
+    unsigned int ambdiffTexUnit = -1;
+    unsigned int specTexUnit = -1;
     float shininess = 1;
 };
 
 
-struct TextureMaterial
-{
-    unsigned int ambdiffID = 0;
-    unsigned int specID = 1;
-    float shininess = 1;
-};
 
 
 
@@ -50,7 +50,6 @@ protected:
     std::vector<unsigned int> m_textures;
     
     Material m_material;
-    TextureMaterial m_texMaterial;
 
     
 public:
@@ -58,39 +57,114 @@ public:
     virtual ~Shape() {};
     
     Material getMaterial() {return m_material;};
-    TextureMaterial getTexMaterial() {return m_texMaterial;};
     void virtual draw() = 0;
   
     
     
-    void loadTexture(std::string filename, unsigned int texUnit, unsigned int rgbFlag = GL_RGB)
+    unsigned int loadTexture(std::string filename, unsigned int texUnit)
     {
+        unsigned int texID = 0;
         int width, height, nrChannels;
         unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
-
+        unsigned int rgbFlag;
+        if(nrChannels == 3)
+        {
+            rgbFlag = GL_RGB;
+        }
+        else if(nrChannels == 4)
+        {
+            rgbFlag = GL_RGBA;
+        }
+        else
+        {
+            std::cout << "Number of channels in image is not 3 or 4\n";
+            return 0;
+        }
         if(data)
         {
-            m_textures.push_back(0);
+            
 
             
-            glGenTextures(1, &m_textures.back());
+            glGenTextures(1, &texID);
             glActiveTexture(GL_TEXTURE0 + texUnit);
-            glBindTexture(GL_TEXTURE_2D, m_textures.back());
+            glBindTexture(GL_TEXTURE_2D, texID);
             
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
             
             stbi_image_free(data);
+            
+            m_textures.push_back(texID);
         }
         else
         {
             std::cout << "Failure to load texture " << filename << std::endl;
         }
+        
+        return texID;
     }
     
-    void loadTextureAlpha(std::string filename, unsigned int texUnit)
+    
+    
+    
+    void loadAmbDiffTexture(std::string filename, unsigned int texUnit)
     {
-        loadTexture(filename, texUnit, GL_RGBA);
+        unsigned int texID = loadTexture(filename, texUnit);
+        if(texID == 0)
+        {
+            std::cout << "Failed to load Ambient/Diffuse texture\n";
+            return;
+        }
+        
+        m_material.ambdiffTexID = texID;
+        m_material.ambdiffTexUnit = texUnit;
+    }
+    
+    
+    
+    void loadSpecTexture(std::string filename, unsigned int texUnit)
+    {
+        unsigned int texID = loadTexture(filename, texUnit);
+        if(texID == 0)
+        {
+            std::cout << "Failed to load Specular texture\n";
+            return;
+        }
+        
+        m_material.specTexID = texID;
+        m_material.specTexUnit = texUnit;
+    }
+    
+    void setAmbDiffTexUnit(unsigned int texUnit)
+    {
+        if(m_material.ambdiffTexID == 0)
+        {
+            std::cout << "Trying to set Amb/Diff tex unit before it is loaded\n";
+        }
+        else
+        {
+            m_material.ambdiffTexUnit = texUnit;
+            glActiveTexture(GL_TEXTURE0 + texUnit);
+            glBindTexture(GL_TEXTURE_2D, m_material.ambdiffTexID);
+        }
+  
+    }
+    
+    
+    
+    void setSpecTexUnit(unsigned int texUnit)
+    {
+        if(m_material.specTexID == 0)
+        {
+            std::cout << "Trying to set Amb/Diff tex unit before it is loaded\n";
+        }
+        else
+        {
+            m_material.specTexUnit = texUnit;
+            glActiveTexture(GL_TEXTURE0 + texUnit);
+            glBindTexture(GL_TEXTURE_2D, m_material.specTexID);
+        }
+  
     }
     
     
@@ -153,7 +227,7 @@ class Box : public Shape
 public:
     Box();
 //    Box(std::vector<VertT> verts);
-    Box(std::vector<VertT> verts, Material material = Material(), TextureMaterial texMaterial = TextureMaterial());
+    Box(std::vector<VertT> verts, Material material = Material());
     Box(const Box& otherBox);
     
     void virtual draw() override;
@@ -321,10 +395,9 @@ Box<VertT>::Box()
 
 
 template <typename VertT>
-Box<VertT>::Box(std::vector<VertT> verts, Material material, TextureMaterial texMaterial) : m_verts(verts)
+Box<VertT>::Box(std::vector<VertT> verts, Material material) : m_verts(verts)
 {
     m_material = material;
-    m_texMaterial = texMaterial;
     
     //******* VBO/VAO   ***************
     glGenVertexArrays(1, &m_VAO);

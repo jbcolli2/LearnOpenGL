@@ -23,18 +23,22 @@
 
 class Scene
 {
-    std::vector< std::unique_ptr<Shape> > m_shapes;
-    Shader m_objShader, m_lightShader;
     GLFWwindow* m_window;
     
+    Shader m_objShader, m_lightShader;
+    
+    std::vector< std::unique_ptr<Shape> > m_shapes;
+    
+    
+    Light m_light;
+    glm::vec3 m_lightPos{1.f, 1.f, -3.f};
     Camera m_cam;
     
     float m_lastMousePosX, m_lastMousePosY;
     bool m_firstMouse;
-    const float m_sensitivity = 0.1f;
+    const float m_mouseSensitivity = 0.1f;
     float m_fov = 45.f;
     
-    float m_test=800.f/600.f;
     
     
     std::vector<glm::vec3> m_positions = {
@@ -46,9 +50,11 @@ class Scene
 //        glm::vec3(-0.3f, -1.f, -12.f),
 //        glm::vec3(-0.6f, 0.5f, -3.f)
     };
-    glm::vec3 m_lightPos{1.f, 1.f, -3.f};
     
-    Light m_light;
+    glm::mat4 m_model, m_view, m_proj;
+    
+    
+    
     
     
 public:
@@ -83,10 +89,15 @@ public:
         {
             GLFWCallbackWrapper::m_scene = scene;
         }
+      
         
     private:
         static Scene* m_scene;
     };
+    
+    
+    
+    
     
     
 private:
@@ -94,6 +105,8 @@ private:
     void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     void scroll_callback(GLFWwindow* window, double xInc, double yInc);
     
+    template<typename VertT>
+    std::vector<VertT> genBoxVerts();
     
     
     
