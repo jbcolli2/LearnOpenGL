@@ -29,8 +29,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     // Load and compile the shaders
-    std::string shaderFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    m_objShader = Shader(shaderFolder + "Phong.vert", shaderFolder + "PhongLightMap.frag");
+    m_objShader = Shader(SHADER_FOLDER + "Phong.vert", SHADER_FOLDER + "PhongLightMap.frag");
     m_objShader.makeProgram();
     
     
@@ -39,8 +38,9 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     // Create Light object
     glm::vec3 diffLight{1.f};
-    m_light = Light(m_lightPos, .2f*diffLight, diffLight, glm::vec3(1.f),
-                    shaderFolder + "lightShader.vert", shaderFolder + "lightShader.frag");
+//    m_light = Light(m_lightPos, .2f*diffLight, diffLight, glm::vec3(1.f),
+//                    SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag");
+    m_dirLight.
     
     
     //  Setup the camera
@@ -68,14 +68,13 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     // The Textures
-    
-    std::string imageFolder = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/";
-
     stbi_set_flip_vertically_on_load(true);
-    m_shapes[0]->loadAmbDiffTexture(imageFolder + "container2.png", 0);
-    m_shapes[0]->loadSpecTexture(imageFolder + "container2_specular.png", 1);
+    m_shapes[0]->loadAmbDiffTexture(IMAGE_FOLDER + "container2.png", 0);
+    m_shapes[0]->loadSpecTexture(IMAGE_FOLDER + "container2_specular.png", 1);
     
     
+    
+    //  The light shape
     Box<Vert3x3x2f> light = box;
     m_shapes.emplace_back( std::make_unique<Box <Vert3x3x2f> >(light) );
             
@@ -102,7 +101,7 @@ void Scene::draw()
     
     
     // Set Light uniforms
-    m_objShader.setUniform3f("light.position", m_lightPos.x, m_lightPos.y, m_lightPos.z);
+    m_objShader.setUniform3f("light.direction", m_lightPos.x, m_lightPos.y, m_lightPos.z);
     m_objShader.setUniform3f("light.ambient", m_light.getAmbient().r, m_light.getAmbient().g, m_light.getAmbient().b);
     m_objShader.setUniform3f("light.diffuse", m_light.getDiffuse().r, m_light.getDiffuse().g, m_light.getDiffuse().b);
     m_objShader.setUniform3f("light.specular", m_light.getSpecular().r, m_light.getSpecular().g, m_light.getSpecular().b);

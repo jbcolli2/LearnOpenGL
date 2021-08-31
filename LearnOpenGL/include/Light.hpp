@@ -60,4 +60,15 @@ public:
     glm::vec3 getSpecular() {return m_specular;};
 };
 
+
+
+
+struct DirectionLight
+{
+    glm::vec3 direction = glm::vec3(0.f, -1.f, 0.f);
+    glm::vec3 ambient = glm::vec3(.1f);
+    glm::vec3 diffuse = glm::vec3(1.f);
+    glm::vec3 specular = glm::vec3(1.f);
+};
+
 #endif /* Light_h */

@@ -42,13 +42,13 @@
 		B731CC9A26D482AC00421CE6 /* PhongLightMap.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongLightMap.frag; path = shaders/PhongLightMap.frag; sourceTree = "<group>"; };
 		B731CC9B26D5172200421CE6 /* Test.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Test.frag; path = shaders/Test.frag; sourceTree = "<group>"; };
 		B766ADAC26D87F7600CC5023 /* Chap15_Ex3.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Chap15_Ex3.frag; path = shaders/Chap15_Ex3.frag; sourceTree = "<group>"; };
+		B78A764526DDC606003B9C9F /* PhongDirLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongDirLight.frag; path = shaders/PhongDirLight.frag; sourceTree = "<group>"; };
 		B79A5E9926CF44C70084DD12 /* Light.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Light.hpp; path = include/Light.hpp; sourceTree = "<group>"; };
 		B79A5E9B26CF46920084DD12 /* Light.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Light.cpp; path = src/Light.cpp; sourceTree = "<group>"; };
 		B7C1468C26C6C22100F2B71D /* Camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Camera.hpp; path = include/Camera.hpp; sourceTree = "<group>"; };
 		B7C1468E26C6E49300F2B71D /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = src/Camera.cpp; sourceTree = "<group>"; };
 		B7C1469026CA0D0A00F2B71D /* Phong.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Phong.vert; path = shaders/Phong.vert; sourceTree = "<group>"; };
 		B7C1469126CA0D2100F2B71D /* lightShader.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = lightShader.vert; path = shaders/lightShader.vert; sourceTree = "<group>"; };
-		B7C1469226CA0D4600F2B71D /* Phong.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Phong.frag; path = shaders/Phong.frag; sourceTree = "<group>"; };
 		B7C1469326CA0D5400F2B71D /* lightShader.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = lightShader.frag; path = shaders/lightShader.frag; sourceTree = "<group>"; };
 		B7DA83A826AE501A009C97B0 /* LearnOpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LearnOpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7DA83AB26AE501A009C97B0 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -79,9 +79,9 @@
 			isa = PBXGroup;
 			children = (
 				B7C1469026CA0D0A00F2B71D /* Phong.vert */,
-				B7C1469226CA0D4600F2B71D /* Phong.frag */,
 				B731CC9B26D5172200421CE6 /* Test.frag */,
 				B731CC9A26D482AC00421CE6 /* PhongLightMap.frag */,
+				B78A764526DDC606003B9C9F /* PhongDirLight.frag */,
 				B766ADAC26D87F7600CC5023 /* Chap15_Ex3.frag */,
 				B7C1469126CA0D2100F2B71D /* lightShader.vert */,
 				B7C1469326CA0D5400F2B71D /* lightShader.frag */,

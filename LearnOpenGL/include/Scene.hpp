@@ -23,6 +23,10 @@
 
 class Scene
 {
+    std::string SHADER_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
+    std::string IMAGE_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/";
+    
+    
     GLFWwindow* m_window;
     
     Shader m_objShader, m_lightShader;
@@ -31,6 +35,7 @@ class Scene
     
     
     Light m_light;
+    DirectionLight m_dirLight;
     glm::vec3 m_lightPos{1.f, 1.f, -3.f};
     Camera m_cam;
     
