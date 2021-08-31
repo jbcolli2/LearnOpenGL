@@ -29,7 +29,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     // Load and compile the shaders
-    m_objShader = Shader(SHADER_FOLDER + "Phong.vert", SHADER_FOLDER + "PhongLightMap.frag");
+    m_objShader = Shader(SHADER_FOLDER + "Phong.vert", SHADER_FOLDER + "PhongDirLight.frag");
     m_objShader.makeProgram();
     
     
@@ -38,9 +38,14 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     // Create Light object
     glm::vec3 diffLight{1.f};
-//    m_light = Light(m_lightPos, .2f*diffLight, diffLight, glm::vec3(1.f),
-//                    SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag");
-    m_dirLight.
+    m_light = Light(m_lightPos, .2f*diffLight, diffLight, glm::vec3(1.f),
+                    SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag");
+    m_dirLight.direction = glm::vec3(-.4f, -.8f, -.3f);
+    m_dirLight.ambient = glm::vec3(.1f);
+    m_dirLight.diffuse = glm::vec3(1.f);
+    m_dirLight.specular = glm::vec3(1.f);
+    
+    
     
     
     //  Setup the camera
@@ -100,12 +105,17 @@ void Scene::draw()
     
     
     
-    // Set Light uniforms
-    m_objShader.setUniform3f("light.direction", m_lightPos.x, m_lightPos.y, m_lightPos.z);
-    m_objShader.setUniform3f("light.ambient", m_light.getAmbient().r, m_light.getAmbient().g, m_light.getAmbient().b);
-    m_objShader.setUniform3f("light.diffuse", m_light.getDiffuse().r, m_light.getDiffuse().g, m_light.getDiffuse().b);
-    m_objShader.setUniform3f("light.specular", m_light.getSpecular().r, m_light.getSpecular().g, m_light.getSpecular().b);
+    // Set Position Light uniforms
+//    m_objShader.setUniform3f("light.position", m_lightPos.x, m_lightPos.y, m_lightPos.z);
+//    m_objShader.setUniform3f("light.ambient", m_light.getAmbient().r, m_light.getAmbient().g, m_light.getAmbient().b);
+//    m_objShader.setUniform3f("light.diffuse", m_light.getDiffuse().r, m_light.getDiffuse().g, m_light.getDiffuse().b);
+//    m_objShader.setUniform3f("light.specular", m_light.getSpecular().r, m_light.getSpecular().g, m_light.getSpecular().b);
     
+    //  Set Dir Light Uniforms
+    m_objShader.setUniform3f("light.direction", m_dirLight.direction.x, m_dirLight.direction.y, m_dirLight.direction.z);
+    m_objShader.setUniform3f("light.ambient", m_dirLight.ambient.x, m_dirLight.ambient.y, m_dirLight.ambient.z);
+    m_objShader.setUniform3f("light.diffuse", m_dirLight.diffuse.x, m_dirLight.diffuse.y, m_dirLight.diffuse.z);
+    m_objShader.setUniform3f("light.specular", m_dirLight.specular.x, m_dirLight.specular.y, m_dirLight.specular.z);
     
     
     // Set Material uniforms
@@ -128,11 +138,14 @@ void Scene::draw()
     
     
     
-    
+    int ii = 0;
     for(auto vec : m_positions)
     {
         m_model = ID4;
+        
         m_model = glm::translate(m_model, vec);
+        m_model = glm::rotate(m_model, glm::radians(20.f*ii), glm::vec3(1.f, 1.f, .5f));
+        m_model = glm::scale(m_model, glm::vec3(.5f));
         
         
 
@@ -141,6 +154,8 @@ void Scene::draw()
         
         
         m_shapes[0]->draw();
+        
+        ++ii;
     }
     
     

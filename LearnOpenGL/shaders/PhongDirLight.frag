@@ -16,6 +16,7 @@ struct Material
 
 struct Light
 {
+    vec3 position;
     vec3 direction;
     
     vec3 ambient;
@@ -37,7 +38,7 @@ void main()
     vec3 ambLight = vec3(texture(material.diffuse,UV)) * light.ambient;
     
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(direction);
+    vec3 lightDir = -normalize(light.direction);
     float diffAngleCoeff = max( dot(norm, lightDir), 0.0);
     vec3 diffLight = diffAngleCoeff*vec3(texture(material.diffuse,UV))*light.diffuse;
     

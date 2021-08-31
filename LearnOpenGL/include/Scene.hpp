@@ -53,12 +53,14 @@ class Scene
     
     std::vector<glm::vec3> m_positions = {
         glm::vec3(0.5f, .75f, -4.f),
-//        glm::vec3(-0.7f, 0.7f, -2.f),
-//        glm::vec3(0.6f, -1.f, -2.f),
-//        glm::vec3(0.45f, 0.f, -9.f),
-//        glm::vec3(0.4f, 1.f, -3.f),
-//        glm::vec3(-0.3f, -1.f, -12.f),
-//        glm::vec3(-0.6f, 0.5f, -3.f)
+        glm::vec3(-0.7f, 0.7f, -4.f),
+        glm::vec3(0.6f, -1.f, -3.5f),
+        glm::vec3(0.9f, 0.f, -9.f),
+        glm::vec3(1.f, 1.f, -3.f),
+        glm::vec3(-0.7f, -1.3f, -12.f),
+        glm::vec3(-0.6f, 0.75f, -3.f),
+        glm::vec3(1.5f, .87f, -4.2f),
+        glm::vec3(-1.2f, -1.7f, -3.6f)
     };
     
     glm::mat4 ID4 = glm::mat4(1.f);
