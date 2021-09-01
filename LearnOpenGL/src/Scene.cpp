@@ -29,7 +29,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     // Load and compile the shaders
-    m_objShader = Shader(SHADER_FOLDER + "Phong.vert", SHADER_FOLDER + "PhongDirLight.frag");
+    m_objShader = Shader(SHADER_FOLDER + "Phong.vert", SHADER_FOLDER + "PhongPointLight.frag");
     m_objShader.makeProgram();
     
     
@@ -112,10 +112,14 @@ void Scene::draw()
 //    m_objShader.setUniform3f("light.specular", m_light.getSpecular().r, m_light.getSpecular().g, m_light.getSpecular().b);
     
     //  Set Dir Light Uniforms
-    m_objShader.setUniform3f("light.direction", m_dirLight.direction.x, m_dirLight.direction.y, m_dirLight.direction.z);
+    m_objShader.setUniform3f("light.position", m_lightPos.x, m_lightPos.y, m_lightPos.z);
     m_objShader.setUniform3f("light.ambient", m_dirLight.ambient.x, m_dirLight.ambient.y, m_dirLight.ambient.z);
     m_objShader.setUniform3f("light.diffuse", m_dirLight.diffuse.x, m_dirLight.diffuse.y, m_dirLight.diffuse.z);
     m_objShader.setUniform3f("light.specular", m_dirLight.specular.x, m_dirLight.specular.y, m_dirLight.specular.z);
+    
+    m_objShader.setUniform1f("light.attenConst", 1.f);
+    m_objShader.setUniform1f("light.attenLinear", .09f);
+    m_objShader.setUniform1f("light.attenQuad", .032f);
     
     
     // Set Material uniforms
