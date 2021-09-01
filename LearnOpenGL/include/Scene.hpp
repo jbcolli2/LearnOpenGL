@@ -36,7 +36,8 @@ class Scene
     
     Light m_light;
     DirectionLight m_dirLight;
-    glm::vec3 m_lightPos{1.f, 1.f, -3.f};
+    Flashlight m_flashlight;
+    glm::vec3 m_lightPos{.5f, 1.f, -2.f};
     Camera m_cam;
     
     

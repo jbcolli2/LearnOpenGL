@@ -29,7 +29,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     // Load and compile the shaders
-    m_objShader = Shader(SHADER_FOLDER + "Phong.vert", SHADER_FOLDER + "PhongPointLight.frag");
+    m_objShader = Shader(SHADER_FOLDER + "Phong.vert", SHADER_FOLDER + "PhongFlashlight.frag");
     m_objShader.makeProgram();
     
     
@@ -44,6 +44,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_dirLight.ambient = glm::vec3(.1f);
     m_dirLight.diffuse = glm::vec3(1.f);
     m_dirLight.specular = glm::vec3(1.f);
+    
+    m_flashlight.cutoffAngle = glm::cos(glm::radians(12.5f));
     
     
     
@@ -104,19 +106,27 @@ void Scene::draw()
     m_objShader.useProgram();
     
     
+    m_objShader.setUniform3f("light.position", m_lightPos.x, m_lightPos.y, m_lightPos.z);
     
     // Set Position Light uniforms
-//    m_objShader.setUniform3f("light.position", m_lightPos.x, m_lightPos.y, m_lightPos.z);
 //    m_objShader.setUniform3f("light.ambient", m_light.getAmbient().r, m_light.getAmbient().g, m_light.getAmbient().b);
 //    m_objShader.setUniform3f("light.diffuse", m_light.getDiffuse().r, m_light.getDiffuse().g, m_light.getDiffuse().b);
 //    m_objShader.setUniform3f("light.specular", m_light.getSpecular().r, m_light.getSpecular().g, m_light.getSpecular().b);
     
     //  Set Dir Light Uniforms
-    m_objShader.setUniform3f("light.position", m_lightPos.x, m_lightPos.y, m_lightPos.z);
-    m_objShader.setUniform3f("light.ambient", m_dirLight.ambient.x, m_dirLight.ambient.y, m_dirLight.ambient.z);
-    m_objShader.setUniform3f("light.diffuse", m_dirLight.diffuse.x, m_dirLight.diffuse.y, m_dirLight.diffuse.z);
-    m_objShader.setUniform3f("light.specular", m_dirLight.specular.x, m_dirLight.specular.y, m_dirLight.specular.z);
+//    m_objShader.setUniform3f("light.ambient", m_dirLight.ambient.x, m_dirLight.ambient.y, m_dirLight.ambient.z);
+//    m_objShader.setUniform3f("light.diffuse", m_dirLight.diffuse.x, m_dirLight.diffuse.y, m_dirLight.diffuse.z);
+//    m_objShader.setUniform3f("light.specular", m_dirLight.specular.x, m_dirLight.specular.y, m_dirLight.specular.z);
     
+    
+    // Set Flashlight uniforms
+    m_objShader.setUniform3f("light.direction", m_flashlight.direction.x, m_flashlight.direction.y, m_flashlight.direction.z);
+    m_objShader.setUniform1f("light.cutoffAngle", m_flashlight.cutoffAngle);
+    m_objShader.setUniform3f("light.ambient", m_flashlight.ambient.x, m_flashlight.ambient.y, m_flashlight.ambient.z);
+    m_objShader.setUniform3f("light.diffuse", m_flashlight.diffuse.x, m_flashlight.diffuse.y, m_flashlight.diffuse.z);
+    m_objShader.setUniform3f("light.specular", m_flashlight.specular.x, m_flashlight.specular.y, m_flashlight.specular.z);
+    
+    // Set Light attenuation uniforms
     m_objShader.setUniform1f("light.attenConst", 1.f);
     m_objShader.setUniform1f("light.attenLinear", .09f);
     m_objShader.setUniform1f("light.attenQuad", .032f);
