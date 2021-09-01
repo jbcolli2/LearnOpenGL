@@ -18,7 +18,8 @@ struct Light
 {
     vec3 position;
     vec3 direction;
-    float cutoffAngle;
+    float innerAngle;
+    float outerAngle;
     
     vec3 ambient;
     vec3 diffuse;
@@ -47,8 +48,10 @@ void main()
     vec3 lightDir = -light2Frag;
     
     float flashAngle = dot(light2Frag, normalize(vec3(view*vec4(light.direction, 0.0))));
-    vec3 result = light.ambient * vec3(texture(material.diffuse,UV));;
-    if(flashAngle > light.cutoffAngle)
+    vec3 result = light.ambient * vec3(texture(material.diffuse,UV));
+    
+    
+    if(flashAngle > light.outerAngle)
     {
         float dist = length(light.position - FragPos);
         float attenuation = 1.0/(light.attenConst + dist*light.attenLinear + dist*dist*light.attenQuad);
@@ -69,6 +72,11 @@ void main()
         ambLight *= attenuation;
         diffLight *= attenuation;
         specLight *= attenuation;
+        
+        
+        float fuzzyMult = clamp((flashAngle - light.outerAngle)/(light.innerAngle - light.outerAngle), 0.0, 1.0);
+        diffLight *= fuzzyMult;
+        specLight *= fuzzyMult;
         
         result = (ambLight + diffLight + specLight + vec3(texture(emissive,UV)));
     }

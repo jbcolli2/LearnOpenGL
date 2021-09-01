@@ -76,7 +76,8 @@ struct Flashlight
 {
     glm::vec3 position = glm::vec3(1.f, 1.f, -2.f);
     glm::vec3 direction = glm::vec3(0.f, 0.f, -1.f);
-    float cutoffAngle = glm::cos(glm::radians(45.f));
+    float innerAngle = glm::cos(glm::radians(45.f));
+    float outerAngle = glm::cos(glm::radians(47.f));
     
     glm::vec3 ambient = glm::vec3(.2f);
     glm::vec3 diffuse = glm::vec3(1.f);
