@@ -28,6 +28,7 @@ public:
     void makeProgram();
     
     void useProgram(){ glUseProgram(program);};
+    void stopUseProgram() {glUseProgram(0);};
     
     void setUniform1f(const std::string& uniformName, float f)
     {

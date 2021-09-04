@@ -17,14 +17,13 @@
 
 
 
-class Light
+class PosLight
 {
-private:
-    glm::vec3 m_position, m_ambient, m_diffuse, m_specular;
+protected:
     float m_uniformScale;
     glm::vec3 m_color;
     
-    glm::mat4 m_proj, m_view, m_model;
+    glm::mat4 m_model;
     static constexpr glm::mat4 id = glm::mat4(1.f);
     
     Box<Vert3f> m_box;
@@ -33,31 +32,71 @@ private:
     
     
 public:
-    Light() = default;
-    Light(const glm::vec3& position, const glm::vec3& ambient, const glm::vec3 diffuse,
-          const glm::vec3& specular, const std::string& vertFilename, const std::string& fragFilename);
+    glm::vec3 position, color;
     
+    PosLight() = default;
+    PosLight(const glm::vec3& position, const std::string& vertFilename, const std::string& fragFilename);
+    
+    void virtual setUniforms(Shader obj_Shader)
+    {
+        obj_Shader.setUniform3f("light.position", position.x, position.y, position.z);
+    };
     void draw(const glm::mat4& view, const glm::mat4& proj);
     
     
     void translate(const glm::vec3& delta);
-    void setPosition(const glm::vec3& position);
     void setScale(float uniformScale) {m_uniformScale = uniformScale;};
+    
+    
+    
+    
+};
+
+
+
+
+class PointLight : public PosLight
+{
+public:
+    glm::vec3 ambient, diffuse, specular;
+    float constAtten, linAtten, quadAtten;
+    
+    PointLight(const glm::vec3 position, const std::string& vertFilename, const std::string& fragFilename,
+               float ambFactor = .1f, const glm::vec3& diffuse = glm::vec3(1.f, 1.f, 1.f),
+               const glm::vec3& spec = glm::vec3(1.f, 1.f, 1.f), float constAtten = 1.f,
+               float linAtten = 0.f, float quadAtten = 0.f) :
+    PosLight(position, vertFilename, fragFilename), diffuse(diffuse), specular(spec), constAtten(constAtten),
+    linAtten(linAtten), quadAtten(quadAtten)
+    {
+        ambient = ambFactor*diffuse;
+    }
+    
+    void virtual setUniforms(Shader obj_Shader) override;
     
     void setAmbientDiffuse(const glm::vec3& color, float ambientFactor)
     {
-        m_ambient = ambientFactor * color;
-        m_diffuse = color;
+        ambient = ambientFactor * color;
+        diffuse = color;
     };
-    void setSpecular(const glm::vec3& color)
-    {
-        m_specular = color;
-    };
+};
+
+
+
+class SpotLight : public PointLight
+{
+    float innerCutoff, outerCutoff;
     
-    glm::vec3 getPosition() { return m_position;};
-    glm::vec3 getAmbient() {return m_ambient;};
-    glm::vec3 getDiffuse() {return m_diffuse;};
-    glm::vec3 getSpecular() {return m_specular;};
+    SpotLight(const glm::vec3 position, const std::string& vertFilename, const std::string& fragFilename,
+               float ambFactor = .1f, const glm::vec3& diffuse = glm::vec3(1.f, 1.f, 1.f),
+               const glm::vec3& spec = glm::vec3(1.f, 1.f, 1.f), float constAtten = 1.f,
+               float linAtten = 0.f, float quadAtten = 0.f, float innerCutoff = glm::radians(45.f),
+              float outerCutoff = glm::radians(45.f)) :
+    PointLight(position, vertFilename, fragFilename, ambFactor, diffuse, spec, constAtten, linAtten,
+               quadAtten), innerCutoff(innerCutoff), outerCutoff(outerCutoff)  {};
+    
+    
+    void virtual setUniforms(Shader obj_Shader) override;
+    
 };
 
 
@@ -66,9 +105,22 @@ public:
 struct DirectionLight
 {
     glm::vec3 direction = glm::vec3(0.f, -1.f, 0.f);
-    glm::vec3 ambient = glm::vec3(.1f);
+    glm::vec3 ambient = glm::vec3(.2f);
     glm::vec3 diffuse = glm::vec3(1.f);
     glm::vec3 specular = glm::vec3(1.f);
+    
+    DirectionLight(const glm::vec3& dir, float ambFactor = .2f, const glm::vec3& diffuse = glm::vec3(1.f),
+                   const glm::vec3& spec = glm::vec3(1.f)) :
+    direction(dir), diffuse(diffuse), specular(spec)
+    {
+        ambient = diffuse*ambFactor;
+    };
+    
+    void setAmbientDiffuse(const glm::vec3& color, float ambientFactor)
+    {
+        ambient = ambientFactor * color;
+        diffuse = color;
+    };
 };
 
 

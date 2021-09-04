@@ -10,8 +10,7 @@
 #include "Light.hpp"
 
 
-Light::Light(const glm::vec3& position, const glm::vec3& ambient, const glm::vec3 diffuse,
-             const glm::vec3& specular, const std::string& vertFilename, const std::string& fragFilename) : m_position(position), m_ambient(ambient), m_diffuse(diffuse), m_specular(specular)
+PosLight::PosLight(const glm::vec3& position, const std::string& vertFilename, const std::string& fragFilename) : position(position)
 {
     m_uniformScale = 0.05f;
     
@@ -69,7 +68,7 @@ Light::Light(const glm::vec3& position, const glm::vec3& ambient, const glm::vec
     m_box = Box<Vert3f>(vertsBox);
     
     
-    m_model = glm::translate(id, m_position);
+    m_model = glm::translate(id, position);
     m_model = glm::scale(m_model, glm::vec3(m_uniformScale));
     
     m_shader = Shader(vertFilename, fragFilename);
@@ -80,23 +79,23 @@ Light::Light(const glm::vec3& position, const glm::vec3& ambient, const glm::vec
 
 
 
-void Light::draw(const glm::mat4& view, const glm::mat4& proj)
+void PosLight::draw(const glm::mat4& view, const glm::mat4& proj)
 {
-    m_model = glm::translate(id, m_position);
-    m_model = glm::scale(m_model, glm::vec3(0.05f));
-    m_view = view;
-    m_proj = proj;
+    m_model = glm::translate(id, position);
+    m_model = glm::scale(m_model, glm::vec3(m_uniformScale));
     
     m_shader.useProgram();
     
     
-    m_shader.setUniform3f("lightColor", m_diffuse.r, m_diffuse.g, m_diffuse.b);
+    m_shader.setUniform3f("lightColor", color.r, color.g, color.b);
     
     m_shader.setUniformMatrix4f("model", m_model);
-    m_shader.setUniformMatrix4f("view", m_view);
-    m_shader.setUniformMatrix4f("proj", m_proj);
+    m_shader.setUniformMatrix4f("view", view);
+    m_shader.setUniformMatrix4f("proj", proj);
     
     m_box.draw();
+    
+    m_shader.stopUseProgram();
 }
 
 
@@ -106,18 +105,49 @@ void Light::draw(const glm::mat4& view, const glm::mat4& proj)
 
 
 
-void Light::translate(const glm::vec3& delta)
+void PosLight::translate(const glm::vec3& delta)
 {
     m_position += delta;
 }
 
 
 
-void Light::setPosition(const glm::vec3& position)
+
+
+
+
+
+
+
+
+
+
+void  PointLight::setUniforms(Shader obj_Shader)
 {
-    m_position = position;
-    m_model = glm::scale(id, glm::vec3(m_uniformScale));
-    m_model = glm::translate(m_model, m_position);
+    PosLight::setUniforms(obj_Shader);
+    obj_Shader.setUniform3f("light.ambient", ambient.r, ambient.g, ambient.b);
+    obj_Shader.setUniform3f("light.diffuse", diffuse.r, diffuse.g, diffuse.b);
+    obj_Shader.setUniform3f("light.specular", specular.r, specular.g, specular.b);
+    
+    obj_Shader.setUniform1f("light.constAtten", constAtten);
+    obj_Shader.setUniform1f("light.linAtten", linAtten);
+    obj_Shader.setUniform1f("light.quadAtten", quadAtten);
+    
 }
+
+
+
+
+
+
+void SpotLight::setUniforms(Shader obj_Shader)
+{
+    PointLight::setUniforms(obj_Shader);
+    obj_Shader.setUniform1f("light.outerCutoff", outerCutoff);
+    obj_Shader.setUniform1f("light.innerCutoff", innerCutoff);
+}
+
+
+
 
 
