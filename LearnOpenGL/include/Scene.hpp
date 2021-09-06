@@ -33,10 +33,10 @@ class Scene
     
     std::vector< std::unique_ptr<Shape> > m_shapes;
     
-    
-    Light m_light;
-    DirectionLight m_dirLight;
-    Flashlight m_flashlight;
+    PosLight m_light;
+    PointLight m_ptLight;
+    DirLight m_dirLight;
+    SpotLight m_flashlight;
     glm::vec3 m_lightPos{.5f, 1.f, -2.f};
     Camera m_cam;
     

@@ -23,9 +23,9 @@ struct Light
     vec3 diffuse;
     vec3 specular;
     
-    float attenConst;
-    float attenLinear;
-    float attenQuad;
+    float constAtten;
+    float linAtten;
+    float quadAtten;
     
     
 
@@ -43,7 +43,7 @@ uniform mat4 view;
 void main()
 {
     float dist = length(light.position - FragPos);
-    float attenuation = 1.0/(light.attenConst + dist*light.attenLinear + dist*dist*light.attenQuad);
+    float attenuation = 1.0/(light.constAtten + dist*light.linAtten + dist*dist*light.quadAtten);
     
     
     vec3 ambLight = vec3(texture(material.diffuse,UV)) * light.ambient;

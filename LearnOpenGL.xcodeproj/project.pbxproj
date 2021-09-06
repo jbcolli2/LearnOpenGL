@@ -42,7 +42,7 @@
 		B731CC9A26D482AC00421CE6 /* PhongLightMap.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongLightMap.frag; path = shaders/PhongLightMap.frag; sourceTree = "<group>"; };
 		B731CC9B26D5172200421CE6 /* Test.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Test.frag; path = shaders/Test.frag; sourceTree = "<group>"; };
 		B75B2CAA26DEC92D000F5281 /* PhongPointLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongPointLight.frag; path = shaders/PhongPointLight.frag; sourceTree = "<group>"; };
-		B75B2CAC26DF1745000F5281 /* PhongFlashlight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongFlashlight.frag; path = shaders/PhongFlashlight.frag; sourceTree = "<group>"; };
+		B75B2CAC26DF1745000F5281 /* PhongSpotLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongSpotLight.frag; path = shaders/PhongSpotLight.frag; sourceTree = "<group>"; };
 		B78A764526DDC606003B9C9F /* PhongDirLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongDirLight.frag; path = shaders/PhongDirLight.frag; sourceTree = "<group>"; };
 		B79A5E9926CF44C70084DD12 /* Light.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Light.hpp; path = include/Light.hpp; sourceTree = "<group>"; };
 		B79A5E9B26CF46920084DD12 /* Light.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Light.cpp; path = src/Light.cpp; sourceTree = "<group>"; };
@@ -84,7 +84,7 @@
 				B731CC9A26D482AC00421CE6 /* PhongLightMap.frag */,
 				B78A764526DDC606003B9C9F /* PhongDirLight.frag */,
 				B75B2CAA26DEC92D000F5281 /* PhongPointLight.frag */,
-				B75B2CAC26DF1745000F5281 /* PhongFlashlight.frag */,
+				B75B2CAC26DF1745000F5281 /* PhongSpotLight.frag */,
 				B7C1469126CA0D2100F2B71D /* lightShader.vert */,
 				B7C1469326CA0D5400F2B71D /* lightShader.frag */,
 			);

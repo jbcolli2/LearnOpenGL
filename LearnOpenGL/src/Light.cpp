@@ -10,9 +10,27 @@
 #include "Light.hpp"
 
 
-PosLight::PosLight(const glm::vec3& position, const std::string& vertFilename, const std::string& fragFilename) : position(position)
+PosLight::PosLight(const std::string& vertFilename, const std::string& fragFilename, const glm::vec3& position,
+                   const glm::vec3& dir, float ambFactor, const glm::vec3& diffuse, const glm::vec3& spec, float constAtten,
+                   float linAtten, float, float innerCutoff, float outerCutoff) :
+position(position), direction(dir), diffuse(diffuse), specular(spec), constAtten(constAtten),
+linAtten(linAtten), quadAtten(quadAtten), innerCutoff(innerCutoff), outerCutoff(outerCutoff)
 {
+    ambient = ambFactor * diffuse;
     m_uniformScale = 0.05f;
+    m_color = diffuse;
+    
+    structName = "light";
+    posName = "position";
+    dirName = "direction";
+    ambName = "ambient";
+    diffName = "diffuse";
+    specName = "specular";
+    constName = "constAtten";
+    linName = "linAtten";
+    quadName = "quadAtten";
+    innerName = "innerCutoff";
+    outerName = "outerCutoff";
     
     
     std::vector<Vert3f> vertsBox = {
@@ -87,7 +105,7 @@ void PosLight::draw(const glm::mat4& view, const glm::mat4& proj)
     m_shader.useProgram();
     
     
-    m_shader.setUniform3f("lightColor", color.r, color.g, color.b);
+    m_shader.setUniform3f("lightColor", m_color.r, m_color.g, m_color.b);
     
     m_shader.setUniformMatrix4f("model", m_model);
     m_shader.setUniformMatrix4f("view", view);
@@ -99,15 +117,9 @@ void PosLight::draw(const glm::mat4& view, const glm::mat4& proj)
 }
 
 
-
-
-
-
-
-
 void PosLight::translate(const glm::vec3& delta)
 {
-    m_position += delta;
+    position += delta;
 }
 
 
@@ -117,35 +129,113 @@ void PosLight::translate(const glm::vec3& delta)
 
 
 
-
-
-
-
-
-void  PointLight::setUniforms(Shader obj_Shader)
+void PosLight::setUniformPos(Shader obj_Shader, int index)
 {
-    PosLight::setUniforms(obj_Shader);
-    obj_Shader.setUniform3f("light.ambient", ambient.r, ambient.g, ambient.b);
-    obj_Shader.setUniform3f("light.diffuse", diffuse.r, diffuse.g, diffuse.b);
-    obj_Shader.setUniform3f("light.specular", specular.r, specular.g, specular.b);
-    
-    obj_Shader.setUniform1f("light.constAtten", constAtten);
-    obj_Shader.setUniform1f("light.linAtten", linAtten);
-    obj_Shader.setUniform1f("light.quadAtten", quadAtten);
-    
+    std::string uniformName;
+    if(index < 0)
+    {
+        uniformName = structName + ".";
+    }
+    else
+    {
+        uniformName = structName + "[" + std::to_string(index) + "].";
+    }
+    obj_Shader.setUniform3f(uniformName + posName, position.x, position.y, position.z);
 }
 
 
-
-
-
-
-void SpotLight::setUniforms(Shader obj_Shader)
+void PosLight::setUniformDir(Shader obj_Shader, int index)
 {
-    PointLight::setUniforms(obj_Shader);
-    obj_Shader.setUniform1f("light.outerCutoff", outerCutoff);
-    obj_Shader.setUniform1f("light.innerCutoff", innerCutoff);
+    std::string uniformName;
+    if(index < 0)
+    {
+        uniformName = structName + ".";
+    }
+    else
+    {
+        uniformName = structName + "[" + std::to_string(index) + "].";
+    }
+    obj_Shader.setUniform3f(uniformName + dirName, direction.x, direction.y, direction.z);
 }
+
+
+void PosLight::setUniformColor(Shader obj_Shader, int index)
+{
+    std::string uniformName;
+    if(index < 0)
+    {
+        uniformName = structName + ".";
+    }
+    else
+    {
+        uniformName = structName + "[" + std::to_string(index) + "].";
+    }
+    obj_Shader.setUniform3f(uniformName + ambName, ambient.x, ambient.y, ambient.z);
+    obj_Shader.setUniform3f(uniformName + diffName, diffuse.x, diffuse.y, diffuse.z);
+    obj_Shader.setUniform3f(uniformName + specName, specular.x, specular.y, specular.z);
+}
+
+
+void PosLight::setUniformAtten(Shader obj_Shader, int index)
+{
+    std::string uniformName;
+    if(index < 0)
+    {
+        uniformName = structName + ".";
+    }
+    else
+    {
+        uniformName = structName + "[" + std::to_string(index) + "].";
+    }
+    obj_Shader.setUniform1f(uniformName + constName, constAtten);
+    obj_Shader.setUniform1f(uniformName + linName, linAtten);
+    obj_Shader.setUniform1f(uniformName + quadName, quadAtten);
+}
+
+
+void PosLight::setUniformCutoff(Shader obj_Shader, int index)
+{
+    std::string uniformName;
+    if(index < 0)
+    {
+        uniformName = structName + ".";
+    }
+    else
+    {
+        uniformName = structName + "[" + std::to_string(index) + "].";
+    }
+    obj_Shader.setUniform1f(uniformName + innerName, innerCutoff);
+    obj_Shader.setUniform1f(uniformName + outerName, outerCutoff);
+}
+
+
+void PosLight::setUniformDirLight(Shader obj_Shader, int index)
+{
+    setUniformDir(obj_Shader, index);
+    setUniformColor(obj_Shader, index);
+}
+
+void PosLight::setUniformPtLight(Shader obj_Shader, int index)
+{
+    setUniformPos(obj_Shader, index);
+    setUniformColor(obj_Shader, index);
+    setUniformAtten(obj_Shader, index);
+}
+
+
+void PosLight::setUniformSpotLight(Shader obj_Shader, int index)
+{
+    setUniformPtLight(obj_Shader, index);
+    setUniformDir(obj_Shader, index);
+    setUniformCutoff(obj_Shader, index);
+}
+
+
+
+
+
+
+
 
 
 
