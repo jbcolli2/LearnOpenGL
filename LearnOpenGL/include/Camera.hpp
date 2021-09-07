@@ -35,6 +35,8 @@ public:
            glm::vec3 camPos = glm::vec3(0.f,0.f,0.f), glm::vec3 camDir = glm::vec3(0.f, 0.f, 1.f));
     
     void setPosition(glm::vec3 position) {m_camPos = position;};
+    glm::vec3 getPosition() {return m_camPos;};
+    glm::vec3 getDirection() {return m_camDir;};
 //    void setDirection(glm::vec3 direction) {m_camDir = direction;};
     
     void turnYaw(float yawIncrement)

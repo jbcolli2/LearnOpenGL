@@ -69,9 +69,9 @@ void main()
         float specAngleCoeff = pow(max(dot(reflectDir, viewDir), 0.0), material.shininess);
         vec3 specLight = specAngleCoeff*vec3(texture(material.specular,UV))*light.specular;
         
-//        ambLight *= attenuation;
-//        diffLight *= attenuation;
-//        specLight *= attenuation;
+        ambLight *= attenuation;
+        diffLight *= attenuation;
+        specLight *= attenuation;
         
         
         float fuzzyMult = clamp((flashAngle - light.outerCutoff)/(light.innerCutoff - light.outerCutoff), 0.0, 1.0);

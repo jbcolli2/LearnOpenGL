@@ -170,6 +170,7 @@ void PosLight::setUniformColor(Shader obj_Shader, int index)
     {
         uniformName = structName + "[" + std::to_string(index) + "].";
     }
+    
     obj_Shader.setUniform3f(uniformName + ambName, ambient.x, ambient.y, ambient.z);
     obj_Shader.setUniform3f(uniformName + diffName, diffuse.x, diffuse.y, diffuse.z);
     obj_Shader.setUniform3f(uniformName + specName, specular.x, specular.y, specular.z);

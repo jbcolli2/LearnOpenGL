@@ -51,6 +51,7 @@
 		B7C1469026CA0D0A00F2B71D /* Phong.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Phong.vert; path = shaders/Phong.vert; sourceTree = "<group>"; };
 		B7C1469126CA0D2100F2B71D /* lightShader.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = lightShader.vert; path = shaders/lightShader.vert; sourceTree = "<group>"; };
 		B7C1469326CA0D5400F2B71D /* lightShader.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = lightShader.frag; path = shaders/lightShader.frag; sourceTree = "<group>"; };
+		B7CCC5A226E5B70100E46B52 /* Chap17.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Chap17.frag; path = shaders/Chap17.frag; sourceTree = "<group>"; };
 		B7DA83A826AE501A009C97B0 /* LearnOpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LearnOpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7DA83AB26AE501A009C97B0 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		B7DA83B326AE50B3009C97B0 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -85,6 +86,7 @@
 				B78A764526DDC606003B9C9F /* PhongDirLight.frag */,
 				B75B2CAA26DEC92D000F5281 /* PhongPointLight.frag */,
 				B75B2CAC26DF1745000F5281 /* PhongSpotLight.frag */,
+				B7CCC5A226E5B70100E46B52 /* Chap17.frag */,
 				B7C1469126CA0D2100F2B71D /* lightShader.vert */,
 				B7C1469326CA0D5400F2B71D /* lightShader.frag */,
 			);

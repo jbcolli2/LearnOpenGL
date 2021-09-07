@@ -29,7 +29,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     // Load and compile the shaders
-    m_objShader = Shader(SHADER_FOLDER + "Phong.vert", SHADER_FOLDER + "PhongSpotLight.frag");
+    m_objShader = Shader(SHADER_FOLDER + "Phong.vert", SHADER_FOLDER + "Chap17.frag");
     m_objShader.makeProgram();
     
     
@@ -38,9 +38,23 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     // Create Light object
     glm::vec3 diffLight{1.f};
-    m_light = SpotLight(SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag", m_lightPos);
-    m_light.innerCutoff = glm::cos(glm::radians(12.5f));
-    m_light.outerCutoff = glm::cos(glm::radians(14.5f));
+    m_dirLight = DirLight(SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag");
+    m_dirLight.direction = glm::vec3(-1.f, -2.f, -1.f);
+    m_dirLight.diffuse = glm::vec3(0.5f);
+    m_dirLight.structName = "dirLight";
+    for(int ii = 0; ii < 4; ++ii)
+    {
+        m_ptLight[ii] = PointLight(SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag", m_lightPos[ii]);
+        m_ptLight[ii].structName = "ptLights";
+        m_ptLight[ii].diffuse = glm::vec3(0.5f);
+        m_ptLight[ii].ambient = m_ptLight[ii].diffuse*glm::vec3(0.05f);
+        m_ptLight[ii].linAtten = 0.17f;
+        m_ptLight[ii].quadAtten = 0.07f;
+        
+    }
+    m_spotLight = SpotLight(SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag");
+    m_spotLight.structName = "spotLight";
+    
     
     
     
@@ -101,13 +115,12 @@ void Scene::draw()
     m_objShader.useProgram();
     
     
-//    m_objShader.setUniform3f("light.position", m_lightPos.x, m_lightPos.y, m_lightPos.z);
-//    m_objShader.setUniform3f("light.ambient", .2f, .2f, .2f);
-//    m_objShader.setUniform3f("light.diffuse", 1.f, 1.f, 1.f);
-    
-    m_light.setUniformSpotLight(m_objShader);
-//    m_objShader.setUniform1f("light.innerCutoff", glm::radians(12.f));
-//    m_objShader.setUniform1f("light.outerCutoff", glm::radians(15.f));
+    m_dirLight.setUniformDirLight(m_objShader);
+    for(int ii = 0; ii < 4; ++ii)
+    {
+        m_ptLight[ii].setUniformPtLight(m_objShader, ii);
+    }
+    m_spotLight.setUniformSpotLight(m_objShader);
     
     
     // Set Material uniforms
@@ -115,7 +128,6 @@ void Scene::draw()
     m_objShader.setUniform1f("material.shininess", boxMat.shininess);
     m_objShader.setUniform1i("material.diffuse", boxMat.ambdiffTexUnit);
     m_objShader.setUniform1i("material.specular", boxMat.specTexUnit);
-    m_objShader.setUniform1i("emissive", 2);
     
     
     
@@ -151,8 +163,13 @@ void Scene::draw()
     }
     
     
-    m_light.position = m_lightPos;
-    m_light.draw(m_view, m_proj);
+//    m_ptLight[0].position = m_lightPos[0];
+    for(auto light : m_ptLight)
+    {
+        light.draw(m_view, m_proj);
+    }
+    m_spotLight.position = m_cam.getPosition();
+    m_spotLight.direction = m_cam.getDirection();
     
     
 }
@@ -207,32 +224,32 @@ void Scene::processInput(float deltaTime)
     
     if(glfwGetKey(m_window, GLFW_KEY_I) == GLFW_PRESS)
     {
-        m_lightPos.z -= inc;
+        m_ptLight[0].position.z -= inc;
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_K) == GLFW_PRESS)
     {
-        m_lightPos.z += inc;
+        m_ptLight[0].position.z += inc;
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
     {
-        m_lightPos.x += inc;
+        m_ptLight[0].position.x += inc;
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS)
     {
-        m_lightPos.x -= inc;
+        m_ptLight[0].position.x -= inc;
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_O) == GLFW_PRESS)
     {
-        m_lightPos.y += inc;
+        m_ptLight[0].position.y += inc;
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_U) == GLFW_PRESS)
     {
-        m_lightPos.y -= inc;
+        m_ptLight[0].position.y -= inc;
     }
 }
 

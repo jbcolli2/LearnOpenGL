@@ -44,8 +44,8 @@ public:
     PosLight(const std::string& vertFilename, const std::string& fragFilename, const glm::vec3& position = glm::vec3(0.f),
              const glm::vec3& dir = glm::vec3(0.f, 0.f, -1.f), float ambFactor = .3f,
              const glm::vec3& diffuse = glm::vec3(1.f), const glm::vec3& spec = glm::vec3(1.f), float constAtten = 1.f,
-             float linAtten = 0.f, float quadAtten = 0.f, float innerCutoff = glm::radians(12.f),
-            float outerCutoff = glm::radians(17.f));
+             float linAtten = 0.1f, float quadAtten = 0.02f, float innerCutoff = glm::cos(glm::radians(12.f)),
+            float outerCutoff = glm::cos(glm::radians(17.f)));
     
     
     
