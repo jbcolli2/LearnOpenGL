@@ -93,11 +93,12 @@ unsigned int loadEBOData(std::vector<T> vec)
 
 
 
-inline unsigned int loadTextureFromFile(const char* path)
+inline unsigned int loadTextureFromFile(const char* path, std::string directory)
 {
     unsigned int texID = 0;
     int width, height, nrChannels;
-    unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
+    const char* fullpath = (directory+'/').append(path).c_str();
+    unsigned char *data = stbi_load(fullpath, &width, &height, &nrChannels, 0);
     unsigned int rgbFlag;
     if(nrChannels == 3)
     {
@@ -109,9 +110,10 @@ inline unsigned int loadTextureFromFile(const char* path)
     }
     else
     {
-        std::cout << "Number of channels in image is not 3 or 4\n";
-        return 0;
+        std::cout << "Number of channels in image is not 3 or 4, it is " << nrChannels << "\n";
+//        return 0;
     }
+    
     if(data)
     {
         glGenTextures(1, &texID);
@@ -125,7 +127,7 @@ inline unsigned int loadTextureFromFile(const char* path)
     }
     else
     {
-        std::cout << "Failure to load texture " << path << std::endl;
+        std::cout << "Failure to load texture " << fullpath << std::endl;
     }
     glBindTexture(GL_TEXTURE_2D, 0);
     

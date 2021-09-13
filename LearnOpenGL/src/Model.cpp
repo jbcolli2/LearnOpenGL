@@ -12,6 +12,17 @@
 
 
 
+
+void Model::Draw(Shader &shader)
+{
+    for(auto mesh : m_Meshes)
+    {
+        mesh.Draw(shader);
+    }
+}
+
+
+
 void Model::loadModel(std::string path)
 {
     Assimp::Importer importer;
@@ -143,7 +154,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
         
         if(!textureAlreadyLoaded)
         {
-            texture.id = loadTextureFromFile(textPath.C_Str());
+            texture.id = loadTextureFromFile(textPath.C_Str(), m_directory);
             texture.typeName = type;
             texture.path = textPath.C_Str();
             m_texturesLoaded.push_back(texture);

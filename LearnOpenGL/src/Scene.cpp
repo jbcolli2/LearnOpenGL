@@ -29,7 +29,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     // Load and compile the shaders
-    m_objShader = Shader(SHADER_FOLDER + "Phong.vert", SHADER_FOLDER + "Chap17.frag");
+    m_objShader = Shader(SHADER_FOLDER + "Basic.vert", SHADER_FOLDER + "Chap22.frag");
     m_objShader.makeProgram();
     
     
@@ -41,6 +41,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_dirLight = DirLight(SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag");
     m_dirLight.direction = glm::vec3(-1.f, -2.f, -1.f);
     m_dirLight.diffuse = glm::vec3(0.5f);
+    m_dirLight.specular = glm::vec3(.5f);
+    m_dirLight.ambient = glm::vec3(.15f);
     m_dirLight.structName = "dirLight";
     for(int ii = 0; ii < 4; ++ii)
     {
@@ -54,6 +56,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     }
     m_spotLight = SpotLight(SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag");
     m_spotLight.structName = "spotLight";
+    m_spotLight.specular = glm::vec3(.5f);
+    m_spotLight.diffuse = glm::vec3(.4f);
     
     
     
@@ -93,6 +97,9 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     //  The light shape
     Box<Vert3x3x2f> light = box;
     m_shapes.emplace_back( std::make_unique<Box <Vert3x3x2f> >(light) );
+    
+    std::string backpackPath = ASSET_FOLDER + "backpack/backpack.obj";
+    m_backpack = Model(backpackPath.c_str());
             
 
     
@@ -123,11 +130,6 @@ void Scene::draw()
     m_spotLight.setUniformSpotLight(m_objShader);
     
     
-    // Set Material uniforms
-    Material boxMat = m_shapes[0]->getMaterial();
-    m_objShader.setUniform1f("material.shininess", boxMat.shininess);
-    m_objShader.setUniform1i("material.diffuse", boxMat.ambdiffTexUnit);
-    m_objShader.setUniform1i("material.specular", boxMat.specTexUnit);
     
     
     
@@ -141,29 +143,13 @@ void Scene::draw()
 
     
     
-    
-    int ii = 0;
-    for(auto vec : m_positions)
-    {
-        m_model = ID4;
-        
-        m_model = glm::translate(m_model, vec);
-        m_model = glm::rotate(m_model, glm::radians(20.f*ii), glm::vec3(1.f, 1.f, .5f));
-        m_model = glm::scale(m_model, glm::vec3(.5f));
-        
-        
-
-        
-        m_objShader.setUniformMatrix4f("model", m_model);
-        
-        
-        m_shapes[0]->draw();
-        
-        ++ii;
-    }
+    m_model = ID4;
+    m_model = glm::translate(m_model, glm::vec3(0.f, 0.f, -2.f));
+    m_model = glm::scale(m_model, glm::vec3(.2f));
+    m_objShader.setUniformMatrix4f("model", m_model);
+    m_backpack.Draw(m_objShader);
     
     
-//    m_ptLight[0].position = m_lightPos[0];
     for(auto light : m_ptLight)
     {
         light.draw(m_view, m_proj);
@@ -187,6 +173,7 @@ void Scene::draw()
 void Scene::processInput(float deltaTime)
 {
     float inc = 0.85f*deltaTime;
+    float camMovement = m_camSpeed * deltaTime;
     if(glfwGetKey(m_window, GLFW_KEY_ESCAPE))
     {
         glfwSetWindowShouldClose(m_window, true);
@@ -194,32 +181,32 @@ void Scene::processInput(float deltaTime)
     
     if(glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        m_cam.moveForward(inc);
+        m_cam.moveForward(camMovement);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        m_cam.moveBackward(inc);
+        m_cam.moveBackward(camMovement);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        m_cam.moveLeft(inc);
+        m_cam.moveLeft(camMovement);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        m_cam.moveRight(inc);
+        m_cam.moveRight(camMovement);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS)
     {
-        m_cam.moveUp(inc);
+        m_cam.moveUp(camMovement);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
     {
-        m_cam.moveDown(inc);
+        m_cam.moveDown(camMovement);
     }
     
     if(glfwGetKey(m_window, GLFW_KEY_I) == GLFW_PRESS)

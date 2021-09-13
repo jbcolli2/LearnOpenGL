@@ -34,6 +34,7 @@ class Scene
     Shader m_objShader, m_lightShader;
     
     std::vector< std::unique_ptr<Shape> > m_shapes;
+    Model m_backpack;
     
     DirLight m_dirLight;
     PointLight m_ptLight[4];
@@ -55,6 +56,7 @@ class Scene
     
     //*******  Camera/Window Variables *******//
     int m_width, m_height;
+    float m_camSpeed = 1.5f;
     
     
     
