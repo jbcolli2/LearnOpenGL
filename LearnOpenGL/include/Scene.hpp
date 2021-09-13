@@ -17,6 +17,7 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Light.hpp"
+#include "Model.hpp"
 
 
 
@@ -25,6 +26,7 @@ class Scene
 {
     std::string SHADER_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
     std::string IMAGE_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/";
+    std::string ASSET_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/assets/";
     
     
     GLFWwindow* m_window;

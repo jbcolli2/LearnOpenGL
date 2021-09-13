@@ -10,6 +10,9 @@
 		B70473D726C214CB00ED7E03 /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B70473D626C214CB00ED7E03 /* Scene.cpp */; };
 		B70473D926C2C34F00ED7E03 /* Util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B70473D826C2C34F00ED7E03 /* Util.cpp */; };
 		B710097126B1D62A009AA576 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B710097026B1D62A009AA576 /* Shader.cpp */; };
+		B741004026E9A37C00D242BA /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B741003F26E9A37C00D242BA /* Mesh.cpp */; };
+		B741004326EE7B5500D242BA /* Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B741004226EE7B5500D242BA /* Model.cpp */; };
+		B741004526EE83C300D242BA /* libassimp.5.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B741004426EE83C300D242BA /* libassimp.5.0.0.dylib */; };
 		B79A5E9C26CF46920084DD12 /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B79A5E9B26CF46920084DD12 /* Light.cpp */; };
 		B7C1468F26C6E49300F2B71D /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B7C1468E26C6E49300F2B71D /* Camera.cpp */; };
 		B7DA83AC26AE501A009C97B0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B7DA83AB26AE501A009C97B0 /* main.cpp */; };
@@ -41,6 +44,10 @@
 		B710098926B4F5A4009AA576 /* VertexData.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VertexData.hpp; sourceTree = "<group>"; };
 		B731CC9A26D482AC00421CE6 /* PhongLightMap.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongLightMap.frag; path = shaders/PhongLightMap.frag; sourceTree = "<group>"; };
 		B731CC9B26D5172200421CE6 /* Test.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Test.frag; path = shaders/Test.frag; sourceTree = "<group>"; };
+		B741003F26E9A37C00D242BA /* Mesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh.cpp; path = src/Mesh.cpp; sourceTree = "<group>"; };
+		B741004126ED981B00D242BA /* Model.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Model.hpp; path = include/Model.hpp; sourceTree = "<group>"; };
+		B741004226EE7B5500D242BA /* Model.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Model.cpp; path = src/Model.cpp; sourceTree = "<group>"; };
+		B741004426EE83C300D242BA /* libassimp.5.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libassimp.5.0.0.dylib; path = ../../../../../../../usr/local/Cellar/assimp/5.0.1/lib/libassimp.5.0.0.dylib; sourceTree = "<group>"; };
 		B75B2CAA26DEC92D000F5281 /* PhongPointLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongPointLight.frag; path = shaders/PhongPointLight.frag; sourceTree = "<group>"; };
 		B75B2CAC26DF1745000F5281 /* PhongSpotLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongSpotLight.frag; path = shaders/PhongSpotLight.frag; sourceTree = "<group>"; };
 		B78A764526DDC606003B9C9F /* PhongDirLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongDirLight.frag; path = shaders/PhongDirLight.frag; sourceTree = "<group>"; };
@@ -52,6 +59,7 @@
 		B7C1469126CA0D2100F2B71D /* lightShader.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = lightShader.vert; path = shaders/lightShader.vert; sourceTree = "<group>"; };
 		B7C1469326CA0D5400F2B71D /* lightShader.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = lightShader.frag; path = shaders/lightShader.frag; sourceTree = "<group>"; };
 		B7CCC5A226E5B70100E46B52 /* Chap17.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Chap17.frag; path = shaders/Chap17.frag; sourceTree = "<group>"; };
+		B7CCC5A326E8541500E46B52 /* Mesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Mesh.hpp; path = include/Mesh.hpp; sourceTree = "<group>"; };
 		B7DA83A826AE501A009C97B0 /* LearnOpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LearnOpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7DA83AB26AE501A009C97B0 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		B7DA83B326AE50B3009C97B0 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -70,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B741004526EE83C300D242BA /* libassimp.5.0.0.dylib in Frameworks */,
 				B7DA83B426AE50B3009C97B0 /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -135,6 +144,10 @@
 				B79A5E9B26CF46920084DD12 /* Light.cpp */,
 				B7FB228B26D1F37200CC74C6 /* Util */,
 				B79A5E9A26CF44DF0084DD12 /* Misc. */,
+				B7CCC5A326E8541500E46B52 /* Mesh.hpp */,
+				B741003F26E9A37C00D242BA /* Mesh.cpp */,
+				B741004126ED981B00D242BA /* Model.hpp */,
+				B741004226EE7B5500D242BA /* Model.cpp */,
 			);
 			path = LearnOpenGL;
 			sourceTree = "<group>";
@@ -142,6 +155,7 @@
 		B7DA83B226AE50B3009C97B0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B741004426EE83C300D242BA /* libassimp.5.0.0.dylib */,
 				B7DA83B626AE50D3009C97B0 /* sfml-audio.framework */,
 				B7DA83B926AE50D3009C97B0 /* sfml-graphics.framework */,
 				B7DA83B826AE50D3009C97B0 /* sfml-network.framework */,
@@ -222,12 +236,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B741004326EE7B5500D242BA /* Model.cpp in Sources */,
 				B79A5E9C26CF46920084DD12 /* Light.cpp in Sources */,
 				B7DA83AC26AE501A009C97B0 /* main.cpp in Sources */,
 				B70473D726C214CB00ED7E03 /* Scene.cpp in Sources */,
 				B710097126B1D62A009AA576 /* Shader.cpp in Sources */,
 				B7DA83C526B0FCD9009C97B0 /* glad.c in Sources */,
 				B7C1468F26C6E49300F2B71D /* Camera.cpp in Sources */,
+				B741004026E9A37C00D242BA /* Mesh.cpp in Sources */,
 				B70473D926C2C34F00ED7E03 /* Util.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -363,7 +379,11 @@
 					"/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include",
 					/usr/local/Cellar/glfw/3.3.4/include,
 				);
-				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/glfw/3.3.4/lib;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/Cellar/glfw/3.3.4/lib,
+					/usr/local/Cellar/assimp/5.0.1,
+					/usr/local/Cellar/assimp/5.0.1/lib,
+				);
 				OTHER_LDFLAGS = "-lglfw";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -386,7 +406,11 @@
 					"/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include",
 					/usr/local/Cellar/glfw/3.3.4/include,
 				);
-				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/glfw/3.3.4/lib;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/Cellar/glfw/3.3.4/lib,
+					/usr/local/Cellar/assimp/5.0.1,
+					/usr/local/Cellar/assimp/5.0.1/lib,
+				);
 				OTHER_LDFLAGS = "-lglfw";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

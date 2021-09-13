@@ -12,6 +12,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <stb_image.h>
+
 #include "VertexData.hpp"
 
 
@@ -84,6 +86,50 @@ unsigned int loadEBOData(std::vector<T> vec)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, vec.size() * sizeof(T), &vec.front(), GL_STATIC_DRAW);
     
     return EBO;
+}
+
+
+
+
+
+
+inline unsigned int loadTextureFromFile(const char* path)
+{
+    unsigned int texID = 0;
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
+    unsigned int rgbFlag;
+    if(nrChannels == 3)
+    {
+        rgbFlag = GL_RGB;
+    }
+    else if(nrChannels == 4)
+    {
+        rgbFlag = GL_RGBA;
+    }
+    else
+    {
+        std::cout << "Number of channels in image is not 3 or 4\n";
+        return 0;
+    }
+    if(data)
+    {
+        glGenTextures(1, &texID);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texID);
+        
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Failure to load texture " << path << std::endl;
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    return texID;
 }
 
 #endif /* OpenGLUtil_h */
