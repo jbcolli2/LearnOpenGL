@@ -21,6 +21,7 @@
 
 #include <glm/glm.hpp>
 #include "OpenGLUtil.hpp"
+#include "Mesh.hpp"
 
 
 
@@ -30,10 +31,8 @@ struct Material
     glm::vec3 diffuse = glm::vec3(1.f);
     glm::vec3 specular = glm::vec3(1.f);
     
-    unsigned int ambdiffTexID = 0;
-    unsigned int specTexID = 0;
-    unsigned int ambdiffTexUnit = -1;
-    unsigned int specTexUnit = -1;
+    Texture diffuseTexture;
+    Texture specTexture;
     float shininess = 1;
 };
 
@@ -61,7 +60,7 @@ public:
   
     
     
-    unsigned int loadTexture(std::string filename, unsigned int texUnit)
+    unsigned int loadTexture(std::string filename)
     {
         unsigned int texID = 0;
         int width, height, nrChannels;
@@ -187,28 +186,28 @@ public:
 
 
 
-template <class VertT>
+
 class Triangle : public Shape
 {
 
-    std::vector<VertT> verts;
+    std::vector<Vert3x3x2f> verts;
 public:
-    Triangle(std::vector<VertT> vert);
+    Triangle(std::vector<Vert3x3x2f> vert);
     
     void virtual draw() override;
 };
 
 
 
-template <class VertT>
-class Square : public Shape
+
+class Plane : public Shape
 {
-    std::vector<VertT> verts;
+    std::vector<Vert3x3x2f> verts;
     std::vector<unsigned int> indices = {0,1,2, 0, 2,3};
 
     
 public:
-    Square(std::vector<VertT> vert, bool clockwise = true);
+    Plane(std::vector<Vert3x3x2f> vert, bool clockwise = true);
     
     
     void virtual draw() override;
@@ -216,19 +215,19 @@ public:
 
 
 
-template <class VertT>
-class Box : public Shape
+
+class Cube : public Shape
 {
     float m_width, m_length, m_height;
-    std::vector<VertT> m_verts;
+    std::vector<Vert3x3x2f> m_verts;
     
     
     
 public:
-    Box();
+    Cube();
 //    Box(std::vector<VertT> verts);
-    Box(std::vector<VertT> verts, Material material = Material());
-    Box(const Box& otherBox);
+    Cube(std::vector<Vert3x3x2f> verts, Material material = Material());
+    Cube(const Cube& otherBox);
     
     void virtual draw() override;
 };

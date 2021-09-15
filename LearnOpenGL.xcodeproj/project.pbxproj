@@ -13,6 +13,7 @@
 		B741004026E9A37C00D242BA /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B741003F26E9A37C00D242BA /* Mesh.cpp */; };
 		B741004326EE7B5500D242BA /* Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B741004226EE7B5500D242BA /* Model.cpp */; };
 		B741004526EE83C300D242BA /* libassimp.5.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B741004426EE83C300D242BA /* libassimp.5.0.0.dylib */; };
+		B741004826F1943D00D242BA /* Shapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B741004726F1943D00D242BA /* Shapes.cpp */; };
 		B79A5E9C26CF46920084DD12 /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B79A5E9B26CF46920084DD12 /* Light.cpp */; };
 		B7C1468F26C6E49300F2B71D /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B7C1468E26C6E49300F2B71D /* Camera.cpp */; };
 		B7DA83AC26AE501A009C97B0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B7DA83AB26AE501A009C97B0 /* main.cpp */; };
@@ -49,6 +50,7 @@
 		B741004226EE7B5500D242BA /* Model.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Model.cpp; path = src/Model.cpp; sourceTree = "<group>"; };
 		B741004426EE83C300D242BA /* libassimp.5.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libassimp.5.0.0.dylib; path = ../../../../../../../usr/local/Cellar/assimp/5.0.1/lib/libassimp.5.0.0.dylib; sourceTree = "<group>"; };
 		B741004626EEE3BC00D242BA /* Chap22.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Chap22.frag; path = shaders/Chap22.frag; sourceTree = "<group>"; };
+		B741004726F1943D00D242BA /* Shapes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shapes.cpp; path = src/Shapes.cpp; sourceTree = "<group>"; };
 		B75B2CAA26DEC92D000F5281 /* PhongPointLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongPointLight.frag; path = shaders/PhongPointLight.frag; sourceTree = "<group>"; };
 		B75B2CAC26DF1745000F5281 /* PhongSpotLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongSpotLight.frag; path = shaders/PhongSpotLight.frag; sourceTree = "<group>"; };
 		B78A764526DDC606003B9C9F /* PhongDirLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongDirLight.frag; path = shaders/PhongDirLight.frag; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 				B741003F26E9A37C00D242BA /* Mesh.cpp */,
 				B741004126ED981B00D242BA /* Model.hpp */,
 				B741004226EE7B5500D242BA /* Model.cpp */,
+				B741004726F1943D00D242BA /* Shapes.cpp */,
 			);
 			path = LearnOpenGL;
 			sourceTree = "<group>";
@@ -247,6 +250,7 @@
 				B7C1468F26C6E49300F2B71D /* Camera.cpp in Sources */,
 				B741004026E9A37C00D242BA /* Mesh.cpp in Sources */,
 				B70473D926C2C34F00ED7E03 /* Util.cpp in Sources */,
+				B741004826F1943D00D242BA /* Shapes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
