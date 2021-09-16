@@ -33,57 +33,9 @@ linAtten(linAtten), quadAtten(quadAtten), innerCutoff(innerCutoff), outerCutoff(
     outerName = "outerCutoff";
     
     
-    std::vector<Vert3f> vertsBox = {
-        Vert3f(-0.5f, -0.5f, 0.5f), // front
-        Vert3f(0.5f, 0.5f, 0.5f),
-        Vert3f(-0.5f, 0.5f, 0.5f),
-        
-        Vert3f(-0.5f, -0.5f, 0.5f),
-        Vert3f(0.5f, -0.5f, 0.5f),
-        Vert3f(0.5f, 0.5f, 0.5f),
-        
-        Vert3f(-0.5f, -0.5f, -0.5f), // back
-        Vert3f(0.5f, 0.5f, -0.5f),
-        Vert3f(-0.5f, 0.5f, -0.5f),
-        
-        Vert3f(-0.5f, -0.5f, -0.5f),
-        Vert3f(0.5f, -0.5f, -0.5f),
-        Vert3f(0.5f, 0.5f, -0.5f),
-        
-        Vert3f(-0.5f, 0.5f, 0.5f), //top
-        Vert3f(0.5f, 0.5f, 0.5f),
-        Vert3f(-0.5f, 0.5f, -0.5f),
-        
-        Vert3f(0.5f, 0.5f, 0.5f),
-        Vert3f(0.5f, 0.5f, -0.5f),
-        Vert3f(-0.5f, 0.5f, -0.5f),
-        
-        Vert3f(-0.5f, -0.5f, 0.5f), //bottom
-        Vert3f(0.5f, -0.5f, 0.5f),
-        Vert3f(-0.5f, -0.5f, -0.5f),
-        
-        Vert3f(0.5f, -0.5f, 0.5f),
-        Vert3f(0.5f, -0.5f, -0.5f),
-        Vert3f(-0.5f, -0.5f, -0.5f),
-        
-        Vert3f(0.5f, -0.5f, 0.5f), //right
-        Vert3f(0.5f, -0.5f, -0.5f),
-        Vert3f(0.5f, 0.5f, 0.5f),
-        
-        Vert3f(0.5f, -0.5f, -0.5f),
-        Vert3f(0.5f, 0.5f, -0.5f),
-        Vert3f(0.5f, 0.5f, 0.5f),
-        
-        Vert3f(-0.5f, -0.5f, 0.5f), //left
-        Vert3f(-0.5f, -0.5f, -0.5f),
-        Vert3f(-0.5f, 0.5f, 0.5f),
-        
-        Vert3f(-0.5f, -0.5f, -0.5f),
-        Vert3f(-0.5f, 0.5f, -0.5f),
-        Vert3f(-0.5f, 0.5f, 0.5f)
-    };
+    
                
-    m_box = Box<Vert3f>(vertsBox);
+    m_box = Cube();
     
     
     m_model = glm::translate(id, position);
@@ -111,7 +63,7 @@ void PosLight::draw(const glm::mat4& view, const glm::mat4& proj)
     m_shader.setUniformMatrix4f("view", view);
     m_shader.setUniformMatrix4f("proj", proj);
     
-    m_box.draw();
+    m_box.Draw(m_shader);
     
     m_shader.stopUseProgram();
 }

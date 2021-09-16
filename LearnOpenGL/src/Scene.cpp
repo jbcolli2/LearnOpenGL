@@ -78,28 +78,22 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     boxMat.specular = glm::vec3(.633f, .727811f, .633f);
     boxMat.shininess = .6f*128.f;
     
-    
-    
-    Box<Vert3x3x2f> box(vertsBox, boxMat);
-    m_shapes.emplace_back(std::make_unique<Box <Vert3x3x2f> >(box));
-    
-    
-    
-    
-    
-    // The Textures
     stbi_set_flip_vertically_on_load(true);
-    m_shapes[0]->loadAmbDiffTexture(IMAGE_FOLDER + "container2.png", 0);
-    m_shapes[0]->loadSpecTexture(IMAGE_FOLDER + "container2_specular.png", 1);
+    std::vector<std::string> diffPaths = {IMAGE_FOLDER+"container2.png"};
+    std::vector<std::string> specPaths = {IMAGE_FOLDER+"container2_specular.png"};
+    Cube box(diffPaths, specPaths, boxMat);
+    m_shapes.push_back(std::make_unique<Cube>(diffPaths, specPaths, boxMat));
+    m_shapes[0]->setUniformDims(.2f);
+    
+    m_shapes.push_back(std::make_unique<Plane>(diffPaths, specPaths, boxMat));
+    m_shapes[1]->setUniformDims(4.f);
     
     
     
-    //  The light shape
-    Box<Vert3x3x2f> light = box;
-    m_shapes.emplace_back( std::make_unique<Box <Vert3x3x2f> >(light) );
     
-    std::string backpackPath = ASSET_FOLDER + "backpack/backpack.obj";
-    m_backpack = Model(backpackPath.c_str());
+    
+//    std::string backpackPath = ASSET_FOLDER + "backpack/backpack.obj";
+//    m_backpack = Model(backpackPath.c_str());
             
 
     
@@ -145,9 +139,15 @@ void Scene::draw()
     
     m_model = ID4;
     m_model = glm::translate(m_model, glm::vec3(0.f, 0.f, -2.f));
-    m_model = glm::scale(m_model, glm::vec3(.2f));
+    m_model = glm::scale(m_model, m_shapes[0]->getScaleVec3());
     m_objShader.setUniformMatrix4f("model", m_model);
-    m_backpack.Draw(m_objShader);
+    m_shapes[0]->Draw(m_objShader);
+    m_model = ID4;
+    m_model = glm::translate(m_model, glm::vec3(0.f, -1.f, -3.f));
+    m_model = glm::scale(m_model, m_shapes[1]->getScaleVec3());
+    m_objShader.setUniformMatrix4f("model", m_model);
+    m_shapes[1]->Draw(m_objShader);
+//    m_backpack.Draw(m_objShader);
     
     
     for(auto light : m_ptLight)

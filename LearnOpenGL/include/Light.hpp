@@ -26,7 +26,7 @@ protected:
     glm::mat4 m_model;
     static constexpr glm::mat4 id = glm::mat4(1.f);
     
-    Box<Vert3f> m_box;
+    Cube m_box;
     
     Shader m_shader;
     
