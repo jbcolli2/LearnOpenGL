@@ -51,6 +51,7 @@
 		B741004426EE83C300D242BA /* libassimp.5.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libassimp.5.0.0.dylib; path = ../../../../../../../usr/local/Cellar/assimp/5.0.1/lib/libassimp.5.0.0.dylib; sourceTree = "<group>"; };
 		B741004626EEE3BC00D242BA /* Chap22.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Chap22.frag; path = shaders/Chap22.frag; sourceTree = "<group>"; };
 		B741004726F1943D00D242BA /* Shapes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shapes.cpp; path = src/Shapes.cpp; sourceTree = "<group>"; };
+		B741004926F3FAFA00D242BA /* LightsTextures.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = LightsTextures.frag; path = shaders/LightsTextures.frag; sourceTree = "<group>"; };
 		B75B2CAA26DEC92D000F5281 /* PhongPointLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongPointLight.frag; path = shaders/PhongPointLight.frag; sourceTree = "<group>"; };
 		B75B2CAC26DF1745000F5281 /* PhongSpotLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongSpotLight.frag; path = shaders/PhongSpotLight.frag; sourceTree = "<group>"; };
 		B78A764526DDC606003B9C9F /* PhongDirLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongDirLight.frag; path = shaders/PhongDirLight.frag; sourceTree = "<group>"; };
@@ -99,6 +100,7 @@
 				B75B2CAA26DEC92D000F5281 /* PhongPointLight.frag */,
 				B75B2CAC26DF1745000F5281 /* PhongSpotLight.frag */,
 				B7CCC5A226E5B70100E46B52 /* Chap17.frag */,
+				B741004926F3FAFA00D242BA /* LightsTextures.frag */,
 				B741004626EEE3BC00D242BA /* Chap22.frag */,
 				B7C1469126CA0D2100F2B71D /* lightShader.vert */,
 				B7C1469326CA0D5400F2B71D /* lightShader.frag */,
