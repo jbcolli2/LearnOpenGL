@@ -43,26 +43,21 @@
 		B710097426B1E7CA009AA576 /* Shapes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Shapes.hpp; sourceTree = "<group>"; };
 		B710097526B47C4E009AA576 /* OpenGLUtil.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OpenGLUtil.hpp; sourceTree = "<group>"; };
 		B710098926B4F5A4009AA576 /* VertexData.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VertexData.hpp; sourceTree = "<group>"; };
-		B731CC9A26D482AC00421CE6 /* PhongLightMap.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongLightMap.frag; path = shaders/PhongLightMap.frag; sourceTree = "<group>"; };
-		B731CC9B26D5172200421CE6 /* Test.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Test.frag; path = shaders/Test.frag; sourceTree = "<group>"; };
 		B741003F26E9A37C00D242BA /* Mesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh.cpp; path = src/Mesh.cpp; sourceTree = "<group>"; };
 		B741004126ED981B00D242BA /* Model.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Model.hpp; path = include/Model.hpp; sourceTree = "<group>"; };
 		B741004226EE7B5500D242BA /* Model.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Model.cpp; path = src/Model.cpp; sourceTree = "<group>"; };
 		B741004426EE83C300D242BA /* libassimp.5.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libassimp.5.0.0.dylib; path = ../../../../../../../usr/local/Cellar/assimp/5.0.1/lib/libassimp.5.0.0.dylib; sourceTree = "<group>"; };
-		B741004626EEE3BC00D242BA /* Chap22.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Chap22.frag; path = shaders/Chap22.frag; sourceTree = "<group>"; };
 		B741004726F1943D00D242BA /* Shapes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shapes.cpp; path = src/Shapes.cpp; sourceTree = "<group>"; };
 		B741004926F3FAFA00D242BA /* LightsTextures.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = LightsTextures.frag; path = shaders/LightsTextures.frag; sourceTree = "<group>"; };
-		B75B2CAA26DEC92D000F5281 /* PhongPointLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongPointLight.frag; path = shaders/PhongPointLight.frag; sourceTree = "<group>"; };
-		B75B2CAC26DF1745000F5281 /* PhongSpotLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongSpotLight.frag; path = shaders/PhongSpotLight.frag; sourceTree = "<group>"; };
-		B78A764526DDC606003B9C9F /* PhongDirLight.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PhongDirLight.frag; path = shaders/PhongDirLight.frag; sourceTree = "<group>"; };
+		B741004A26F4298800D242BA /* Texture.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Texture.frag; path = shaders/Texture.frag; sourceTree = "<group>"; };
+		B741004B26F4FD5300D242BA /* Test.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Test.frag; path = shaders/Test.frag; sourceTree = "<group>"; };
 		B79A5E9926CF44C70084DD12 /* Light.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Light.hpp; path = include/Light.hpp; sourceTree = "<group>"; };
 		B79A5E9B26CF46920084DD12 /* Light.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Light.cpp; path = src/Light.cpp; sourceTree = "<group>"; };
 		B7C1468C26C6C22100F2B71D /* Camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Camera.hpp; path = include/Camera.hpp; sourceTree = "<group>"; };
 		B7C1468E26C6E49300F2B71D /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = src/Camera.cpp; sourceTree = "<group>"; };
-		B7C1469026CA0D0A00F2B71D /* Basic.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Basic.vert; path = shaders/Basic.vert; sourceTree = "<group>"; };
-		B7C1469126CA0D2100F2B71D /* lightShader.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = lightShader.vert; path = shaders/lightShader.vert; sourceTree = "<group>"; };
-		B7C1469326CA0D5400F2B71D /* lightShader.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = lightShader.frag; path = shaders/lightShader.frag; sourceTree = "<group>"; };
-		B7CCC5A226E5B70100E46B52 /* Chap17.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Chap17.frag; path = shaders/Chap17.frag; sourceTree = "<group>"; };
+		B7C1469026CA0D0A00F2B71D /* MVPNormalUV.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = MVPNormalUV.vert; path = shaders/MVPNormalUV.vert; sourceTree = "<group>"; };
+		B7C1469126CA0D2100F2B71D /* MVP.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = MVP.vert; path = shaders/MVP.vert; sourceTree = "<group>"; };
+		B7C1469326CA0D5400F2B71D /* SolidColor.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = SolidColor.frag; path = shaders/SolidColor.frag; sourceTree = "<group>"; };
 		B7CCC5A326E8541500E46B52 /* Mesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Mesh.hpp; path = include/Mesh.hpp; sourceTree = "<group>"; };
 		B7DA83A826AE501A009C97B0 /* LearnOpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LearnOpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7DA83AB26AE501A009C97B0 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -93,17 +88,12 @@
 		B710096F26B1D537009AA576 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
-				B7C1469026CA0D0A00F2B71D /* Basic.vert */,
-				B731CC9B26D5172200421CE6 /* Test.frag */,
-				B731CC9A26D482AC00421CE6 /* PhongLightMap.frag */,
-				B78A764526DDC606003B9C9F /* PhongDirLight.frag */,
-				B75B2CAA26DEC92D000F5281 /* PhongPointLight.frag */,
-				B75B2CAC26DF1745000F5281 /* PhongSpotLight.frag */,
-				B7CCC5A226E5B70100E46B52 /* Chap17.frag */,
+				B7C1469026CA0D0A00F2B71D /* MVPNormalUV.vert */,
 				B741004926F3FAFA00D242BA /* LightsTextures.frag */,
-				B741004626EEE3BC00D242BA /* Chap22.frag */,
-				B7C1469126CA0D2100F2B71D /* lightShader.vert */,
-				B7C1469326CA0D5400F2B71D /* lightShader.frag */,
+				B7C1469126CA0D2100F2B71D /* MVP.vert */,
+				B7C1469326CA0D5400F2B71D /* SolidColor.frag */,
+				B741004A26F4298800D242BA /* Texture.frag */,
+				B741004B26F4FD5300D242BA /* Test.frag */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -144,6 +134,7 @@
 				B710096E26B1A1AE009AA576 /* Shader.hpp */,
 				B710097026B1D62A009AA576 /* Shader.cpp */,
 				B710097426B1E7CA009AA576 /* Shapes.hpp */,
+				B741004726F1943D00D242BA /* Shapes.cpp */,
 				B7C1468C26C6C22100F2B71D /* Camera.hpp */,
 				B7C1468E26C6E49300F2B71D /* Camera.cpp */,
 				B79A5E9926CF44C70084DD12 /* Light.hpp */,
@@ -154,7 +145,6 @@
 				B741003F26E9A37C00D242BA /* Mesh.cpp */,
 				B741004126ED981B00D242BA /* Model.hpp */,
 				B741004226EE7B5500D242BA /* Model.cpp */,
-				B741004726F1943D00D242BA /* Shapes.cpp */,
 			);
 			path = LearnOpenGL;
 			sourceTree = "<group>";

@@ -1,53 +1,27 @@
 #version 330 core
 
-in vec3 Normal;
-in vec3 FragPos;
-in vec2 UV;
-
 out vec4 FragColor;
-
+in vec2 UV;
 
 struct Material
 {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-    float shininess;
-};
-
-struct Light
-{
-    vec3 position;
+    sampler2D diffuse0;
     
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
 };
 
 uniform Material material;
-uniform Light light;
-uniform sampler2D tex;
 
+float near = 0.1;
+float far = 100.0;
 
-
-uniform mat4 view;
-
+float Lin(float z)
+{
+    float ndc = 2.0*z - 1.0;
+    return (2.0*near*far)/(near + far - ndc*(far - near));
+}
 
 void main()
 {
-    vec3 ambLight = material.ambient * light.ambient;
-    
-    vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(vec3(view*vec4(light.position,1.0))-FragPos);
-    float diffAngleCoeff = max( dot(norm, lightDir), 0.0);
-    vec3 diffLight = diffAngleCoeff*material.diffuse*light.diffuse;
-    
-    vec3 reflectDir = normalize(reflect(-lightDir, norm));
-    vec3 viewDir = normalize(-FragPos);
-    float specAngleCoeff = pow(max(dot(reflectDir, viewDir), 0.0), material.shininess);
-    vec3 specLight = specAngleCoeff*material.specular*light.specular;
-    
-    vec3 result = (ambLight + diffLight + specLight);
-//    FragColor = vec4(result, 1.0);
-    FragColor = texture(tex, UV);
+    float depth = Lin(gl_FragCoord.z)/far;
+    FragColor = vec4(vec3(depth), 1.0);
 }

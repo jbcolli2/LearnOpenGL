@@ -29,7 +29,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     // Load and compile the shaders
-    m_objShader = Shader(SHADER_FOLDER + "Basic.vert", SHADER_FOLDER + "Chap22.frag");
+    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.frag");
     m_objShader.makeProgram();
     
     
@@ -38,7 +38,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     // Create Light object
     glm::vec3 diffLight{1.f};
-    m_dirLight = DirLight(SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag");
+    m_dirLight = DirLight(SHADER_FOLDER + "MVP.vert", SHADER_FOLDER + "SolidColor.frag");
     m_dirLight.direction = glm::vec3(-1.f, -2.f, -1.f);
     m_dirLight.diffuse = glm::vec3(0.5f);
     m_dirLight.specular = glm::vec3(.5f);
@@ -46,7 +46,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_dirLight.structName = "dirLight";
     for(int ii = 0; ii < 4; ++ii)
     {
-        m_ptLight[ii] = PointLight(SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag", m_lightPos[ii]);
+        m_ptLight[ii] = PointLight(SHADER_FOLDER + "MVP.vert", SHADER_FOLDER + "SolidColor.frag", m_lightPos[ii]);
         m_ptLight[ii].structName = "ptLights";
         m_ptLight[ii].diffuse = glm::vec3(0.5f);
         m_ptLight[ii].ambient = m_ptLight[ii].diffuse*glm::vec3(0.05f);
@@ -54,10 +54,13 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
         m_ptLight[ii].quadAtten = 0.07f;
         
     }
-    m_spotLight = SpotLight(SHADER_FOLDER + "lightShader.vert", SHADER_FOLDER + "lightShader.frag");
+    m_spotLight = SpotLight(SHADER_FOLDER + "MVP.vert", SHADER_FOLDER + "SolidColor.frag");
     m_spotLight.structName = "spotLight";
-    m_spotLight.specular = glm::vec3(.5f);
-    m_spotLight.diffuse = glm::vec3(.4f);
+    m_spotLight.ambient = glm::vec3(.1f);
+    m_spotLight.specular = glm::vec3(.8f);
+    m_spotLight.diffuse = glm::vec3(.7f);
+    m_spotLight.innerCutoff = glm::cos(glm::radians(45.f));
+    m_spotLight.outerCutoff = glm::cos(glm::radians(48.f));
     
     
     
@@ -79,21 +82,24 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     boxMat.shininess = .6f*128.f;
     
     stbi_set_flip_vertically_on_load(true);
-    std::vector<std::string> diffPaths = {IMAGE_FOLDER+"container2.png"};
-    std::vector<std::string> specPaths = {IMAGE_FOLDER+"container2_specular.png"};
-    Cube box(diffPaths, specPaths, boxMat);
-    m_shapes.push_back(std::make_unique<Cube>(diffPaths, specPaths, boxMat));
-    m_shapes[0]->setUniformDims(.2f);
+    std::vector<std::string> metalPath = {ASSET_FOLDER+"metal.png"};
+    std::vector<std::string> marblePath = {ASSET_FOLDER+"marble.jpg"};
+    std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
+    m_shapes.push_back(std::make_unique<Cube>(metalPath));
+    m_shapes[0]->setUniformDims(1.f);
+    m_shapes.push_back(std::make_unique<Cube>(metalPath));
+    m_shapes[1]->setUniformDims(.5f);
     
-    m_shapes.push_back(std::make_unique<Plane>(diffPaths, specPaths, boxMat));
-    m_shapes[1]->setUniformDims(4.f);
+    m_shapes.push_back(std::make_unique<Plane>(marblePath));
+    m_shapes[2]->setUniformDims(4.f);
     
     
+    m_shapes.push_back(std::make_unique<Cube>(containerPath));
+    m_shapes[3]->setUniformDims(.2f);
     
     
-    
-//    std::string backpackPath = ASSET_FOLDER + "backpack/backpack.obj";
-//    m_backpack = Model(backpackPath.c_str());
+    std::string backpackPath = ASSET_FOLDER + "backpack/backpack.obj";
+    m_backpack = Model(backpackPath.c_str());
             
 
     
@@ -116,11 +122,11 @@ void Scene::draw()
     m_objShader.useProgram();
     
     
-    m_dirLight.setUniformDirLight(m_objShader);
-    for(int ii = 0; ii < 4; ++ii)
-    {
-        m_ptLight[ii].setUniformPtLight(m_objShader, ii);
-    }
+//    m_dirLight.setUniformDirLight(m_objShader);
+//    for(int ii = 0; ii < 4; ++ii)
+//    {
+//        m_ptLight[ii].setUniformPtLight(m_objShader, ii);
+//    }
     m_spotLight.setUniformSpotLight(m_objShader);
     
     
@@ -138,16 +144,34 @@ void Scene::draw()
     
     
     m_model = ID4;
-    m_model = glm::translate(m_model, glm::vec3(0.f, 0.f, -2.f));
-    m_model = glm::scale(m_model, m_shapes[0]->getScaleVec3());
+    m_model = glm::translate(m_model, glm::vec3(1.f, 0.5f, -2.f));
+    m_model = glm::scale(m_model, 1.5f*m_shapes[0]->getScaleVec3());
     m_objShader.setUniformMatrix4f("model", m_model);
     m_shapes[0]->Draw(m_objShader);
+    
     m_model = ID4;
-    m_model = glm::translate(m_model, glm::vec3(0.f, -1.f, -3.f));
+    m_model = glm::translate(m_model, glm::vec3(-.5f, .5f, -1.5f));
     m_model = glm::scale(m_model, m_shapes[1]->getScaleVec3());
     m_objShader.setUniformMatrix4f("model", m_model);
     m_shapes[1]->Draw(m_objShader);
-//    m_backpack.Draw(m_objShader);
+    
+    m_model = ID4;
+    m_model = glm::translate(m_model, glm::vec3(0.f, -.5f, -3.f));
+    m_model = glm::scale(m_model, m_shapes[2]->getScaleVec3());
+    m_objShader.setUniformMatrix4f("model", m_model);
+    m_shapes[2]->Draw(m_objShader);
+    
+    m_model = ID4;
+    m_model = glm::translate(m_model, glm::vec3(-.5f, .5f, -1.5f));
+    m_model = glm::scale(m_model, m_shapes[3]->getScaleVec3());
+    m_objShader.setUniformMatrix4f("model", m_model);
+    m_shapes[3]->Draw(m_objShader);
+    
+    m_model = ID4;
+    m_model = glm::translate(m_model, glm::vec3(1.f, 1.f, -2.f));
+    m_model = glm::scale(m_model, glm::vec3(.1f));
+    m_objShader.setUniformMatrix4f("model", m_model);
+    m_backpack.Draw(m_objShader);
     
     
     for(auto light : m_ptLight)
