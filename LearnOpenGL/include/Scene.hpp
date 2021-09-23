@@ -31,7 +31,7 @@ class Scene
     
     GLFWwindow* m_window;
     
-    Shader m_objShader, m_lightShader;
+    Shader m_objShader;
     
     std::vector< std::unique_ptr<Shape> > m_shapes;
     Model m_backpack;
@@ -80,6 +80,7 @@ class Scene
     
     
 public:
+    
     Scene(GLFWwindow* window, int width, int height, float fov = 45.f, float nearField = .1f, float farField = 100.f);
     
     void draw();

@@ -24,6 +24,12 @@
 #include "Mesh.hpp"
 
 
+struct Transform
+{
+    glm::vec3 position = glm::vec3(0.f);
+    glm::vec3 rotation = glm::vec3(0.f);
+    glm::vec3 scale = glm::vec3(1.f);
+};
 
 struct Material
 {
@@ -59,18 +65,16 @@ protected:
     
 public:
     Material m_material;
+    Transform m_transform;
+    bool m_outlined = false;
     
     
     
     
     virtual ~Shape() {};
     
-    void virtual setUniformDims(float dims) = 0;
     
-    glm::vec3 virtual getScaleVec3()
-    {
-        return glm::vec3(1.f);
-    }
+    
     void Draw(Shader shader);
   
     
@@ -136,15 +140,8 @@ public:
     Plane(const Material& material);
     Plane(const Plane& otherBox);
     
-    void virtual setUniformDims(float dims) override
-    {
-        m_width = dims;
-        m_height = dims;
-    }
-    glm::vec3 virtual getScaleVec3() override
-    {
-        return glm::vec3(m_width, 0.f, m_height);
-    }
+    
+    
 
 };
 
@@ -174,18 +171,10 @@ public:
     Cube(const Cube& otherBox);
     
     
-    void virtual setUniformDims(float dims) override
-    {
-        m_width = dims;
-        m_height = dims;
-        m_length = dims;
-    }
     
     
-    glm::vec3 virtual getScaleVec3() override
-    {
-        return glm::vec3(m_width, m_height, m_length);
-    };
+    
+    
     
 };
 

@@ -31,6 +31,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     // Load and compile the shaders
     m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.frag");
     m_objShader.makeProgram();
+    m_outlineShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
+    m_outlineShader.makeProgram();
     
     
     
@@ -39,7 +41,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     // Create Light object
     glm::vec3 diffLight{1.f};
     m_dirLight = DirLight(SHADER_FOLDER + "MVP.vert", SHADER_FOLDER + "SolidColor.frag");
-    m_dirLight.direction = glm::vec3(-1.f, -2.f, -1.f);
+    m_dirLight.direction = glm::vec3(-1.f, -1.f, -1.f);
     m_dirLight.diffuse = glm::vec3(0.5f);
     m_dirLight.specular = glm::vec3(.5f);
     m_dirLight.ambient = glm::vec3(.15f);
@@ -86,25 +88,11 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     std::vector<std::string> marblePath = {ASSET_FOLDER+"marble.jpg"};
     std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
     m_shapes.push_back(std::make_unique<Cube>(metalPath));
-    m_shapes[0]->setUniformDims(1.f);
-    m_shapes.push_back(std::make_unique<Cube>(metalPath));
-    m_shapes[1]->setUniformDims(.5f);
-    
-    m_shapes.push_back(std::make_unique<Plane>(marblePath));
-    m_shapes[2]->setUniformDims(4.f);
-    
-    
-    m_shapes.push_back(std::make_unique<Cube>(containerPath));
-    m_shapes[3]->setUniformDims(.2f);
-    
-    
-    std::string backpackPath = ASSET_FOLDER + "backpack/backpack.obj";
-    m_backpack = Model(backpackPath.c_str());
-            
+         
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP,GL_REPLACE,GL_REPLACE);
 
-    
-    
-    glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -114,25 +102,22 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
 
 void Scene::draw()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+//    glClearStencil(0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     
     
 
     m_objShader.useProgram();
     
     
-//    m_dirLight.setUniformDirLight(m_objShader);
+    m_dirLight.setUniformDirLight(m_objShader);
 //    for(int ii = 0; ii < 4; ++ii)
 //    {
 //        m_ptLight[ii].setUniformPtLight(m_objShader, ii);
 //    }
     m_spotLight.setUniformSpotLight(m_objShader);
-    
-    
-    
-    
-    
     
     
     
@@ -142,42 +127,42 @@ void Scene::draw()
     m_objShader.setUniformMatrix4f("proj", m_proj);
 
     
+    m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, -5.f);
+    m_shapes[0]->m_transform.rotation = glm::vec3(45.f);
+    m_shapes[0]->m_transform.scale = glm::vec3(1.f);
     
-    m_model = ID4;
-    m_model = glm::translate(m_model, glm::vec3(1.f, 0.5f, -2.f));
-    m_model = glm::scale(m_model, 1.5f*m_shapes[0]->getScaleVec3());
-    m_objShader.setUniformMatrix4f("model", m_model);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
     m_shapes[0]->Draw(m_objShader);
-    
-    m_model = ID4;
-    m_model = glm::translate(m_model, glm::vec3(-.5f, .5f, -1.5f));
-    m_model = glm::scale(m_model, m_shapes[1]->getScaleVec3());
-    m_objShader.setUniformMatrix4f("model", m_model);
-    m_shapes[1]->Draw(m_objShader);
-    
-    m_model = ID4;
-    m_model = glm::translate(m_model, glm::vec3(0.f, -.5f, -3.f));
-    m_model = glm::scale(m_model, m_shapes[2]->getScaleVec3());
-    m_objShader.setUniformMatrix4f("model", m_model);
-    m_shapes[2]->Draw(m_objShader);
-    
-    m_model = ID4;
-    m_model = glm::translate(m_model, glm::vec3(-.5f, .5f, -1.5f));
-    m_model = glm::scale(m_model, m_shapes[3]->getScaleVec3());
-    m_objShader.setUniformMatrix4f("model", m_model);
-    m_shapes[3]->Draw(m_objShader);
-    
-    m_model = ID4;
-    m_model = glm::translate(m_model, glm::vec3(1.f, 1.f, -2.f));
-    m_model = glm::scale(m_model, glm::vec3(.1f));
-    m_objShader.setUniformMatrix4f("model", m_model);
-    m_backpack.Draw(m_objShader);
+
     
     
-    for(auto light : m_ptLight)
+    if(m_shapes[0]->m_outlined)
     {
-        light.draw(m_view, m_proj);
+        m_shapes[0]->m_transform.scale *= 1.05;
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        m_outlineShader.useProgram();
+        m_outlineShader.setUniformMatrix4f("view", m_view);
+        m_outlineShader.setUniformMatrix4f("proj", m_proj);
+        m_outlineShader.setUniform3f("color", .2f, .2f, .8f);
+        m_shapes[0]->Draw(m_outlineShader);
+        
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glEnable(GL_DEPTH_TEST);
     }
+    
+    
+
+    
+    
+    
+//    for(auto light : m_ptLight)
+//    {
+//        light.draw(m_view, m_proj);
+//    }
     m_spotLight.position = m_cam.getPosition();
     m_spotLight.direction = m_cam.getDirection();
     
@@ -261,6 +246,11 @@ void Scene::processInput(float deltaTime)
     if(glfwGetKey(m_window, GLFW_KEY_U) == GLFW_PRESS)
     {
         m_ptLight[0].position.y -= inc;
+    }
+    
+    if(glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        m_shapes[0]->m_outlined = !m_shapes[0]->m_outlined;
     }
 }
 
