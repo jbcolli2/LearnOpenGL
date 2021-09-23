@@ -54,18 +54,18 @@ void PosLight::draw(const glm::mat4& view, const glm::mat4& proj)
     m_model = glm::translate(id, position);
     m_model = glm::scale(m_model, glm::vec3(m_uniformScale));
     
-    m_shader.useProgram();
+    Shader::solidShader.useProgram();
     
     
-    m_shader.setUniform3f("lightColor", m_color.r, m_color.g, m_color.b);
+    Shader::solidShader.setUniform3f("color", m_color.r, m_color.g, m_color.b);
     
-    m_shader.setUniformMatrix4f("model", m_model);
-    m_shader.setUniformMatrix4f("view", view);
-    m_shader.setUniformMatrix4f("proj", proj);
+    Shader::solidShader.setUniformMatrix4f("model", m_model);
+    Shader::solidShader.setUniformMatrix4f("view", view);
+    Shader::solidShader.setUniformMatrix4f("proj", proj);
     
-    m_box.Draw(m_shader);
+    m_box.Draw(Shader::solidShader);
     
-    m_shader.stopUseProgram();
+    Shader::solidShader.stopUseProgram();
 }
 
 

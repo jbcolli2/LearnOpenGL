@@ -85,6 +85,23 @@ void Shape::Draw(Shader shader)
     
     glBindVertexArray(m_VAO);
     glDrawArrays(GL_TRIANGLES, 0, m_verts.size());
+    
+    if(m_outlined)
+    {
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        
+        model = glm::scale(model, glm::vec3(1.05));
+        Shader::solidShader.useProgram();
+        Shader::solidShader.setUniform3f("color", .2f, .2f, .8f);
+        Shader::solidShader.setUniformMatrix4f("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, m_verts.size());
+        
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glEnable(GL_DEPTH_TEST);
+    }
 }
 
 

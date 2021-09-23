@@ -22,6 +22,7 @@
 #include <glm/glm.hpp>
 #include "OpenGLUtil.hpp"
 #include "Mesh.hpp"
+#include "Shader.hpp"
 
 
 struct Transform

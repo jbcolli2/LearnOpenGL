@@ -14,7 +14,7 @@
 
 #include "Shader.hpp"
 
-
+Shader Shader::solidShader = Shader();
 
 Shader::Shader(std::string vsPath, std::string fsPath)
 {

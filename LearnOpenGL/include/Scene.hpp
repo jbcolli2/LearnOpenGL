@@ -133,8 +133,6 @@ private:
     void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     void scroll_callback(GLFWwindow* window, double xInc, double yInc);
     
-    template<typename VertT>
-    std::vector<VertT> genBoxVerts();
     
     
     

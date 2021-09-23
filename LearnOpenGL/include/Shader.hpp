@@ -22,6 +22,7 @@ class Shader
     
 
 public:
+    static Shader solidShader;
     
     Shader(std::string vsPath = "", std::string fsPath = "");
     

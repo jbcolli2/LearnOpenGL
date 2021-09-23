@@ -31,8 +31,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     // Load and compile the shaders
     m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.frag");
     m_objShader.makeProgram();
-    m_outlineShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
-    m_outlineShader.makeProgram();
+    Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
+    Shader::solidShader.makeProgram();
     
     
     
@@ -73,8 +73,6 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
 
 
 
-    // The Box
-    std::vector<Vert3x3x2f> vertsBox = genBoxVerts<Vert3x3x2f>();
     
     
     Material boxMat;
@@ -90,9 +88,11 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_shapes.push_back(std::make_unique<Cube>(metalPath));
          
     glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilOp(GL_KEEP,GL_REPLACE,GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+    glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
 
+    
 }
 
 
@@ -107,10 +107,19 @@ void Scene::draw()
 //    glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     
+    m_view = m_cam.getViewMatrix();
+    m_proj = m_cam.getProjMatrix();
     
+    
+    
+    
+    Shader::solidShader.useProgram();
+    Shader::solidShader.setUniformMatrix4f("view", m_view);
+    Shader::solidShader.setUniformMatrix4f("proj", m_proj);
 
     m_objShader.useProgram();
-    
+    m_objShader.setUniformMatrix4f("view", m_view);
+    m_objShader.setUniformMatrix4f("proj", m_proj);
     
     m_dirLight.setUniformDirLight(m_objShader);
 //    for(int ii = 0; ii < 4; ++ii)
@@ -121,48 +130,28 @@ void Scene::draw()
     
     
     
-    m_view = m_cam.getViewMatrix();
-    m_proj = m_cam.getProjMatrix();
-    m_objShader.setUniformMatrix4f("view", m_view);
-    m_objShader.setUniformMatrix4f("proj", m_proj);
+    
 
     
     m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, -5.f);
     m_shapes[0]->m_transform.rotation = glm::vec3(45.f);
     m_shapes[0]->m_transform.scale = glm::vec3(1.f);
     
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
+    
     m_shapes[0]->Draw(m_objShader);
 
     
     
-    if(m_shapes[0]->m_outlined)
-    {
-        m_shapes[0]->m_transform.scale *= 1.05;
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-        glDisable(GL_DEPTH_TEST);
-        m_outlineShader.useProgram();
-        m_outlineShader.setUniformMatrix4f("view", m_view);
-        m_outlineShader.setUniformMatrix4f("proj", m_proj);
-        m_outlineShader.setUniform3f("color", .2f, .2f, .8f);
-        m_shapes[0]->Draw(m_outlineShader);
-        
-        glStencilMask(0xFF);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glEnable(GL_DEPTH_TEST);
-    }
     
     
 
     
     
     
-//    for(auto light : m_ptLight)
-//    {
-//        light.draw(m_view, m_proj);
-//    }
+    for(auto light : m_ptLight)
+    {
+        light.draw(m_view, m_proj);
+    }
     m_spotLight.position = m_cam.getPosition();
     m_spotLight.direction = m_cam.getDirection();
     
@@ -308,58 +297,3 @@ void Scene::scroll_callback(GLFWwindow* window, double xInc, double yInc)
 
 
 
-template <typename VertT>
-std::vector<VertT> Scene::genBoxVerts()
-{
-    std::vector<Vert3x3x2f> vertsBox = {
-        Vert3x3x2f(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f), // front
-        Vert3x3x2f(0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
-        Vert3x3x2f(0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f), // back
-        Vert3x3x2f(0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
-        Vert3x3x2f(0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f), //top
-        Vert3x3x2f(0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f), //bottom
-        Vert3x3x2f(0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f), //right
-        Vert3x3x2f(0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
-        Vert3x3x2f(0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f), //left
-        Vert3x3x2f(-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-        
-        Vert3x3x2f(-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f)
-    };
-    
-    return vertsBox;
-}
