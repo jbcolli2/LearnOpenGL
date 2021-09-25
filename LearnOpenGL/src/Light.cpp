@@ -36,10 +36,10 @@ linAtten(linAtten), quadAtten(quadAtten), innerCutoff(innerCutoff), outerCutoff(
     
                
     m_box = Cube();
+    m_box.m_transform.position = position;
+    m_box.m_transform.scale = glm::vec3(m_uniformScale);
     
     
-    m_model = glm::translate(id, position);
-    m_model = glm::scale(m_model, glm::vec3(m_uniformScale));
     
     m_shader = Shader(vertFilename, fragFilename);
     m_shader.makeProgram();
@@ -51,15 +51,14 @@ linAtten(linAtten), quadAtten(quadAtten), innerCutoff(innerCutoff), outerCutoff(
 
 void PosLight::draw(const glm::mat4& view, const glm::mat4& proj)
 {
-    m_model = glm::translate(id, position);
-    m_model = glm::scale(m_model, glm::vec3(m_uniformScale));
-    
+    m_box.m_transform.position = position;
+    m_box.m_transform.scale = glm::vec3(m_uniformScale);
+
     Shader::solidShader.useProgram();
     
     
     Shader::solidShader.setUniform3f("color", m_color.r, m_color.g, m_color.b);
     
-    Shader::solidShader.setUniformMatrix4f("model", m_model);
     Shader::solidShader.setUniformMatrix4f("view", view);
     Shader::solidShader.setUniformMatrix4f("proj", proj);
     

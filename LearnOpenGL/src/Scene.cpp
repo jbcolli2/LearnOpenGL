@@ -148,10 +148,11 @@ void Scene::draw()
     
     
     
-    for(auto light : m_ptLight)
-    {
-        light.draw(m_view, m_proj);
-    }
+//    for(auto light : m_ptLight)
+//    {
+//        light.draw(m_view, m_proj);
+//    }
+    m_ptLight[0].draw(m_view, m_proj);
     m_spotLight.position = m_cam.getPosition();
     m_spotLight.direction = m_cam.getDirection();
     
