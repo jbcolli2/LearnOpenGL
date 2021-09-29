@@ -35,6 +35,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B70183322700F4F000AA0DA7 /* Input.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Input.hpp; path = include/Input.hpp; sourceTree = "<group>"; };
 		B70473D626C214CB00ED7E03 /* Scene.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Scene.cpp; path = src/Scene.cpp; sourceTree = "<group>"; };
 		B70473D826C2C34F00ED7E03 /* Util.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Util.cpp; sourceTree = "<group>"; };
 		B710096D26B1A105009AA576 /* Scene.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Scene.hpp; path = include/Scene.hpp; sourceTree = "<group>"; };
@@ -145,6 +146,7 @@
 				B741003F26E9A37C00D242BA /* Mesh.cpp */,
 				B741004126ED981B00D242BA /* Model.hpp */,
 				B741004226EE7B5500D242BA /* Model.cpp */,
+				B70183322700F4F000AA0DA7 /* Input.hpp */,
 			);
 			path = LearnOpenGL;
 			sourceTree = "<group>";

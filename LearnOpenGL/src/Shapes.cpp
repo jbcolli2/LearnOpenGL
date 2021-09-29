@@ -46,6 +46,7 @@ void Shape::setupMesh(const std::vector<std::string>& diffTexturePaths,
 
 void Shape::Draw(Shader shader)
 {
+    shader.useProgram();
     // Setup the model matrix
     glm::mat4 model = glm::mat4(1.f);
     model = glm::translate(model, m_transform.position);
@@ -90,11 +91,11 @@ void Shape::Draw(Shader shader)
     {
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
         glStencilMask(0x00);
-        glDisable(GL_DEPTH_TEST);
+//        glDisable(GL_DEPTH_TEST);
         
         model = glm::scale(model, glm::vec3(1.05));
         Shader::solidShader.useProgram();
-        Shader::solidShader.setUniform3f("color", .2f, .2f, .8f);
+        Shader::solidShader.setUniform3f("color", 1.f, .2f, .8f);
         Shader::solidShader.setUniformMatrix4f("model", model);
         glDrawArrays(GL_TRIANGLES, 0, m_verts.size());
         

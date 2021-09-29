@@ -10,6 +10,15 @@
 #include "stb_image.h"
 
 #include "Scene.hpp"
+#include "Input.hpp"
+
+
+
+
+
+
+
+
 
 
 Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
@@ -21,6 +30,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     Scene::GLFWCallbackWrapper::setScene(this);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetKeyCallback(window, Scene::GLFWCallbackWrapper::keyCallback);
     glfwSetFramebufferSizeCallback(window, Scene::GLFWCallbackWrapper::frameBufferSizeCallback);
     glfwSetCursorPosCallback(window, Scene::GLFWCallbackWrapper::mousePosCallback);
     glfwSetScrollCallback(window, Scene::GLFWCallbackWrapper::scrollCallback);
@@ -35,8 +45,10 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     Shader::solidShader.makeProgram();
     
     
-    
-    
+    m_selectCommands.push_back(std::make_unique<NoSelect>(this));
+    m_selectCommands.push_back(std::make_unique<ShapeSelect>(this));
+    m_selectCommands.push_back(std::make_unique<LightSelect>(this));
+    selectCommandIndex = 0;
     
     // Create Light object
     glm::vec3 diffLight{1.f};
@@ -48,7 +60,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_dirLight.structName = "dirLight";
     for(int ii = 0; ii < 4; ++ii)
     {
-        m_ptLight[ii] = PointLight(SHADER_FOLDER + "MVP.vert", SHADER_FOLDER + "SolidColor.frag", m_lightPos[ii]);
+        PointLight temp{SHADER_FOLDER + "MVP.vert", SHADER_FOLDER + "SolidColor.frag", m_lightPos[ii]};
+        m_ptLight.push_back(temp);
         m_ptLight[ii].structName = "ptLights";
         m_ptLight[ii].diffuse = glm::vec3(0.5f);
         m_ptLight[ii].ambient = m_ptLight[ii].diffuse*glm::vec3(0.05f);
@@ -85,8 +98,33 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     std::vector<std::string> metalPath = {ASSET_FOLDER+"metal.png"};
     std::vector<std::string> marblePath = {ASSET_FOLDER+"marble.jpg"};
     std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
+    
+    
     m_shapes.push_back(std::make_unique<Cube>(metalPath));
-         
+    m_shapes[0]->m_transform.position = glm::vec3(1.f, 0.f, -5.f);
+    m_shapes[0]->m_transform.rotation = glm::vec3(45.f);
+    m_shapes[0]->m_transform.scale = glm::vec3(0.6f);
+    
+    m_shapes.push_back(std::make_unique<Plane>(marblePath));
+    m_shapes[1]->m_transform.position = glm::vec3(0.f, -.5f, -2.f);
+    m_shapes[1]->m_transform.scale = glm::vec3(4.f);
+    
+    m_shapes.push_back(std::make_unique<Cube>(metalPath));
+    m_shapes[2]->m_transform.position = glm::vec3(-.75f, 0.4f, -3.f);
+    m_shapes[2]->m_transform.scale = glm::vec3(.8f);
+    
+    m_shapes.push_back(std::make_unique<Cube>(containerPath));
+    m_shapes[3]->m_transform.position = glm::vec3(.5f, -.2f, -4.f);
+    m_shapes[3]->m_transform.scale = glm::vec3(1.f);
+    
+    
+    
+
+    
+    
+    
+    
+    
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
@@ -133,12 +171,11 @@ void Scene::draw()
     
 
     
-    m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, -5.f);
-    m_shapes[0]->m_transform.rotation = glm::vec3(45.f);
-    m_shapes[0]->m_transform.scale = glm::vec3(1.f);
     
-    
-    m_shapes[0]->Draw(m_objShader);
+    for(auto& shape: m_shapes)
+    {
+        shape->Draw(m_objShader);
+    }
 
     
     
@@ -147,12 +184,10 @@ void Scene::draw()
 
     
     
-    
-//    for(auto light : m_ptLight)
-//    {
-//        light.draw(m_view, m_proj);
-//    }
-    m_ptLight[0].draw(m_view, m_proj);
+    for(int ii = 0; ii < m_ptLight.size(); ++ii)
+    {
+        m_ptLight[ii].draw(m_view, m_proj);
+    }
     m_spotLight.position = m_cam.getPosition();
     m_spotLight.direction = m_cam.getDirection();
     
@@ -166,82 +201,120 @@ void Scene::draw()
 
 
 
-
+void Scene::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    Input::instance().m_unhandledKeys.emplace(key, action, mods);
+        
+}
 
 
 void Scene::processInput(float deltaTime)
 {
+    m_deltaTime = deltaTime;
     float inc = 0.85f*deltaTime;
     float camMovement = m_camSpeed * deltaTime;
-    if(glfwGetKey(m_window, GLFW_KEY_ESCAPE))
+    
+    Input* inputHandler = &Input::instance();
+    auto unhandledKeys = inputHandler->m_unhandledKeys;
+    
+    //Handle just key down/up events
+    while(!inputHandler->m_unhandledKeys.empty())
     {
-        glfwSetWindowShouldClose(m_window, true);
+        KeyEvent keyEvent = inputHandler->m_unhandledKeys.front();
+        inputHandler->m_unhandledKeys.pop();
+        
+        if(keyEvent.key == GLFW_KEY_SPACE && keyEvent.action == GLFW_PRESS )
+        {
+            m_shapes[m_selectedShape]->m_outlined = false;
+            m_selectedShape = (m_selectedShape + 1) % m_shapes.size();
+            m_shapes[m_selectedShape]->m_outlined = true;
+        }
+        
+        if(keyEvent.key == GLFW_KEY_0 && keyEvent.action == GLFW_PRESS)
+        {
+            selectCommandIndex = 0;
+            
+        }
+        if(keyEvent.key == GLFW_KEY_1 && keyEvent.action == GLFW_PRESS)
+        {
+            m_ptLight[m_selectedLight].setOutline(false);
+            selectCommandIndex = 1;
+            m_shapes[m_selectedShape]->m_outlined = true;
+        }
+        if(keyEvent.key == GLFW_KEY_2 && keyEvent.action == GLFW_PRESS)
+        {
+            m_shapes[m_selectedShape]->m_outlined = false;
+            selectCommandIndex = 2;
+            m_ptLight[m_selectedLight].setOutline(true);
+        }
+        if(keyEvent.key == GLFW_KEY_TAB && keyEvent.action == GLFW_PRESS)
+        {
+            m_selectCommands[selectCommandIndex]->changeSelect();
+        }
+        
+        Input::instance().m_keyPress[keyEvent.key] = keyEvent.action == GLFW_PRESS || keyEvent.action == GLFW_REPEAT;
+        
+       
+        
     }
     
-    if(glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
+    
+    
+    if(inputHandler->m_keyPress[GLFW_KEY_ESCAPE]) glfwSetWindowShouldClose(m_window, true);
+    if(inputHandler->m_keyPress[GLFW_KEY_W])
     {
         m_cam.moveForward(camMovement);
     }
-    
-    if(glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
+    if(inputHandler->m_keyPress[GLFW_KEY_S])
     {
         m_cam.moveBackward(camMovement);
     }
-    
-    if(glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
+    if(inputHandler->m_keyPress[GLFW_KEY_A])
     {
         m_cam.moveLeft(camMovement);
     }
-    
-    if(glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
+    if(inputHandler->m_keyPress[GLFW_KEY_D])
     {
         m_cam.moveRight(camMovement);
     }
-    
-    if(glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS)
+    if(inputHandler->m_keyPress[GLFW_KEY_E])
     {
         m_cam.moveUp(camMovement);
     }
-    
-    if(glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
+    if(inputHandler->m_keyPress[GLFW_KEY_Q])
     {
         m_cam.moveDown(camMovement);
     }
     
-    if(glfwGetKey(m_window, GLFW_KEY_I) == GLFW_PRESS)
+    
+    
+    
+    if(inputHandler->m_keyPress[GLFW_KEY_I])
     {
-        m_ptLight[0].position.z -= inc;
+        m_selectCommands[selectCommandIndex]->moveForward(inc);
+    }
+    if(inputHandler->m_keyPress[GLFW_KEY_K])
+    {
+        m_selectCommands[selectCommandIndex]->moveBackward(inc);
+    }
+    if(inputHandler->m_keyPress[GLFW_KEY_J])
+    {
+        m_selectCommands[selectCommandIndex]->moveLeft(inc);
+    }
+    if(inputHandler->m_keyPress[GLFW_KEY_L])
+    {
+        m_selectCommands[selectCommandIndex]->moveRight(inc);
+    }
+    if(inputHandler->m_keyPress[GLFW_KEY_U])
+    {
+        m_selectCommands[selectCommandIndex]->moveDown(inc);
+    }
+    if(inputHandler->m_keyPress[GLFW_KEY_O])
+    {
+        m_selectCommands[selectCommandIndex]->moveUp(inc);
     }
     
-    if(glfwGetKey(m_window, GLFW_KEY_K) == GLFW_PRESS)
-    {
-        m_ptLight[0].position.z += inc;
-    }
-    
-    if(glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
-    {
-        m_ptLight[0].position.x += inc;
-    }
-    
-    if(glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS)
-    {
-        m_ptLight[0].position.x -= inc;
-    }
-    
-    if(glfwGetKey(m_window, GLFW_KEY_O) == GLFW_PRESS)
-    {
-        m_ptLight[0].position.y += inc;
-    }
-    
-    if(glfwGetKey(m_window, GLFW_KEY_U) == GLFW_PRESS)
-    {
-        m_ptLight[0].position.y -= inc;
-    }
-    
-    if(glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    {
-        m_shapes[0]->m_outlined = !m_shapes[0]->m_outlined;
-    }
+
 }
 
 

@@ -59,6 +59,9 @@ public:
     void setUniformPtLight(Shader obj_Shader, int index = -1);
     void setUniformSpotLight(Shader obj_Shader, int index = -1);
     
+    void setOutline(bool outlineFlag) {m_box.m_outlined = outlineFlag;};
+    void setColor(glm::vec3 color) {m_color = color;};
+    
     void draw(const glm::mat4& view, const glm::mat4& proj);
     
     
