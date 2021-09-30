@@ -82,8 +82,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     //  Setup the camera
-    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField);
-
+    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(1.6f, .6f, 3.f), -10.f, -10.f);
 
 
     
@@ -101,21 +100,17 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     m_shapes.push_back(std::make_unique<Cube>(metalPath));
-    m_shapes[0]->m_transform.position = glm::vec3(1.f, 0.f, -5.f);
-    m_shapes[0]->m_transform.rotation = glm::vec3(45.f);
-    m_shapes[0]->m_transform.scale = glm::vec3(0.6f);
+    m_shapes[0]->m_transform.position = glm::vec3(2.f, -.5f, -5.f);
+    m_shapes[0]->m_transform.scale = glm::vec3(1.f);
     
     m_shapes.push_back(std::make_unique<Plane>(marblePath));
-    m_shapes[1]->m_transform.position = glm::vec3(0.f, -.5f, -2.f);
-    m_shapes[1]->m_transform.scale = glm::vec3(4.f);
+    m_shapes[1]->m_transform.position = glm::vec3(0.f, -1.f, -3.f);
+    m_shapes[1]->m_transform.scale = glm::vec3(10.f);
     
     m_shapes.push_back(std::make_unique<Cube>(metalPath));
-    m_shapes[2]->m_transform.position = glm::vec3(-.75f, 0.4f, -3.f);
+    m_shapes[2]->m_transform.position = glm::vec3(-1.5f, -.6f, -3.f);
     m_shapes[2]->m_transform.scale = glm::vec3(.8f);
     
-    m_shapes.push_back(std::make_unique<Cube>(containerPath));
-    m_shapes[3]->m_transform.position = glm::vec3(.5f, -.2f, -4.f);
-    m_shapes[3]->m_transform.scale = glm::vec3(1.f);
     
     
     
@@ -142,7 +137,7 @@ void Scene::draw()
 {
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-//    glClearStencil(0);
+    glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     
     m_view = m_cam.getViewMatrix();

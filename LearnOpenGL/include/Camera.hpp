@@ -30,25 +30,39 @@ class Camera
     
     
     
+    void setDirection(float pitch, float yaw)
+    {
+        m_pitch = pitch;
+        if(m_pitch > 89) m_pitch = 89;
+        if(m_pitch < -89) m_pitch = -89;
+        m_yaw = yaw;
+        
+        float theta = glm::radians(m_pitch);
+        float phi = glm::radians(m_yaw);
+        
+        m_camDir.x = glm::cos(theta)*glm::sin(phi);
+        m_camDir.y = glm::sin(theta);
+        m_camDir.z = -glm::cos(theta)*glm::cos(phi);
+        
+        m_camRight = glm::normalize(glm::cross(m_up, m_camDir));
+    }
+    
 public:
     Camera(float fov = 45.f, float aspectRatio = 4.f/3.f, float nearField = 0.1f, float farField = 100.f,
-           glm::vec3 camPos = glm::vec3(0.f,0.f,0.f), glm::vec3 camDir = glm::vec3(0.f, 0.f, 1.f));
+           glm::vec3 camPos = glm::vec3(0.f,0.f,0.f), float pitch = 0.f, float yaw = 0.f);
     
     void setPosition(glm::vec3 position) {m_camPos = position;};
     glm::vec3 getPosition() {return m_camPos;};
     glm::vec3 getDirection() {return m_camDir;};
-//    void setDirection(glm::vec3 direction) {m_camDir = direction;};
+    
     
     void turnYaw(float yawIncrement)
     {
-        m_yaw += yawIncrement;
-        m_camRight = -glm::normalize(glm::cross(m_up, m_camDir));
+        setDirection(m_pitch, m_yaw + yawIncrement);
     };
     void turnPitch(float pitchIncrement)
     {
-        m_pitch += pitchIncrement;
-        if(m_pitch > 89) m_pitch = 89;
-        if(m_pitch < -89) m_pitch = -89;
+        setDirection(m_pitch + pitchIncrement, m_yaw);
     };
     
     void moveLeft(float posIncrement) {m_camPos -= m_camRight*posIncrement;};
@@ -58,7 +72,7 @@ public:
     void moveForward(float posIncrement) {m_camPos += posIncrement*m_camDir;};
     void moveBackward(float posIncrement) {m_camPos -= posIncrement*m_camDir;};
     
-    void lookAt(glm::vec3 target) {m_camDir = target - m_camPos;};
+//    void lookAt(glm::vec3 target) {setDirection(target - m_camPos);};
     
     
     void setFOV(float fov) {m_fov = fov;};
