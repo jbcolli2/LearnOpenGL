@@ -97,19 +97,25 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     std::vector<std::string> metalPath = {ASSET_FOLDER+"metal.png"};
     std::vector<std::string> marblePath = {ASSET_FOLDER+"marble.jpg"};
     std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
+    std::vector<std::string> grassPath = {ASSET_FOLDER+"grass.png"};
     
-    
-    m_shapes.push_back(std::make_unique<Cube>(metalPath));
-    m_shapes[0]->m_transform.position = glm::vec3(2.f, -.5f, -5.f);
-    m_shapes[0]->m_transform.scale = glm::vec3(1.f);
     
     m_shapes.push_back(std::make_unique<Plane>(marblePath));
-    m_shapes[1]->m_transform.position = glm::vec3(0.f, -1.f, -3.f);
-    m_shapes[1]->m_transform.scale = glm::vec3(10.f);
+    m_shapes.back()->m_transform.position = glm::vec3(0.f, -1.f, -3.f);
+    m_shapes.back()->m_transform.scale = glm::vec3(10.f);
+
+    m_shapes.push_back(std::make_unique<Cube>(metalPath));
+    m_shapes.back()->m_transform.position = glm::vec3(2.f, -.5f, -5.f);
     
     m_shapes.push_back(std::make_unique<Cube>(metalPath));
-    m_shapes[2]->m_transform.position = glm::vec3(-1.5f, -.6f, -3.f);
-    m_shapes[2]->m_transform.scale = glm::vec3(.8f);
+    m_shapes.back()->m_transform.position = glm::vec3(-1.5f, -.5f, -3.f);
+    
+    for(int ii = 0; ii < m_vegitation.size(); ++ii)
+    {
+        m_shapes.push_back(std::make_unique<Plane>(grassPath));
+        m_shapes.back()->m_transform.position = m_vegitation[ii];
+        m_shapes.back()->m_transform.rotation.x = 90.f;
+    }
     
     
     
