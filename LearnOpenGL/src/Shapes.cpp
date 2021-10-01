@@ -91,7 +91,7 @@ void Shape::Draw(Shader shader)
     {
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
         glStencilMask(0x00);
-//        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
         
         model = glm::scale(model, glm::vec3(1.05));
         Shader::solidShader.useProgram();

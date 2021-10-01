@@ -44,7 +44,7 @@ class Camera
         m_camDir.y = glm::sin(theta);
         m_camDir.z = -glm::cos(theta)*glm::cos(phi);
         
-        m_camRight = glm::normalize(glm::cross(m_up, m_camDir));
+        m_camRight = -glm::normalize(glm::cross(m_up, m_camDir));
     }
     
 public:
