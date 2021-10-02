@@ -98,15 +98,17 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     std::vector<std::string> marblePath = {ASSET_FOLDER+"marble.jpg"};
     std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
     std::vector<std::string> grassPath = {ASSET_FOLDER+"grass.png"};
+    std::vector<std::string> windowPath = {ASSET_FOLDER+"blending_transparent_window.png"};
     
     
-    m_shapes.push_back(std::make_unique<Plane>());
+    m_shapes.push_back(std::make_unique<Plane>(metalPath));
+    m_shapes.back()->m_transform.position = glm::vec3(.25f, 0.f, -2.1f);
+    m_shapes.back()->m_transform.rotation.x = 90.f;
+
+    m_shapes.push_back(std::make_unique<Plane>(windowPath));
     m_shapes.back()->m_transform.position = glm::vec3(-.25f, 0.f, -2.f);
     m_shapes.back()->m_transform.rotation.x = 90.f;
     
-    m_shapes.push_back(std::make_unique<Plane>());
-    m_shapes.back()->m_transform.position = glm::vec3(.25f, 0.f, -2.1f);
-    m_shapes.back()->m_transform.rotation.x = 90.f;
 
     
     
@@ -134,6 +136,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
 void Scene::draw()
 {
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClearStencil(0);
@@ -149,9 +152,9 @@ void Scene::draw()
     Shader::solidShader.setUniformMatrix4f("view", m_view);
     Shader::solidShader.setUniformMatrix4f("proj", m_proj);
 
-//    m_objShader.useProgram();
-//    m_objShader.setUniformMatrix4f("view", m_view);
-//    m_objShader.setUniformMatrix4f("proj", m_proj);
+    m_objShader.useProgram();
+    m_objShader.setUniformMatrix4f("view", m_view);
+    m_objShader.setUniformMatrix4f("proj", m_proj);
     
     m_dirLight.setUniformDirLight(m_objShader);
 //    for(int ii = 0; ii < 4; ++ii)
@@ -163,13 +166,8 @@ void Scene::draw()
     
     
     
-    Shader::solidShader.setUniform4f("color", 1.f, 0.f, 0.f, 0.05f);
-    m_shapes[1]->Draw(Shader::solidShader);
-    glEnable(GL_BLEND);
-
-    Shader::solidShader.setUniform4f("color", 0.f, 0.f, 1.f, 0.05f);
-    m_shapes[0]->Draw(Shader::solidShader);
-    glDisable(GL_BLEND);
+    m_shapes[0]->Draw(m_objShader);
+    m_shapes[1]->Draw(m_objShader);
 
     
     
