@@ -101,17 +101,32 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     std::vector<std::string> windowPath = {ASSET_FOLDER+"blending_transparent_window.png"};
     
     
-    m_shapes.push_back(std::make_unique<Plane>(metalPath));
-    m_shapes.back()->m_transform.position = glm::vec3(.25f, 0.f, -2.1f);
-    m_shapes.back()->m_transform.rotation.x = 90.f;
+    m_shapes.push_back(std::make_unique<Plane>(marblePath));
+    m_shapes.back()->m_transform.position = glm::vec3(0.f, -.5f, -2.f);
+    m_shapes.back()->m_transform.scale *= 10.f;
+    
+    m_shapes.push_back(std::make_unique<Cube>(containerPath));
+    m_shapes.back()->m_transform.position = glm::vec3(2.f, 0.f, -5.f);
+
+    m_shapes.push_back(std::make_unique<Cube>(containerPath));
+    m_shapes.back()->m_transform.position = glm::vec3(-1.5f, 0.f, -3.f);
 
     m_shapes.push_back(std::make_unique<Plane>(windowPath));
-    m_shapes.back()->m_transform.position = glm::vec3(-.25f, 0.f, -2.f);
+    m_shapes.back()->m_transform.position = glm::vec3(2.f, 0.f, -4.49f);
     m_shapes.back()->m_transform.rotation.x = 90.f;
     
+    m_shapes.push_back(std::make_unique<Plane>(windowPath));
+    m_shapes.back()->m_transform.position = glm::vec3(-1.5f, 0.f, -2.49f);
+    m_shapes.back()->m_transform.rotation.x = 90.f;
 
     
-    
+    m_shapes.push_back(std::make_unique<Plane>(windowPath));
+    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -2.5f);
+    m_shapes.back()->m_transform.rotation.x = 90.f;
+    m_shapes.push_back(std::make_unique<Plane>(windowPath));
+    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -1.5f);
+    m_shapes.back()->m_transform.rotation.x = 90.f;
+
     
     
 
@@ -166,15 +181,14 @@ void Scene::draw()
     
     
     
-    m_shapes[0]->Draw(m_objShader);
-    m_shapes[1]->Draw(m_objShader);
+    
 
     
     
-//    for(auto& shape: m_shapes)
-//    {
-//        shape->Draw(Shader::solidShader);
-//    }
+    for(auto& shape: m_shapes)
+    {
+        shape->Draw(m_objShader);
+    }
 
     
     
