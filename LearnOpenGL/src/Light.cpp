@@ -57,7 +57,7 @@ void PosLight::draw(const glm::mat4& view, const glm::mat4& proj)
     Shader::solidShader.useProgram();
     
     
-    Shader::solidShader.setUniform3f("color", m_color.r, m_color.g, m_color.b);
+    Shader::solidShader.setUniform4f("color", m_color.r, m_color.g, m_color.b, 1.f);
     
     Shader::solidShader.setUniformMatrix4f("view", view);
     Shader::solidShader.setUniformMatrix4f("proj", proj);

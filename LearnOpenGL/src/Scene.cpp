@@ -100,22 +100,14 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     std::vector<std::string> grassPath = {ASSET_FOLDER+"grass.png"};
     
     
-    m_shapes.push_back(std::make_unique<Plane>(marblePath));
-    m_shapes.back()->m_transform.position = glm::vec3(0.f, -1.f, -3.f);
-    m_shapes.back()->m_transform.scale = glm::vec3(10.f);
+    m_shapes.push_back(std::make_unique<Plane>());
+    m_shapes.back()->m_transform.position = glm::vec3(-.25f, 0.f, -2.f);
+    m_shapes.back()->m_transform.rotation.x = 90.f;
+    
+    m_shapes.push_back(std::make_unique<Plane>());
+    m_shapes.back()->m_transform.position = glm::vec3(.25f, 0.f, -2.1f);
+    m_shapes.back()->m_transform.rotation.x = 90.f;
 
-    m_shapes.push_back(std::make_unique<Cube>(metalPath));
-    m_shapes.back()->m_transform.position = glm::vec3(2.f, -.5f, -5.f);
-    
-    m_shapes.push_back(std::make_unique<Cube>(metalPath));
-    m_shapes.back()->m_transform.position = glm::vec3(-1.5f, -.5f, -3.f);
-    
-    for(int ii = 0; ii < m_vegitation.size(); ++ii)
-    {
-        m_shapes.push_back(std::make_unique<Plane>(grassPath));
-        m_shapes.back()->m_transform.position = m_vegitation[ii];
-        m_shapes.back()->m_transform.rotation.x = 90.f;
-    }
     
     
     
@@ -142,6 +134,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
 void Scene::draw()
 {
     glEnable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -156,9 +149,9 @@ void Scene::draw()
     Shader::solidShader.setUniformMatrix4f("view", m_view);
     Shader::solidShader.setUniformMatrix4f("proj", m_proj);
 
-    m_objShader.useProgram();
-    m_objShader.setUniformMatrix4f("view", m_view);
-    m_objShader.setUniformMatrix4f("proj", m_proj);
+//    m_objShader.useProgram();
+//    m_objShader.setUniformMatrix4f("view", m_view);
+//    m_objShader.setUniformMatrix4f("proj", m_proj);
     
     m_dirLight.setUniformDirLight(m_objShader);
 //    for(int ii = 0; ii < 4; ++ii)
@@ -170,13 +163,20 @@ void Scene::draw()
     
     
     
+    Shader::solidShader.setUniform4f("color", 1.f, 0.f, 0.f, 0.05f);
+    m_shapes[1]->Draw(Shader::solidShader);
+    glEnable(GL_BLEND);
+
+    Shader::solidShader.setUniform4f("color", 0.f, 0.f, 1.f, 0.05f);
+    m_shapes[0]->Draw(Shader::solidShader);
+    glDisable(GL_BLEND);
 
     
     
-    for(auto& shape: m_shapes)
-    {
-        shape->Draw(m_objShader);
-    }
+//    for(auto& shape: m_shapes)
+//    {
+//        shape->Draw(Shader::solidShader);
+//    }
 
     
     

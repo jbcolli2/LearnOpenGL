@@ -81,13 +81,6 @@ class Scene
     
     
     
-    std::vector<glm::vec3> m_vegitation = {
-        glm::vec3(2.f, -.5f, -4.49f),
-        glm::vec3(-1.5f, -.5f, -2.49f),
-        glm::vec3(0.f, -.5f, -3.f),
-        glm::vec3(-.3f, -.5f, -3.5f),
-        glm::vec3(1.7f, -.5f, -4.f)
-    };
     
     glm::mat4 ID4 = glm::mat4(1.f);
     glm::mat4 m_model, m_view, m_proj;
