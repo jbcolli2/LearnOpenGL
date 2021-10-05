@@ -106,10 +106,10 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_shapes.back()->m_transform.scale *= 10.f;
     
     m_shapes.push_back(std::make_unique<Cube>(containerPath));
-    m_shapes.back()->m_transform.position = glm::vec3(2.f, 0.f, -5.f);
+    m_shapes.back()->m_transform.position = glm::vec3(2.f, 0.05f, -5.f);
 
     m_shapes.push_back(std::make_unique<Cube>(containerPath));
-    m_shapes.back()->m_transform.position = glm::vec3(-1.5f, 0.f, -3.f);
+    m_shapes.back()->m_transform.position = glm::vec3(-1.5f, 5.05f, -3.f);
 
     m_shapes.push_back(std::make_unique<Plane>(windowPath));
     m_shapes.back()->m_transform.position = glm::vec3(2.f, 0.f, -4.49f);
@@ -139,6 +139,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
+    
+    glEnable(GL_CULL_FACE);
 
     
 }
@@ -156,6 +158,7 @@ void Scene::draw()
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    
     
     m_view = m_cam.getViewMatrix();
     m_proj = m_cam.getProjMatrix();
@@ -181,14 +184,26 @@ void Scene::draw()
     
     
     
+    glDisable(GL_CULL_FACE);
+    m_shapes[0]->Draw(m_objShader);
+    glEnable(GL_CULL_FACE);
+    m_shapes[1]->Draw(m_objShader);
+    m_shapes[2]->Draw(m_objShader);
+    glDisable(GL_CULL_FACE);
+    m_shapes[3]->Draw(m_objShader);
+    m_shapes[4]->Draw(m_objShader);
+    m_shapes[5]->Draw(m_objShader);
+    m_shapes[6]->Draw(m_objShader);
+    
+    
     
 
     
     
-    for(auto& shape: m_shapes)
-    {
-        shape->Draw(m_objShader);
-    }
+//    for(auto& shape: m_shapes)
+//    {
+//        shape->Draw(m_objShader);
+//    }
 
     
     
