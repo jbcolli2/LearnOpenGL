@@ -44,6 +44,8 @@
 		B710097426B1E7CA009AA576 /* Shapes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Shapes.hpp; sourceTree = "<group>"; };
 		B710097526B47C4E009AA576 /* OpenGLUtil.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OpenGLUtil.hpp; sourceTree = "<group>"; };
 		B710098926B4F5A4009AA576 /* VertexData.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VertexData.hpp; sourceTree = "<group>"; };
+		B71DD4A9270D3611005E4175 /* FBOVert.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = FBOVert.vert; path = shaders/FBOVert.vert; sourceTree = "<group>"; };
+		B71DD4AA270D364D005E4175 /* FBOFrag.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = FBOFrag.frag; path = shaders/FBOFrag.frag; sourceTree = "<group>"; };
 		B741003F26E9A37C00D242BA /* Mesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh.cpp; path = src/Mesh.cpp; sourceTree = "<group>"; };
 		B741004126ED981B00D242BA /* Model.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Model.hpp; path = include/Model.hpp; sourceTree = "<group>"; };
 		B741004226EE7B5500D242BA /* Model.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Model.cpp; path = src/Model.cpp; sourceTree = "<group>"; };
@@ -52,6 +54,8 @@
 		B741004926F3FAFA00D242BA /* LightsTextures.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = LightsTextures.frag; path = shaders/LightsTextures.frag; sourceTree = "<group>"; };
 		B741004A26F4298800D242BA /* Texture.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Texture.frag; path = shaders/Texture.frag; sourceTree = "<group>"; };
 		B741004B26F4FD5300D242BA /* Test.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Test.frag; path = shaders/Test.frag; sourceTree = "<group>"; };
+		B74A2190270F3952000594DE /* DebugVert.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = DebugVert.vert; path = shaders/DebugVert.vert; sourceTree = "<group>"; };
+		B74A2191270F396C000594DE /* DebugFrag.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = DebugFrag.frag; path = shaders/DebugFrag.frag; sourceTree = "<group>"; };
 		B79A5E9926CF44C70084DD12 /* Light.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Light.hpp; path = include/Light.hpp; sourceTree = "<group>"; };
 		B79A5E9B26CF46920084DD12 /* Light.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Light.cpp; path = src/Light.cpp; sourceTree = "<group>"; };
 		B7C1468C26C6C22100F2B71D /* Camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Camera.hpp; path = include/Camera.hpp; sourceTree = "<group>"; };
@@ -92,9 +96,13 @@
 				B7C1469026CA0D0A00F2B71D /* MVPNormalUV.vert */,
 				B741004926F3FAFA00D242BA /* LightsTextures.frag */,
 				B7C1469126CA0D2100F2B71D /* MVP.vert */,
+				B71DD4A9270D3611005E4175 /* FBOVert.vert */,
+				B71DD4AA270D364D005E4175 /* FBOFrag.frag */,
 				B7C1469326CA0D5400F2B71D /* SolidColor.frag */,
 				B741004A26F4298800D242BA /* Texture.frag */,
 				B741004B26F4FD5300D242BA /* Test.frag */,
+				B74A2190270F3952000594DE /* DebugVert.vert */,
+				B74A2191270F396C000594DE /* DebugFrag.frag */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";

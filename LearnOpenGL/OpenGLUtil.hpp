@@ -60,6 +60,17 @@ inline void rglVertexAttribPointer(Vert3x_x_f v)
 
 
 
+inline void rglVertexAttribPointer(Vert2x2f v)
+{
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(offsetof(Vert2x2f, u)));
+    glEnableVertexAttribArray(1);
+};
+
+
+
 
 
 
@@ -71,6 +82,8 @@ unsigned int loadVBOData(std::vector<T> vec)
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vec.size()*sizeof(T), &vec[0], GL_STATIC_DRAW);
+    
+    rglVertexAttribPointer(vec[0]);
     
     return VBO;
 }

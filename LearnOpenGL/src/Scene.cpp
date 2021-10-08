@@ -41,6 +41,10 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     // Load and compile the shaders
     m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Texture.frag");
     m_objShader.makeProgram();
+    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.vert", SHADER_FOLDER + "FBOFrag.frag");
+    m_fboShader.makeProgram();
+    m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
+    m_debugShader.makeProgram();
     Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
     Shader::solidShader.makeProgram();
     
@@ -85,6 +89,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(1.6f, .6f, 3.f), -10.f, -10.f);
 
 
+
     
     
     Material boxMat;
@@ -106,7 +111,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_shapes.back()->m_transform.scale *= 10.f;
     
     m_shapes.push_back(std::make_unique<Cube>(containerPath));
-    m_shapes.back()->m_transform.position = glm::vec3(2.f, 0.05f, -5.f);
+    m_shapes.back()->m_transform.position = glm::vec3(-1.5f, 0.0f, -3.f);
 
     m_shapes.push_back(std::make_unique<Cube>(containerPath));
     m_shapes.back()->m_transform.position = glm::vec3(-1.5f, 5.05f, -3.f);
@@ -114,12 +119,12 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_shapes.push_back(std::make_unique<Plane>(windowPath));
     m_shapes.back()->m_transform.position = glm::vec3(2.f, 0.f, -4.49f);
     m_shapes.back()->m_transform.rotation.x = 90.f;
-    
+
     m_shapes.push_back(std::make_unique<Plane>(windowPath));
     m_shapes.back()->m_transform.position = glm::vec3(-1.5f, 0.f, -2.49f);
     m_shapes.back()->m_transform.rotation.x = 90.f;
 
-    
+
     m_shapes.push_back(std::make_unique<Plane>(windowPath));
     m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -2.5f);
     m_shapes.back()->m_transform.rotation.x = 90.f;
@@ -127,6 +132,23 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -1.5f);
     m_shapes.back()->m_transform.rotation.x = 90.f;
 
+    
+    
+    
+    std::vector<Vert2x2f> fbo_vert = {
+        Vert2x2f(-1.f, 1.0f, 0.f, 1.f),
+        Vert2x2f(-1.f, -1.f, 0.f, 0.f),
+        Vert2x2f(1.f, -1.f, 1.f, 0.f),
+        
+        Vert2x2f(-1.f, 1.f, 0.f, 1.f),
+        Vert2x2f(1.f, -1.f, 1.f, 0.f),
+        Vert2x2f(1.f, 1.f, 1.f, 1.f)
+    };
+    
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    vbo = loadVBOData(fbo_vert);
+    glBindVertexArray(0);
     
     
 
@@ -143,6 +165,32 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     glEnable(GL_CULL_FACE);
 
     
+    
+    
+    
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    
+    glGenTextures(1, &tbo);
+    glBindTexture(GL_TEXTURE_2D, tbo);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1600, 1200, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo, 0);
+    
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1600, 1200);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer NOT complete\n";
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    
+    
 }
 
 
@@ -152,6 +200,9 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
 
 void Scene::draw()
 {
+
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -162,10 +213,10 @@ void Scene::draw()
     
     m_view = m_cam.getViewMatrix();
     m_proj = m_cam.getProjMatrix();
-    
-    
-    
-    
+
+
+
+
     Shader::solidShader.useProgram();
     Shader::solidShader.setUniformMatrix4f("view", m_view);
     Shader::solidShader.setUniformMatrix4f("proj", m_proj);
@@ -173,7 +224,7 @@ void Scene::draw()
     m_objShader.useProgram();
     m_objShader.setUniformMatrix4f("view", m_view);
     m_objShader.setUniformMatrix4f("proj", m_proj);
-    
+
     m_dirLight.setUniformDirLight(m_objShader);
 //    for(int ii = 0; ii < 4; ++ii)
 //    {
@@ -183,42 +234,52 @@ void Scene::draw()
     
     
     
-    
-    glDisable(GL_CULL_FACE);
-    m_shapes[0]->Draw(m_objShader);
-    glEnable(GL_CULL_FACE);
-    m_shapes[1]->Draw(m_objShader);
-    m_shapes[2]->Draw(m_objShader);
-    glDisable(GL_CULL_FACE);
-    m_shapes[3]->Draw(m_objShader);
-    m_shapes[4]->Draw(m_objShader);
-    m_shapes[5]->Draw(m_objShader);
-    m_shapes[6]->Draw(m_objShader);
-    
-    
-    
-
-    
-    
-//    for(auto& shape: m_shapes)
-//    {
-//        shape->Draw(m_objShader);
-//    }
-
-    
-    
-    
-    
-
-    
-    
-    for(int ii = 0; ii < m_ptLight.size(); ++ii)
+    for(auto& shape: m_shapes)
     {
-        m_ptLight[ii].draw(m_view, m_proj);
+        shape->Draw(m_objShader);
     }
+    
+//    m_debugShader.useProgram();
+//    std::vector<Vert3f> debugVert = {
+//        Vert3f(-1.f, -1.f, 0.f),
+//        Vert3f(1.f, -1.f, 0.f),
+//        Vert3f(0.f, 1.f, 0.f)
+//    };
+//
+//    unsigned int debugvao;
+//    glGenVertexArrays(1, &debugvao);
+//    glBindVertexArray(debugvao);
+//    loadVBOData(debugVert);
+//    glDrawArrays(GL_TRIANGLES, 0, 3);
+//    glBindVertexArray(0);
+    
+    
+    
+    
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glDisable(GL_DEPTH_TEST);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    m_fboShader.useProgram();
+    glBindVertexArray(vao);
+    glBindTexture(GL_TEXTURE_2D, tbo);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+
+    
+    
+
+    
+    
+//    for(int ii = 0; ii < m_ptLight.size(); ++ii)
+//    {
+//        m_ptLight[ii].draw(m_view, m_proj);
+//    }
     m_spotLight.position = m_cam.getPosition();
     m_spotLight.direction = m_cam.getDirection();
-    
     
 }
 
@@ -357,6 +418,7 @@ void Scene::framebuffer_size_callback(GLFWwindow* window, int width, int height)
     m_height = height;
     m_cam.setAspectRatio(float(width)/float(height));
     glViewport(0,0, width, height);
+    
 }
 
 

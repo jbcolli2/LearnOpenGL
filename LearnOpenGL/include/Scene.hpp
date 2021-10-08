@@ -38,6 +38,12 @@ public:
 
 class Scene
 {
+    unsigned int vao, vbo, fbo, tbo, rbo;
+    
+    
+    
+    
+    
     std::string SHADER_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
     std::string IMAGE_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/";
     std::string ASSET_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/assets/";
@@ -46,7 +52,7 @@ class Scene
     GLFWwindow* m_window;
     float m_deltaTime;
     
-    Shader m_objShader;
+    Shader m_objShader, m_fboShader, m_debugShader;
     
     std::vector<std::unique_ptr<SelectObjCommand>> m_selectCommands;
     int selectCommandIndex = 0;

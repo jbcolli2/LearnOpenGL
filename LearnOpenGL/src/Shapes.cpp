@@ -24,7 +24,6 @@ void Shape::setupMesh(const std::vector<std::string>& diffTexturePaths,
     m_VBO = loadVBOData(m_verts);
     
 
-    rglVertexAttribPointer(m_verts[0]);
     
     
     //Setup material for cube

@@ -52,4 +52,13 @@ struct Vert3x_x_f
 };
 
 
+struct Vert2x2f
+{
+    float x,y,u,v;
+    
+    Vert2x2f() : x(0.f), y(0.f), u(0.f), v(0.f) {};
+    Vert2x2f(float x, float y, float u, float v) : x(x), y(y), u(u), v(v) {};
+};
+
+
 #endif /* VertexData_h */
