@@ -5,14 +5,38 @@ in vec2 UV;
 in vec2 pos;
 
 #define PI 3.1415926538
+const float offset = 1.0/300.0;
 
 uniform sampler2D FBOtex;
 
 void main()
 {
-    vec4 color = texture(FBOtex, UV);
-//    color = vec4(UV.y, 0, 0, 1);
-    float average = (.2126*color.r + .7152*color.g + .0722*color.b);
+    vec2 offsets[9] = vec2[](
+        vec2(-offset, offset), //top left
+        vec2(0.0, offset),     // top center
+        vec2(offset, offset),  // top right
+        vec2(-offset, 0.0),     // center left
+        vec2(0.0, 0.0),         // center
+        vec2(offset, 0.0),      // center right
+        vec2(-offset, -offset), //bottom left
+        vec2(0.0, -offset),     // bottom center
+        vec2(offset, -offset)   // bottom right
+    );
     
-    FragColor = vec4(vec3(average), 1.0);
+    float kernel[9] = float[](
+        -1, -1, -1,
+        -1, 9, -1,
+        -1, -1, -1
+    );
+    
+    vec3 color = vec3(0.0);
+    for (int ii = 0; ii < 9; ii++)
+    {
+        color += kernel[ii] * vec3(texture(FBOtex, UV+offsets[ii]));
+    }
+    
+    
+//    vec4 color = texture(FBOtex, UV);
+    
+    FragColor = vec4(color, 1.0);
 }
