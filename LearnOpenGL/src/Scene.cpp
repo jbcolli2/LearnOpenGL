@@ -268,6 +268,8 @@ void Scene::draw()
     m_fboShader.useProgram();
     glBindVertexArray(vao);
     glBindTexture(GL_TEXTURE_2D, tbo);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 
