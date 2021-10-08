@@ -13,5 +13,5 @@ void main()
     vec4 color = texture(FBOtex, UV);
 //    color = vec4(UV.y, 0, 0, 1);
     
-    FragColor = color;
+    FragColor = vec4(1-vec3(color), 1.0);
 }
