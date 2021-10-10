@@ -135,14 +135,24 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
+//    std::vector<Vert2x2f> fbo_vert = {
+//        Vert2x2f(-1.f, 1.0f, 0.f, 1.f),
+//        Vert2x2f(-1.f, -1.f, 0.f, 0.f),
+//        Vert2x2f(1.f, -1.f, 1.f, 0.f),
+//
+//        Vert2x2f(-1.f, 1.f, 0.f, 1.f),
+//        Vert2x2f(1.f, -1.f, 1.f, 0.f),
+//        Vert2x2f(1.f, 1.f, 1.f, 1.f)
+//    };
+    
     std::vector<Vert2x2f> fbo_vert = {
-        Vert2x2f(-1.f, 1.0f, 0.f, 1.f),
-        Vert2x2f(-1.f, -1.f, 0.f, 0.f),
-        Vert2x2f(1.f, -1.f, 1.f, 0.f),
+        Vert2x2f(-.5f, .5f, 0.f, 1.f),
+        Vert2x2f(-.5f, -.5f, 0.f, 0.f),
+        Vert2x2f(.5f, -.5f, 1.f, 0.f),
         
-        Vert2x2f(-1.f, 1.f, 0.f, 1.f),
-        Vert2x2f(1.f, -1.f, 1.f, 0.f),
-        Vert2x2f(1.f, 1.f, 1.f, 1.f)
+        Vert2x2f(-.5f, .5f, 0.f, 1.f),
+        Vert2x2f(.5f, -.5f, 1.f, 0.f),
+        Vert2x2f(.5f, .5f, 1.f, 1.f)
     };
     
     glGenVertexArrays(1, &vao);
@@ -162,7 +172,6 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     glStencilMask(0xFF);
     glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
     
-    glEnable(GL_CULL_FACE);
 
     
     
