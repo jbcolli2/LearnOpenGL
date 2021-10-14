@@ -60,5 +60,13 @@ struct Vert2x2f
     Vert2x2f(float x, float y, float u, float v) : x(x), y(y), u(u), v(v) {};
 };
 
+struct Vert3x2f
+{
+    float x,y,z,u,v;
+    
+    Vert3x2f() : x(0.f), y(0.f), z(0.0), u(0.f), v(0.f) {};
+    Vert3x2f(float x, float y, float z, float u, float v) : x(x), y(y), z(z), u(u), v(v) {};
+};
+
 
 #endif /* VertexData_h */

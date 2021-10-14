@@ -38,8 +38,17 @@ public:
 
 class Scene
 {
-    unsigned int vao, vbo, fbo, tbo, rbo;
+    struct FBO
+    {
+        unsigned int vao, vbo, fbo, tbo, rbo;
+    };
     
+    FBO m_fbo;
+
+    //********** Mirror ***********//
+    glm::vec3 m_mirrorPos = glm::vec3(0.f, 0.f, -5.5f);
+    glm::vec3 m_mirrorDir = glm::vec3(0.f, 0.f, 1.f);
+    glm::mat4 m_mirrorView, m_mirrorProj;
     
     
     
@@ -63,6 +72,7 @@ class Scene
     int m_selectedShape = 0;
     int m_selectedLight = 0;
     
+    //********* Lights ************//
     DirLight m_dirLight;
     std::vector<PointLight> m_ptLight;
     SpotLight m_spotLight;
@@ -72,7 +82,10 @@ class Scene
         glm::vec3(0.f, 2.f, 0.f),
         glm::vec3(-1.f, 3.f, -2.f)
     };
-    Camera m_cam;
+    
+    
+    
+    
     
     
     //******* Mouse Input ***********//
@@ -82,12 +95,14 @@ class Scene
     
     
     //*******  Camera/Window Variables *******//
+    Camera m_cam;
     int m_width, m_height;
     float m_camSpeed = 1.5f;
+    float m_nearField, m_farField, m_fov;
     
     
     
-    
+    //*******  MVP Matrices ***********//
     glm::mat4 ID4 = glm::mat4(1.f);
     glm::mat4 m_model, m_view, m_proj;
     
@@ -164,6 +179,23 @@ class Scene
     friend class NoSelect;
     friend class ShapeSelect;
     friend class LightSelect;
+    
+    
+    void setupMirror();
+    
+    void setupShaders();
+    void setupLights();
+    void setupShapes();
+    void setupFBO();
+    
+    void clearBuffers();
+    void updateVP(Shader shader);
+    void updateLightUniforms();
+    void drawObjects();
+    void drawFBOQuad();
+    void updateLights();
+    
+    
     
     
 public:

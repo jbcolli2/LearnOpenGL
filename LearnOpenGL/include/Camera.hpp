@@ -47,11 +47,18 @@ class Camera
         m_camRight = -glm::normalize(glm::cross(m_up, m_camDir));
     }
     
+    void Dir2PitchYaw()
+    {
+        
+    }
+    
 public:
     Camera(float fov = 45.f, float aspectRatio = 4.f/3.f, float nearField = 0.1f, float farField = 100.f,
            glm::vec3 camPos = glm::vec3(0.f,0.f,0.f), float pitch = 0.f, float yaw = 0.f);
     
     void setPosition(glm::vec3 position) {m_camPos = position;};
+    void setDirection(glm::vec3 direction) {m_camDir = direction;
+        m_camRight = -glm::normalize(glm::cross(m_up, m_camDir));};
     glm::vec3 getPosition() {return m_camPos;};
     glm::vec3 getDirection() {return m_camDir;};
     
