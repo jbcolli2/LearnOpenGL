@@ -262,11 +262,10 @@ void Scene::drawObjects()
 void Scene::drawFBOQuad()
 {
     m_fboShader.useProgram();
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), m_mirrorPos);
-    model = glm::scale(model, glm::vec3(.5f));
+    glm::mat4 model = glm::mat4(1.0f);
     m_fboShader.setUniformMatrix4f("model", model);
-    m_fboShader.setUniformMatrix4f("view", m_view);
-    m_fboShader.setUniformMatrix4f("proj", m_proj);
+    m_fboShader.setUniformMatrix4f("view", glm::mat4(1.f));
+    m_fboShader.setUniformMatrix4f("proj", glm::mat4(1.f));
     glBindVertexArray(m_fbo.vao);
     glBindTexture(GL_TEXTURE_2D, m_fbo.tbo);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -300,6 +299,8 @@ void Scene::updateLights()
 //********************************************//
 void Scene::draw()
 {
+    m_view = m_cam.getViewMatrix();
+    m_proj = m_cam.getProjMatrix();
 
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo.fbo);
@@ -309,14 +310,10 @@ void Scene::draw()
     
     clearBuffers();
     
-    glm::vec3 mirror2cam = m_mirrorPos - m_cam.getPosition();
-    glm::vec3 n{0.f, 0.f, 1.f};
-    m_mirrorDir = mirror2cam - 2*glm::dot(mirror2cam, n)*n;
-    m_mirrorView = glm::lookAt(m_mirrorPos, m_mirrorPos + m_mirrorDir, glm::vec3(0.f, 1.f, 0.f));
     
     m_objShader.useProgram();
-    m_objShader.setUniformMatrix4f("view", m_mirrorView);
-    m_objShader.setUniformMatrix4f("proj", m_mirrorProj);
+    updateVP(Shader::solidShader);
+    updateVP(m_objShader);
     updateLightUniforms();
     drawObjects();
     
@@ -328,23 +325,6 @@ void Scene::draw()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     clearBuffers();
-
-    m_view = m_cam.getViewMatrix();
-    m_proj = m_cam.getProjMatrix();
-
-
-
-    updateVP(Shader::solidShader);
-    updateVP(m_objShader);
-    
-
-
-    updateLightUniforms();
-    
-    
-    drawObjects();
-    
-    
     
 
     drawFBOQuad();
