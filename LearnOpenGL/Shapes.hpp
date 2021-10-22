@@ -76,7 +76,7 @@ public:
     
     
     
-    void Draw(Shader shader);
+    void virtual Draw(Shader shader);
   
     
     
@@ -111,15 +111,7 @@ public:
 
 
 
-//class Triangle : public Shape
-//{
-//
-//    std::vector<Vert3x3x2f> verts;
-//public:
-//    Triangle(std::vector<Vert3x3x2f> vert);
-//
-//    void virtual draw() override;
-//};
+
 
 
 

@@ -18,6 +18,7 @@
 #include "Camera.hpp"
 #include "Light.hpp"
 #include "Model.hpp"
+#include "Skybox.hpp"
 
 
 
@@ -67,6 +68,7 @@ class Scene
     int selectCommandIndex = 0;
     
     std::vector< std::unique_ptr<Shape> > m_shapes;
+    Skybox m_skybox;
     Model m_backpack;
     
     int m_selectedShape = 0;

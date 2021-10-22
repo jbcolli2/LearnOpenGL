@@ -16,10 +16,8 @@
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Texture.frag");
+    m_objShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
     m_objShader.makeProgram();
-    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.vert", SHADER_FOLDER + "FBOFrag.frag");
-    m_fboShader.makeProgram();
     m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
     m_debugShader.makeProgram();
     Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
@@ -64,43 +62,43 @@ void Scene::setupMirror()
     m_mirrorProj = glm::perspective(glm::radians(m_fov), 1.0f, m_nearField, m_farField);
 }
 
+
+
+
+
+
+
 void Scene::setupShapes()
 {
-    stbi_set_flip_vertically_on_load(true);
+//    stbi_set_flip_vertically_on_load(true);
     std::vector<std::string> metalPath = {ASSET_FOLDER+"metal.png"};
     std::vector<std::string> marblePath = {ASSET_FOLDER+"marble.jpg"};
     std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
     std::vector<std::string> grassPath = {ASSET_FOLDER+"grass.png"};
     std::vector<std::string> windowPath = {ASSET_FOLDER+"blending_transparent_window.png"};
+    std::vector<std::string> skyboxPath = {
+        ASSET_FOLDER + "skybox/right.jpg",
+        ASSET_FOLDER + "skybox/left.jpg",
+        ASSET_FOLDER + "skybox/top.jpg",
+        ASSET_FOLDER + "skybox/bottom.jpg",
+        ASSET_FOLDER + "skybox/front.jpg",
+        ASSET_FOLDER + "skybox/back.jpg"
+    };
     
+//    m_shapes.push_back(std::make_unique<Cube>(containerPath));
+//    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -1.f);
     
-    m_shapes.push_back(std::make_unique<Plane>(marblePath));
-    m_shapes.back()->m_transform.position = glm::vec3(0.f, -.5f, -2.f);
-    m_shapes.back()->m_transform.scale *= 10.f;
-    
-    m_shapes.push_back(std::make_unique<Cube>(containerPath));
-    m_shapes.back()->m_transform.position = glm::vec3(-1.5f, 0.0f, -3.f);
-
-    m_shapes.push_back(std::make_unique<Cube>(containerPath));
-    m_shapes.back()->m_transform.position = glm::vec3(-1.5f, 5.05f, -3.f);
-
-    m_shapes.push_back(std::make_unique<Plane>(windowPath));
-    m_shapes.back()->m_transform.position = glm::vec3(2.f, 0.f, -4.49f);
-    m_shapes.back()->m_transform.rotation.x = 90.f;
-
-    m_shapes.push_back(std::make_unique<Plane>(windowPath));
-    m_shapes.back()->m_transform.position = glm::vec3(-1.5f, 0.f, -2.49f);
-    m_shapes.back()->m_transform.rotation.x = 90.f;
-
-
-    m_shapes.push_back(std::make_unique<Plane>(windowPath));
-    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -2.5f);
-    m_shapes.back()->m_transform.rotation.x = 90.f;
-    m_shapes.push_back(std::make_unique<Plane>(windowPath));
-    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -1.5f);
-    m_shapes.back()->m_transform.rotation.x = 90.f;
+    m_skybox = Skybox(skyboxPath);
 
 }
+
+
+
+
+
+
+
+
 
 
 void Scene::setupFBO()
@@ -182,12 +180,11 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     selectCommandIndex = 0;
     
    
-    setupLights();
     
     
     
     //  Setup the camera
-    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(1.6f, .6f, 3.f), -10.f, -10.f);
+    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField);
 
 
 
@@ -199,11 +196,9 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
-    setupFBO();
 
     
     
-    setupMirror();
     
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -213,6 +208,48 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+//*******************************************
+//********  draw()  *******************
+//********************************************//
+void Scene::draw()
+{
+    m_view = m_cam.getViewMatrix();
+    m_proj = m_cam.getProjMatrix();
+
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    clearBuffers();
+    
+    
+    
+    updateVP(Shader::solidShader);
+    updateVP(m_objShader);
+    updateLightUniforms();
+    m_objShader.useProgram();
+    drawObjects();
+    
+    
+    
+
+    updateLights();
+   
+    
+}
 
 
 
@@ -254,6 +291,8 @@ void Scene::drawObjects()
     {
         shape->Draw(m_objShader);
     }
+    
+    m_skybox.Draw();
 }
 
 
@@ -294,50 +333,10 @@ void Scene::updateLights()
 
 
 
-//*******************************************
-//********  draw()  *******************
-//********************************************//
-void Scene::draw()
-{
-    m_view = m_cam.getViewMatrix();
-    m_proj = m_cam.getProjMatrix();
 
-
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo.fbo);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    clearBuffers();
-    
-    
-    m_objShader.useProgram();
-    updateVP(Shader::solidShader);
-    updateVP(m_objShader);
-    updateLightUniforms();
-    drawObjects();
-    
-    
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    clearBuffers();
-    
-
-    drawFBOQuad();
-
-    updateLights();
-   
-    
-}
-
-
-
-
-
+//*****************************************
+/*            Input
+ ********************************************/
 
 
 
