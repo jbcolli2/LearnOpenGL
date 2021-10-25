@@ -242,8 +242,8 @@ void Scene::draw()
     
     updateVP(Shader::solidShader);
     updateVP(m_objShader);
-    m_objShader.setUniform3f("camPosition", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
-    
+    m_objShader.setUniform1i("skybox", 1);
+
     updateLightUniforms();
     drawObjects();
     

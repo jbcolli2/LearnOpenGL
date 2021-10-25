@@ -17,11 +17,13 @@ uniform samplerCube skybox;
 
 void main()
 {
+    float blendTex = .5;
     vec3 I = normalize(FragPos);
     vec3 R = reflect(I, normalize(Normal));
-    vec4 color = texture(skybox, normalize(R));
-    if(color.a < 0.1)
-        discard;
+    vec3 colorSkybox = texture(skybox, R).rgb;
+    vec3 colorTex = texture(material.diffuse0,UV).rgb;
+    vec4 color = vec4((1-blendTex)*colorSkybox + blendTex*colorTex, 1.0);
+   
     
     
     FragColor = color;

@@ -27,7 +27,7 @@ Skybox::Skybox(std::vector<std::string> texFilenames)
     
     // Setup cubedata textures
     glGenTextures(1, &m_tbo);
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0+1);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_tbo);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
