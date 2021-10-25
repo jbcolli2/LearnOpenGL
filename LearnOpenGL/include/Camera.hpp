@@ -23,7 +23,7 @@ class Camera
 {
     float m_pitch, m_yaw;
     float m_fov, m_aspectRatio, m_nearField, m_farField;
-    glm::vec3 m_camPos, m_camDir, m_camRight;
+    glm::vec3 m_camDir, m_camRight;
     glm::vec3 m_up = glm::vec3(0.f, 1.f, 0.f);
     
     glm::vec4 m_viewMatrix, m_projMatrix;
@@ -53,6 +53,8 @@ class Camera
     }
     
 public:
+    glm::vec3 m_camPos;
+    
     Camera(float fov = 45.f, float aspectRatio = 4.f/3.f, float nearField = 0.1f, float farField = 100.f,
            glm::vec3 camPos = glm::vec3(0.f,0.f,0.f), float pitch = 0.f, float yaw = 0.f);
     

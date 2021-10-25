@@ -58,6 +58,7 @@
 		B741004B26F4FD5300D242BA /* Test.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Test.frag; path = shaders/Test.frag; sourceTree = "<group>"; };
 		B74A2190270F3952000594DE /* DebugVert.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = DebugVert.vert; path = shaders/DebugVert.vert; sourceTree = "<group>"; };
 		B74A2191270F396C000594DE /* DebugFrag.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = DebugFrag.frag; path = shaders/DebugFrag.frag; sourceTree = "<group>"; };
+		B79333B9272656BB00E1A633 /* Reflect.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Reflect.frag; path = shaders/Reflect.frag; sourceTree = "<group>"; };
 		B79A5E9926CF44C70084DD12 /* Light.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Light.hpp; path = include/Light.hpp; sourceTree = "<group>"; };
 		B79A5E9B26CF46920084DD12 /* Light.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Light.cpp; path = src/Light.cpp; sourceTree = "<group>"; };
 		B7B6355F27210CDD00176310 /* Skybox.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Skybox.hpp; path = include/Skybox.hpp; sourceTree = "<group>"; };
@@ -107,6 +108,7 @@
 				B71DD4AA270D364D005E4175 /* FBOFrag.frag */,
 				B7C1469326CA0D5400F2B71D /* SolidColor.frag */,
 				B741004A26F4298800D242BA /* Texture.frag */,
+				B79333B9272656BB00E1A633 /* Reflect.frag */,
 				B741004B26F4FD5300D242BA /* Test.frag */,
 				B74A2190270F3952000594DE /* DebugVert.vert */,
 				B74A2191270F396C000594DE /* DebugFrag.frag */,

@@ -16,7 +16,7 @@
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Texture.frag");
+    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Reflect.frag");
     m_objShader.makeProgram();
     m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
     m_skyboxShader.makeProgram();
@@ -242,6 +242,7 @@ void Scene::draw()
     
     updateVP(Shader::solidShader);
     updateVP(m_objShader);
+    m_objShader.setUniform3f("camPosition", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
     
     updateLightUniforms();
     drawObjects();
