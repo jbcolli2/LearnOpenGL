@@ -15,6 +15,11 @@
 #include <stb_image.h>
 
 #include "OpenGLUtil.hpp"
+#include "Shader.hpp"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 
 // ///////////// Skybox Class   ////////////////
 
@@ -22,6 +27,9 @@
 class Skybox
 {
     unsigned int m_tbo, m_vao, m_vbo;
+    float m_yaw = 0;
+
+    glm::mat4 m_model;
     std::vector<Vert3f> m_box = {
         Vert3f(-0.5f, -0.5f, 0.5f), // front
         Vert3f(0.5f, 0.5f, 0.5f),
@@ -77,7 +85,10 @@ public:
     Skybox() = default;
     Skybox(std::vector<std::string> texFilenames);
     
-    void Draw();
+    void Draw(Shader shader);
+    
+    void RotateRight(float inc) {m_yaw += inc;};
+    void RotateLeft(float inc) {m_yaw -= inc;};
 };
 
 

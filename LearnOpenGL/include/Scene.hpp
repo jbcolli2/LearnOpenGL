@@ -62,7 +62,7 @@ class Scene
     GLFWwindow* m_window;
     float m_deltaTime;
     
-    Shader m_objShader, m_fboShader, m_debugShader;
+    Shader m_objShader, m_fboShader, m_debugShader, m_skyboxShader;
     
     std::vector<std::unique_ptr<SelectObjCommand>> m_selectCommands;
     int selectCommandIndex = 0;

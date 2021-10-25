@@ -16,8 +16,10 @@
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
+    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Texture.frag");
     m_objShader.makeProgram();
+    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
+    m_skyboxShader.makeProgram();
     m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
     m_debugShader.makeProgram();
     Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
@@ -85,8 +87,8 @@ void Scene::setupShapes()
         ASSET_FOLDER + "skybox/back.jpg"
     };
     
-//    m_shapes.push_back(std::make_unique<Cube>(containerPath));
-//    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -1.f);
+    m_shapes.push_back(std::make_unique<Cube>(containerPath));
+    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -4.f);
     
     m_skybox = Skybox(skyboxPath);
 
@@ -225,9 +227,10 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
 //********************************************//
 void Scene::draw()
 {
-    m_view = m_cam.getViewMatrix();
+    m_view = glm::mat4(glm::mat3(m_cam.getViewMatrix()));
     m_proj = m_cam.getProjMatrix();
-
+    updateVP(m_skyboxShader);
+    m_view = m_cam.getViewMatrix();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -239,8 +242,8 @@ void Scene::draw()
     
     updateVP(Shader::solidShader);
     updateVP(m_objShader);
+    
     updateLightUniforms();
-    m_objShader.useProgram();
     drawObjects();
     
     
@@ -250,6 +253,17 @@ void Scene::draw()
    
     
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -287,12 +301,15 @@ void Scene::updateLightUniforms()
 
 void Scene::drawObjects()
 {
+
+    m_objShader.useProgram();
     for(auto& shape: m_shapes)
     {
         shape->Draw(m_objShader);
     }
-    
-    m_skybox.Draw();
+    m_skyboxShader.useProgram();
+    m_skybox.Draw(m_skyboxShader);
+
 }
 
 
@@ -411,10 +428,13 @@ void Scene::processInput(float deltaTime)
     if(inputHandler->m_keyPress[GLFW_KEY_A])
     {
         m_cam.moveLeft(camMovement);
+        m_skybox.RotateLeft(camMovement*.5f);
+
     }
     if(inputHandler->m_keyPress[GLFW_KEY_D])
     {
         m_cam.moveRight(camMovement);
+        m_skybox.RotateRight(camMovement*.5f);
     }
     if(inputHandler->m_keyPress[GLFW_KEY_E])
     {

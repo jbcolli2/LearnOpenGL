@@ -59,11 +59,15 @@ Skybox::Skybox(std::vector<std::string> texFilenames)
 
 
 
-void Skybox::Draw()
+void Skybox::Draw(Shader shader)
 {
-    glDepthMask(GL_FALSE);
+    m_model = glm::mat4(1.0);
+    m_model = glm::rotate(m_model, glm::radians(m_yaw), glm::vec3(0.f, 1.f, 0.f));
+    shader.setUniformMatrix4f("model", m_model);
+    
+    glDepthFunc(GL_LEQUAL);
     glBindVertexArray(m_vao);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_tbo);
     glDrawArrays(GL_TRIANGLES, 0, m_box.size());
-    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
 }
