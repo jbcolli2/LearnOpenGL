@@ -102,6 +102,7 @@ void Shape::Draw(Shader shader)
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glEnable(GL_DEPTH_TEST);
     }
+    glBindVertexArray(0);
 }
 
 

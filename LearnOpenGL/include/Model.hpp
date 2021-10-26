@@ -19,6 +19,8 @@
 class Model
 {
 public:
+    Transform m_transform;
+    
     Model() = default;
     Model(const char* path)
     {

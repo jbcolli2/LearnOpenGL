@@ -72,12 +72,13 @@ void Scene::setupMirror()
 
 void Scene::setupShapes()
 {
-//    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(true);
     std::vector<std::string> metalPath = {ASSET_FOLDER+"metal.png"};
     std::vector<std::string> marblePath = {ASSET_FOLDER+"marble.jpg"};
     std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
     std::vector<std::string> grassPath = {ASSET_FOLDER+"grass.png"};
     std::vector<std::string> windowPath = {ASSET_FOLDER+"blending_transparent_window.png"};
+    std::string backpackPath = ASSET_FOLDER + "backpack/backpack.obj";
     std::vector<std::string> skyboxPath = {
         ASSET_FOLDER + "skybox/right.jpg",
         ASSET_FOLDER + "skybox/left.jpg",
@@ -87,9 +88,15 @@ void Scene::setupShapes()
         ASSET_FOLDER + "skybox/back.jpg"
     };
     
-    m_shapes.push_back(std::make_unique<Cube>(containerPath));
-    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -4.f);
+//    m_shapes.push_back(std::make_unique<Cube>(marblePath));
+//    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -4.f);
     
+        
+    m_backpack = Model(backpackPath.c_str());
+    m_backpack.m_transform.scale = glm::vec3(.2f);
+    m_backpack.m_transform.position.z = -2.f;
+
+    stbi_set_flip_vertically_on_load(false);
     m_skybox = Skybox(skyboxPath);
 
 }
@@ -230,6 +237,7 @@ void Scene::draw()
     m_view = glm::mat4(glm::mat3(m_cam.getViewMatrix()));
     m_proj = m_cam.getProjMatrix();
     updateVP(m_skyboxShader);
+    m_skyboxShader.setUniform1i("skybox", 10);
     m_view = m_cam.getViewMatrix();
 
     glEnable(GL_DEPTH_TEST);
@@ -242,9 +250,10 @@ void Scene::draw()
     
     updateVP(Shader::solidShader);
     updateVP(m_objShader);
-    m_objShader.setUniform1i("skybox", 1);
+    m_objShader.setUniform1i("skybox", 10);
+    m_objShader.setUniform3f("camPosition", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
 
-    updateLightUniforms();
+//    updateLightUniforms();
     drawObjects();
     
     
@@ -303,13 +312,17 @@ void Scene::updateLightUniforms()
 void Scene::drawObjects()
 {
 
+    m_skyboxShader.useProgram();
+    m_skybox.Draw(m_skyboxShader);
+    
     m_objShader.useProgram();
+    m_backpack.Draw(m_objShader);
+    
     for(auto& shape: m_shapes)
     {
         shape->Draw(m_objShader);
     }
-    m_skyboxShader.useProgram();
-    m_skybox.Draw(m_skyboxShader);
+    
 
 }
 

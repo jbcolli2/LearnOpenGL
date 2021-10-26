@@ -15,6 +15,14 @@
 
 void Model::Draw(Shader &shader)
 {
+    glm::mat4 model = glm::mat4(1.f);
+    model = glm::translate(model, m_transform.position);
+    model = glm::rotate(model, glm::radians(m_transform.rotation.x), glm::vec3(1.f, 0.f, 0.f));
+    model = glm::rotate(model, glm::radians(m_transform.rotation.y), glm::vec3(0.f, 1.f, 0.f));
+    model = glm::rotate(model, glm::radians(m_transform.rotation.z), glm::vec3(0.f, 0.f, 1.f));
+    model = glm::scale(model, m_transform.scale);
+    shader.setUniformMatrix4f("model", model);
+
     for(auto mesh : m_Meshes)
     {
         mesh.Draw(shader);

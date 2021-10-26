@@ -13,9 +13,16 @@
 #include <GLFW/glfw3.h>
 
 #include <stb_image.h>
+#include <glm/glm.hpp>
 
 #include "VertexData.hpp"
 
+struct Transform
+{
+    glm::vec3 position = glm::vec3(0.f);
+    glm::vec3 rotation = glm::vec3(0.f);
+    glm::vec3 scale = glm::vec3(1.f);
+};
 
 
 
