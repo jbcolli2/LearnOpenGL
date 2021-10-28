@@ -16,7 +16,7 @@
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Reflect.frag");
+    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Refract.frag");
     m_objShader.makeProgram();
     m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
     m_skyboxShader.makeProgram();
@@ -79,6 +79,7 @@ void Scene::setupShapes()
     std::vector<std::string> grassPath = {ASSET_FOLDER+"grass.png"};
     std::vector<std::string> windowPath = {ASSET_FOLDER+"blending_transparent_window.png"};
     std::string backpackPath = ASSET_FOLDER + "backpack/backpack.obj";
+    std::string glassPath = ASSET_FOLDER + "cocktail glass/cocktail glass.obj";
     std::vector<std::string> skyboxPath = {
         ASSET_FOLDER + "skybox/right.jpg",
         ASSET_FOLDER + "skybox/left.jpg",
@@ -91,10 +92,13 @@ void Scene::setupShapes()
 //    m_shapes.push_back(std::make_unique<Cube>(marblePath));
 //    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -4.f);
     
-        
-    m_backpack = Model(backpackPath.c_str());
-    m_backpack.m_transform.scale = glm::vec3(.2f);
-    m_backpack.m_transform.position.z = -2.f;
+    m_glass = Model(glassPath.c_str());
+    m_glass.m_transform.scale = glm::vec3(.1f);
+    m_glass.m_transform.position.z = -2.f;
+    
+//    m_backpack = Model(backpackPath.c_str());
+//    m_backpack.m_transform.scale = glm::vec3(.2f);
+//    m_backpack.m_transform.position.z = -2.f;
 
     stbi_set_flip_vertically_on_load(false);
     m_skybox = Skybox(skyboxPath);
@@ -316,7 +320,7 @@ void Scene::drawObjects()
     m_skybox.Draw(m_skyboxShader);
     
     m_objShader.useProgram();
-    m_backpack.Draw(m_objShader);
+    m_glass.Draw(m_objShader);
     
     for(auto& shape: m_shapes)
     {

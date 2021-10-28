@@ -70,6 +70,7 @@ class Scene
     std::vector< std::unique_ptr<Shape> > m_shapes;
     Skybox m_skybox;
     Model m_backpack;
+    Model m_glass;
     
     int m_selectedShape = 0;
     int m_selectedLight = 0;
