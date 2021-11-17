@@ -25,7 +25,9 @@ class Shader
 public:
     static Shader solidShader;
     
-    Shader(std::string vsPath = "", std::string fsPath = "");
+    Shader() {};
+    Shader(std::string vsPath, std::string fsPath);
+    Shader(std::string vsPath, std::string gsPath, std::string fsPath);
     
     void makeProgram();
     

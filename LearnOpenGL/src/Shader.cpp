@@ -22,6 +22,12 @@ Shader::Shader(std::string vsPath, std::string fsPath)
     fragShader = loadShaderFile(fsPath.c_str());
 }
 
+Shader::Shader(std::string vsPath, std::string gsPath, std::string fsPath) : Shader(vsPath, fsPath)
+{
+    vertShader = loadShaderFile(vsPath.c_str());
+    fragShader = loadShaderFile(fsPath.c_str());
+}
+
 
 
 void Shader::makeProgram()
