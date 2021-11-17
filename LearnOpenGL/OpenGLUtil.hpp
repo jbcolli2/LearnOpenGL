@@ -147,7 +147,7 @@ inline unsigned int loadTextureFromFile(const char* path)
         std::cout << "Number of channels in image is not 3 or 4, it is " << nrChannels << "\n";
         return 0;
     }
-    
+      
     if(data)
     {
         glGenTextures(1, &texID);
@@ -179,3 +179,4 @@ inline unsigned int loadTextureFromFile(const char* path, std::string directory)
 }
 
 #endif /* OpenGLUtil_h */
+                    

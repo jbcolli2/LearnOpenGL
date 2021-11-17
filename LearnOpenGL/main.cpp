@@ -12,12 +12,8 @@
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <algorithm>
-//#include <glm/glm.hpp>
-//#include <glm/gtc/matrix_transform.hpp>
-//#include <glm/gtc/type_ptr.hpp>
 
 #include "Scene.hpp"
-//#include "Shader.hpp"
 
 
 
@@ -70,6 +66,7 @@ int main(int argc, const char * argv[]) {
     
     
     
+    glUniformBlockBinding( 1,1,1);
     
     
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);

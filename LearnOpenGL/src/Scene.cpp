@@ -12,12 +12,18 @@
 #include "Scene.hpp"
 #include "Input.hpp"
 
-
+Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Refract.frag");
-    m_objShader.makeProgram();
+    ubo1Shader = Shader(SHADER_FOLDER + "UBOTestVert.glsl", SHADER_FOLDER + "UBOTestFrag1.glsl");
+    ubo1Shader.makeProgram();
+    ubo2Shader = Shader(SHADER_FOLDER + "UBOTestVert.glsl", SHADER_FOLDER + "UBOTestFrag2.glsl");
+    ubo2Shader.makeProgram();
+    ubo3Shader = Shader(SHADER_FOLDER + "UBOTestVert.glsl", SHADER_FOLDER + "UBOTestFrag3.glsl");
+    ubo3Shader.makeProgram();
+    ubo4Shader = Shader(SHADER_FOLDER + "UBOTestVert.glsl", SHADER_FOLDER + "UBOTestFrag4.glsl");
+    ubo4Shader.makeProgram();
     m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
     m_skyboxShader.makeProgram();
     m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
@@ -89,12 +95,21 @@ void Scene::setupShapes()
         ASSET_FOLDER + "skybox/back.jpg"
     };
     
-//    m_shapes.push_back(std::make_unique<Cube>(marblePath));
-//    m_shapes.back()->m_transform.position = glm::vec3(0.f, 0.f, -4.f);
+    m_shapes.push_back(std::make_unique<Cube>(marblePath));
+    m_shapes.back()->m_transform.position = glm::vec3(0.f, -2.f, -5.f);
     
-    m_glass = Model(glassPath.c_str());
-    m_glass.m_transform.scale = glm::vec3(.1f);
-    m_glass.m_transform.position.z = -2.f;
+    m_shapes.push_back(std::make_unique<Cube>(containerPath));
+    m_shapes.back()->m_transform.position = glm::vec3(0.f, 2.ff, -5.f);
+    
+    m_shapes.push_back(std::make_unique<Cube>(marblePath));
+    m_shapes.back()->m_transform.position = glm::vec3(2.ff, 0.ff, -5.f);
+    
+    m_shapes.push_back(std::make_unique<Cube>(marblePath));
+    m_shapes.back()->m_transform.position = glm::vec3(-2.ff, 0.ff, -5.f);
+    
+//    m_glass = Model(glassPath.c_str());
+//    m_glass.m_transform.scale = glm::vec3(.1f);
+//    m_glass.m_transform.position.z = -2.f;
     
 //    m_backpack = Model(backpackPath.c_str());
 //    m_backpack.m_transform.scale = glm::vec3(.2f);
@@ -168,7 +183,9 @@ void Scene::setupFBO()
 
 
 
-Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
+
+
+//**********  Constructor ****************
 
 Scene::Scene(GLFWwindow* window, int width, int height, float fov,
              float nearField, float farField) : m_window(window), m_firstMouse(true), m_width(width),
@@ -208,6 +225,30 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
+    /*
+     * Uniform buffer testing
+     */
+    glGenBuffers(1, &uboVP);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboVP);
+    glBufferData(GL_UNIFORM_BUFFER, 16*8, NULL, GL_STATIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboVP);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    
+    glGenBuffers(1, &uboColor);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboColor);
+    glBufferData(GL_UNIFORM_BUFFER, 4*16, NULL, GL_STATIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboColor);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    
+    // Bind Uniform blocks in relevant programs
+    ubo1Shader.bindUniformBlock("VP", 0);
+    ubo1Shader.bindUniformBlock("color", 0);
+    ubo2Shader.bindUniformBlock("VP", 0);
+    ubo3Shader.bindUniformBlock("VP", 0);
+    ubo4Shader.bindUniformBlock("VP", 0);
+    
+    
     
 
     
@@ -240,6 +281,13 @@ void Scene::draw()
 {
     m_view = glm::mat4(glm::mat3(m_cam.getViewMatrix()));
     m_proj = m_cam.getProjMatrix();
+    
+    //  Set uniform buffer data
+    glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(m_view));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_proj));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    
     updateVP(m_skyboxShader);
     m_skyboxShader.setUniform1i("skybox", 10);
     m_view = m_cam.getViewMatrix();
@@ -253,7 +301,7 @@ void Scene::draw()
     
     
     updateVP(Shader::solidShader);
-    updateVP(m_objShader);
+//    updateVP(m_objShader);
     m_objShader.setUniform1i("skybox", 10);
     m_objShader.setUniform3f("camPosition", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
 

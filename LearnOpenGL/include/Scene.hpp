@@ -39,17 +39,28 @@ public:
 
 class Scene
 {
+    /*
+     * Uniform block testing
+     */
+    unsigned int uboVP, uboColor;
+    Shader ubo1Shader, ubo2Shader, ubo3Shader, ubo4Shader;
+    /*
+     * End uniform block testing
+     */
+    
+    
+    
+    
+    
     struct FBO
     {
         unsigned int vao, vbo, fbo, tbo, rbo;
     };
     
     FBO m_fbo;
+    
 
-    //********** Mirror ***********//
-    glm::vec3 m_mirrorPos = glm::vec3(0.f, 0.f, -5.5f);
-    glm::vec3 m_mirrorDir = glm::vec3(0.f, 0.f, 1.f);
-    glm::mat4 m_mirrorView, m_mirrorProj;
+    
     
     
     

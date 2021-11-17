@@ -8,6 +8,7 @@
 #ifndef Shader_h
 #define Shader_h
 
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <string>
 #include <glm/gtc/matrix_transform.hpp>
@@ -60,6 +61,11 @@ public:
     void setUniformMatrix4f(const std::string& uniformName, glm::mat4 mat)
     {
         glUniformMatrix4fv(glGetUniformLocation(program, uniformName.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+    }
+    
+    void bindUniformBlock(const std::string& uniformBlockName, int bindPoint)
+    {
+        glUniformBlockBinding( program, bindPoint, glGetUniformBlockIndex(program, uniformBlockName.c_str()) );
     }
     
     
