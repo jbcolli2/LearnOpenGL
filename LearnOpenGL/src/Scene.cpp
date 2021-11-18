@@ -64,11 +64,7 @@ void Scene::setupLights()
 
 }
 
-void Scene::setupMirror()
-{
-    m_mirrorView = glm::lookAt(m_mirrorPos, m_mirrorPos + m_mirrorDir, glm::vec3(0.f, 1.f, 0.f));
-    m_mirrorProj = glm::perspective(glm::radians(m_fov), 1.0f, m_nearField, m_farField);
-}
+
 
 
 
@@ -98,14 +94,14 @@ void Scene::setupShapes()
     m_shapes.push_back(std::make_unique<Cube>(marblePath));
     m_shapes.back()->m_transform.position = glm::vec3(0.f, -2.f, -5.f);
     
-    m_shapes.push_back(std::make_unique<Cube>(containerPath));
-    m_shapes.back()->m_transform.position = glm::vec3(0.f, 2.ff, -5.f);
+    m_shapes.push_back(std::make_unique<Cube>(marblePath));
+    m_shapes.back()->m_transform.position = glm::vec3(0.f, 2.f, -5.f);
     
     m_shapes.push_back(std::make_unique<Cube>(marblePath));
-    m_shapes.back()->m_transform.position = glm::vec3(2.ff, 0.ff, -5.f);
+    m_shapes.back()->m_transform.position = glm::vec3(2.f, 0.f, -5.f);
     
     m_shapes.push_back(std::make_unique<Cube>(marblePath));
-    m_shapes.back()->m_transform.position = glm::vec3(-2.ff, 0.ff, -5.f);
+    m_shapes.back()->m_transform.position = glm::vec3(-2.f, 0.f, -5.f);
     
 //    m_glass = Model(glassPath.c_str());
 //    m_glass.m_transform.scale = glm::vec3(.1f);
@@ -237,16 +233,26 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     glGenBuffers(1, &uboColor);
     glBindBuffer(GL_UNIFORM_BUFFER, uboColor);
     glBufferData(GL_UNIFORM_BUFFER, 4*16, NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(glm::vec3(1.f, 0.f, 0.f)));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(glm::vec3(0.f, 1.f, 0.f)));
+    glBufferSubData(GL_UNIFORM_BUFFER, 2*sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(glm::vec3(0.f, 0.f, 1.f)));
+    glBufferSubData(GL_UNIFORM_BUFFER, 3*sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(glm::vec3(1.f, 0.f, 1.f)));
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboColor);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     
     // Bind Uniform blocks in relevant programs
     ubo1Shader.bindUniformBlock("VP", 0);
-    ubo1Shader.bindUniformBlock("color", 0);
+    ubo1Shader.bindUniformBlock("colors", 1);
     ubo2Shader.bindUniformBlock("VP", 0);
+    ubo2Shader.bindUniformBlock("colors", 1);
     ubo3Shader.bindUniformBlock("VP", 0);
+    ubo3Shader.bindUniformBlock("colors", 1);
     ubo4Shader.bindUniformBlock("VP", 0);
+    ubo4Shader.bindUniformBlock("colors", 1);
+    /*
+     * End UBO Test
+     */
     
     
     
@@ -282,11 +288,6 @@ void Scene::draw()
     m_view = glm::mat4(glm::mat3(m_cam.getViewMatrix()));
     m_proj = m_cam.getProjMatrix();
     
-    //  Set uniform buffer data
-    glBindBuffer(GL_UNIFORM_BUFFER, m_ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(m_view));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_proj));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
     updateVP(m_skyboxShader);
     m_skyboxShader.setUniform1i("skybox", 10);
@@ -301,6 +302,16 @@ void Scene::draw()
     
     
     updateVP(Shader::solidShader);
+    /*
+     * Uniform Buffer Test
+     */
+    glBindBuffer(GL_UNIFORM_BUFFER, uboVP);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(m_view));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_proj));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    /*
+     * End Uniform Buffer Test
+     */
 //    updateVP(m_objShader);
     m_objShader.setUniform1i("skybox", 10);
     m_objShader.setUniform3f("camPosition", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
@@ -367,13 +378,28 @@ void Scene::drawObjects()
     m_skyboxShader.useProgram();
     m_skybox.Draw(m_skyboxShader);
     
-    m_objShader.useProgram();
-    m_glass.Draw(m_objShader);
+//    m_objShader.useProgram();
+//    m_glass.Draw(m_objShader);
+//
+//    for(auto& shape: m_shapes)
+//    {
+//        shape->Draw(m_objShader);
+//    }
     
-    for(auto& shape: m_shapes)
-    {
-        shape->Draw(m_objShader);
-    }
+    /*
+     * Uniform Buffer Test
+     */
+    ubo1Shader.useProgram();
+    m_shapes[0]->Draw(ubo1Shader);
+    ubo2Shader.useProgram();
+    m_shapes[1]->Draw(ubo2Shader);
+    ubo3Shader.useProgram();
+    m_shapes[2]->Draw(ubo3Shader);
+    ubo4Shader.useProgram();
+    m_shapes[3]->Draw(ubo4Shader);
+    /*
+     * End UBO Test
+     */
     
 
 }
