@@ -39,14 +39,7 @@ public:
 
 class Scene
 {
-    /*
-     * Uniform block testing
-     */
-    unsigned int uboVP, uboColor;
-    Shader ubo1Shader, ubo2Shader, ubo3Shader, ubo4Shader;
-    /*
-     * End uniform block testing
-     */
+    
     
     
     
@@ -119,6 +112,7 @@ class Scene
     //*******  MVP Matrices ***********//
     glm::mat4 ID4 = glm::mat4(1.f);
     glm::mat4 m_model, m_view, m_proj;
+    unsigned int m_uboVP;
     
     
     

@@ -4,7 +4,6 @@ out vec4 FragColor;
 
 
 uniform vec4 color;
-uniform mat4 model;
 
 void main()
 {

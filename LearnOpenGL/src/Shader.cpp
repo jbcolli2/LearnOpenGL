@@ -18,14 +18,13 @@ Shader Shader::solidShader = Shader();
 
 Shader::Shader(std::string vsPath, std::string fsPath)
 {
-    vertShader = loadShaderFile(vsPath.c_str());
-    fragShader = loadShaderFile(fsPath.c_str());
+    m_vertShaderStr = loadShaderFile(vsPath.c_str());
+    m_fragShaderStr = loadShaderFile(fsPath.c_str());
 }
 
 Shader::Shader(std::string vsPath, std::string gsPath, std::string fsPath) : Shader(vsPath, fsPath)
 {
-    vertShader = loadShaderFile(vsPath.c_str());
-    fragShader = loadShaderFile(fsPath.c_str());
+    m_geomShaderStr = loadShaderFile(gsPath.c_str());
 }
 
 
@@ -33,7 +32,7 @@ Shader::Shader(std::string vsPath, std::string gsPath, std::string fsPath) : Sha
 void Shader::makeProgram()
 {
     // Vertex Shader
-    const char* vertShaderSource = vertShader.c_str();
+    const char* vertShaderSource = m_vertShaderStr.c_str();
 
     unsigned int vertShader;
     vertShader = glCreateShader(GL_VERTEX_SHADER);
@@ -50,11 +49,34 @@ void Shader::makeProgram()
         glGetShaderInfoLog(vertShader, 512, NULL, infoLog);
         std::cout << "VertexShader::Compile::Fail  " << infoLog << std::endl;
     }
+    
+    
+    // Geometry Shader
+    if(!m_geomShaderStr.empty())
+    {
+        const char* geomShaderSource = m_geomShaderStr.c_str();
+
+        unsigned int geomShader;
+        geomShader = glCreateShader(GL_GEOMETRY_SHADER);
+
+        glShaderSource(geomShader, 1, &geomShaderSource, NULL);
+        glCompileShader(geomShader);
+
+        // Check compile status
+        int geomSuccess;
+        glGetShaderiv(geomShader, GL_COMPILE_STATUS, &geomSuccess);
+        if(!geomSuccess)
+        {
+            glGetShaderInfoLog(geomShader, 512, NULL, infoLog);
+            std::cout << "GeometryShader::Compile::Fail  " << infoLog << std::endl;
+        }
+    }
+    
 
 
 
     // Fragment Shader
-    const char* fragShaderSource = fragShader.c_str();
+    const char* fragShaderSource = m_fragShaderStr.c_str();
 
     unsigned int fragShader;
     fragShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -72,15 +94,15 @@ void Shader::makeProgram()
     }
 
 
-    program = glCreateProgram();
-    glAttachShader(program, vertShader);
-    glAttachShader(program, fragShader);
-    glLinkProgram(program);
+    m_program = glCreateProgram();
+    glAttachShader(m_program, vertShader);
+    glAttachShader(m_program, fragShader);
+    glLinkProgram(m_program);
     int linkSuccess;
-    glGetShaderiv(program, GL_LINK_STATUS, &linkSuccess);
+    glGetShaderiv(m_program, GL_LINK_STATUS, &linkSuccess);
     if(!fragSuccess)
     {
-        glGetShaderInfoLog(program, 512, NULL, infoLog);
+        glGetShaderInfoLog(m_program, 512, NULL, infoLog);
         std::cout << "ShaderProgram::Linkerr::Fail  " << infoLog << std::endl;
     }
 

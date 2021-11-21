@@ -16,14 +16,8 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    ubo1Shader = Shader(SHADER_FOLDER + "UBOTestVert.glsl", SHADER_FOLDER + "UBOTestFrag1.glsl");
-    ubo1Shader.makeProgram();
-    ubo2Shader = Shader(SHADER_FOLDER + "UBOTestVert.glsl", SHADER_FOLDER + "UBOTestFrag2.glsl");
-    ubo2Shader.makeProgram();
-    ubo3Shader = Shader(SHADER_FOLDER + "UBOTestVert.glsl", SHADER_FOLDER + "UBOTestFrag3.glsl");
-    ubo3Shader.makeProgram();
-    ubo4Shader = Shader(SHADER_FOLDER + "UBOTestVert.glsl", SHADER_FOLDER + "UBOTestFrag4.glsl");
-    ubo4Shader.makeProgram();
+    m_objShader = Shader(SHADER_FOLDER + "OrthoVert.glsl", SHADER_FOLDER + "IdentityGeom.glsl", SHADER_FOLDER + "SolidColor.frag");
+    m_objShader.makeProgram();
     m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
     m_skyboxShader.makeProgram();
     m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
@@ -91,17 +85,14 @@ void Scene::setupShapes()
         ASSET_FOLDER + "skybox/back.jpg"
     };
     
-    m_shapes.push_back(std::make_unique<Cube>(marblePath));
-    m_shapes.back()->m_transform.position = glm::vec3(0.f, -2.f, -5.f);
+    std::vector<Vert3f> points = {
+        Vert3f(-.5, .5, 0),
+        Vert3f(-.5, -.5, 0),
+        Vert3f(.5, .5, 0),
+        Vert3f(.5, -.5, 0)
+    };
     
-    m_shapes.push_back(std::make_unique<Cube>(marblePath));
-    m_shapes.back()->m_transform.position = glm::vec3(0.f, 2.f, -5.f);
-    
-    m_shapes.push_back(std::make_unique<Cube>(marblePath));
-    m_shapes.back()->m_transform.position = glm::vec3(2.f, 0.f, -5.f);
-    
-    m_shapes.push_back(std::make_unique<Cube>(marblePath));
-    m_shapes.back()->m_transform.position = glm::vec3(-2.f, 0.f, -5.f);
+    m_shapes.push_back(std::make_unique<Line>(points));
     
 //    m_glass = Model(glassPath.c_str());
 //    m_glass.m_transform.scale = glm::vec3(.1f);
@@ -111,8 +102,8 @@ void Scene::setupShapes()
 //    m_backpack.m_transform.scale = glm::vec3(.2f);
 //    m_backpack.m_transform.position.z = -2.f;
 
-    stbi_set_flip_vertically_on_load(false);
-    m_skybox = Skybox(skyboxPath);
+//    stbi_set_flip_vertically_on_load(false);
+//    m_skybox = Skybox(skyboxPath);
 
 }
 
@@ -221,38 +212,13 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
-    /*
-     * Uniform buffer testing
-     */
-    glGenBuffers(1, &uboVP);
-    glBindBuffer(GL_UNIFORM_BUFFER, uboVP);
+    // Uniform buffer for view/proj
+    glGenBuffers(1, &m_uboVP);
+    glBindBuffer(GL_UNIFORM_BUFFER, m_uboVP);
     glBufferData(GL_UNIFORM_BUFFER, 16*8, NULL, GL_STATIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboVP);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uboVP);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
-    glGenBuffers(1, &uboColor);
-    glBindBuffer(GL_UNIFORM_BUFFER, uboColor);
-    glBufferData(GL_UNIFORM_BUFFER, 4*16, NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(glm::vec3(1.f, 0.f, 0.f)));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(glm::vec3(0.f, 1.f, 0.f)));
-    glBufferSubData(GL_UNIFORM_BUFFER, 2*sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(glm::vec3(0.f, 0.f, 1.f)));
-    glBufferSubData(GL_UNIFORM_BUFFER, 3*sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(glm::vec3(1.f, 0.f, 1.f)));
-    glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboColor);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    
-    // Bind Uniform blocks in relevant programs
-    ubo1Shader.bindUniformBlock("VP", 0);
-    ubo1Shader.bindUniformBlock("colors", 1);
-    ubo2Shader.bindUniformBlock("VP", 0);
-    ubo2Shader.bindUniformBlock("colors", 1);
-    ubo3Shader.bindUniformBlock("VP", 0);
-    ubo3Shader.bindUniformBlock("colors", 1);
-    ubo4Shader.bindUniformBlock("VP", 0);
-    ubo4Shader.bindUniformBlock("colors", 1);
-    /*
-     * End UBO Test
-     */
     
     
     
@@ -285,36 +251,22 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
 //********************************************//
 void Scene::draw()
 {
-    m_view = glm::mat4(glm::mat3(m_cam.getViewMatrix()));
     m_proj = m_cam.getProjMatrix();
-    
-    
-    updateVP(m_skyboxShader);
-    m_skyboxShader.setUniform1i("skybox", 10);
     m_view = m_cam.getViewMatrix();
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     clearBuffers();
     
     
     
-    updateVP(Shader::solidShader);
-    /*
-     * Uniform Buffer Test
-     */
-    glBindBuffer(GL_UNIFORM_BUFFER, uboVP);
+    
+    // Set VP uniform buffer data
+    glBindBuffer(GL_UNIFORM_BUFFER, m_uboVP);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(m_view));
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_proj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    /*
-     * End Uniform Buffer Test
-     */
-//    updateVP(m_objShader);
-    m_objShader.setUniform1i("skybox", 10);
-    m_objShader.setUniform3f("camPosition", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
+    
 
 //    updateLightUniforms();
     drawObjects();
@@ -375,31 +327,14 @@ void Scene::updateLightUniforms()
 void Scene::drawObjects()
 {
 
-    m_skyboxShader.useProgram();
-    m_skybox.Draw(m_skyboxShader);
     
-//    m_objShader.useProgram();
-//    m_glass.Draw(m_objShader);
-//
-//    for(auto& shape: m_shapes)
-//    {
-//        shape->Draw(m_objShader);
-//    }
+    m_objShader.useProgram();
+    m_objShader.setUniform4f("color", 1.f, 0.f, 1.f, 1.f);
+    for(auto& shape: m_shapes)
+    {
+        shape->Draw(m_objShader);
+    }
     
-    /*
-     * Uniform Buffer Test
-     */
-    ubo1Shader.useProgram();
-    m_shapes[0]->Draw(ubo1Shader);
-    ubo2Shader.useProgram();
-    m_shapes[1]->Draw(ubo2Shader);
-    ubo3Shader.useProgram();
-    m_shapes[2]->Draw(ubo3Shader);
-    ubo4Shader.useProgram();
-    m_shapes[3]->Draw(ubo4Shader);
-    /*
-     * End UBO Test
-     */
     
 
 }

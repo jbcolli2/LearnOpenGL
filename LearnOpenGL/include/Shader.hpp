@@ -17,9 +17,9 @@
 
 class Shader
 {
-    unsigned int program;
+    unsigned int m_program;
     
-    std::string vertShader, fragShader;
+    std::string m_vertShaderStr, m_fragShaderStr, m_geomShaderStr;
     
 
 public:
@@ -31,27 +31,27 @@ public:
     
     void makeProgram();
     
-    void useProgram(){ glUseProgram(program);};
+    void useProgram(){ glUseProgram(m_program);};
     void stopUseProgram() {glUseProgram(0);};
     
     void setUniform1f(const std::string& uniformName, float f)
     {
-        glUniform1f(glGetUniformLocation(program, uniformName.c_str()), f);
+        glUniform1f(glGetUniformLocation(m_program, uniformName.c_str()), f);
     }
     
     void setUniform4f(const std::string& uniformName, float r, float g, float b, float a)
     {
-        glUniform4f(glGetUniformLocation(program, uniformName.c_str()), r, g, b, a);
+        glUniform4f(glGetUniformLocation(m_program, uniformName.c_str()), r, g, b, a);
     }
     
     void setUniform3f(const std::string& uniformName, float r, float g, float b)
     {
-        glUniform3f(glGetUniformLocation(program, uniformName.c_str()), r, g, b);
+        glUniform3f(glGetUniformLocation(m_program, uniformName.c_str()), r, g, b);
     }
     
     void setUniform1i(const std::string& uniformName, int i)
     {
-        glUniform1i(glGetUniformLocation(program, uniformName.c_str()), i);
+        glUniform1i(glGetUniformLocation(m_program, uniformName.c_str()), i);
     }
     
     void setUniformTex(const std::string& uniformName, int i)
@@ -62,12 +62,12 @@ public:
     
     void setUniformMatrix4f(const std::string& uniformName, glm::mat4 mat)
     {
-        glUniformMatrix4fv(glGetUniformLocation(program, uniformName.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+        glUniformMatrix4fv(glGetUniformLocation(m_program, uniformName.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
     }
     
     void bindUniformBlock(const std::string& uniformBlockName, int bindPoint)
     {
-        glUniformBlockBinding( program, bindPoint, glGetUniformBlockIndex(program, uniformBlockName.c_str()) );
+        glUniformBlockBinding( m_program, bindPoint, glGetUniformBlockIndex(m_program, uniformBlockName.c_str()) );
     }
     
     

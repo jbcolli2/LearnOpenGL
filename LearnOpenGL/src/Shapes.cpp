@@ -45,7 +45,6 @@ void Shape::setupMesh(const std::vector<std::string>& diffTexturePaths,
 
 void Shape::Draw(Shader shader)
 {
-    shader.useProgram();
     // Setup the model matrix
     glm::mat4 model = glm::mat4(1.f);
     model = glm::translate(model, m_transform.position);
@@ -104,6 +103,59 @@ void Shape::Draw(Shader shader)
     }
     glBindVertexArray(0);
 }
+
+
+
+
+
+//*********************************************
+//            Points
+//*********************************************
+Points::Points(std::vector<Vert3f> positions) : m_positions(positions)
+{
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+    
+    m_VBO = loadVBOData(m_positions);
+}
+
+
+void Points::Draw(Shader shader)
+{
+    glBindVertexArray(m_VAO);
+    glDrawArrays(GL_POINTS, 0, m_positions.size());
+}
+
+
+
+
+
+
+
+//*********************************************
+//            Line class
+//*********************************************
+Line::Line(std::vector<Vert3f> positions) : m_positions(positions)
+{
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+    
+    m_VBO = loadVBOData(m_positions);
+}
+
+
+void Line::Draw(Shader shader)
+{
+    glBindVertexArray(m_VAO);
+    glDrawArrays(GL_LINE_STRIP, 0, m_positions.size());
+}
+
+
+
+
+//*********************************************
+//            Plane class
+//*********************************************
 
 
 Plane::Plane(const std::vector<std::string>& diffTexturePaths, const std::vector<std::string>& specTexturePaths,

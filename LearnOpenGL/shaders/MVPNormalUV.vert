@@ -10,8 +10,11 @@ out vec2 UV;
 
 
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
+layout (std140) uniform VP
+{
+    mat4 view;
+    mat4 proj;
+};
 
 void main()
 {
