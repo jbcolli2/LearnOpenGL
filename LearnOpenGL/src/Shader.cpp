@@ -52,11 +52,11 @@ void Shader::makeProgram()
     
     
     // Geometry Shader
+    unsigned int geomShader = 0;
     if(!m_geomShaderStr.empty())
     {
         const char* geomShaderSource = m_geomShaderStr.c_str();
 
-        unsigned int geomShader;
         geomShader = glCreateShader(GL_GEOMETRY_SHADER);
 
         glShaderSource(geomShader, 1, &geomShaderSource, NULL);
@@ -96,6 +96,10 @@ void Shader::makeProgram()
 
     m_program = glCreateProgram();
     glAttachShader(m_program, vertShader);
+    if(!m_geomShaderStr.empty())
+    {
+        glAttachShader(m_program, geomShader);
+    }
     glAttachShader(m_program, fragShader);
     glLinkProgram(m_program);
     int linkSuccess;

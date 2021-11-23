@@ -16,7 +16,7 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "OrthoVert.glsl", SHADER_FOLDER + "IdentityGeom.glsl", SHADER_FOLDER + "SolidColor.frag");
+    m_objShader = Shader(SHADER_FOLDER + "OrthoVert.glsl", SHADER_FOLDER + "Ch30WideLineGeom.glsl", SHADER_FOLDER + "SolidColor.frag");
     m_objShader.makeProgram();
     m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
     m_skyboxShader.makeProgram();
@@ -86,10 +86,9 @@ void Scene::setupShapes()
     };
     
     std::vector<Vert3f> points = {
-        Vert3f(-.5, .5, 0),
+        Vert3f(-.25, .5, 0),
         Vert3f(-.5, -.5, 0),
-        Vert3f(.5, .5, 0),
-        Vert3f(.5, -.5, 0)
+        Vert3f(.4, .3, 0)
     };
     
     m_shapes.push_back(std::make_unique<Line>(points));
@@ -329,7 +328,7 @@ void Scene::drawObjects()
 
     
     m_objShader.useProgram();
-    m_objShader.setUniform4f("color", 1.f, 0.f, 1.f, 1.f);
+    m_objShader.setUniform4f("color", .6f, 0.f, 1.f, 1.f);
     for(auto& shape: m_shapes)
     {
         shape->Draw(m_objShader);
