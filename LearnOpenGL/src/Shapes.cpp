@@ -111,7 +111,9 @@ void Shape::Draw(Shader shader)
 //*********************************************
 //            Points
 //*********************************************
-Points::Points(std::vector<Vert3f> positions) : m_positions(positions)
+
+
+Points::Points(std::vector<Vert3x3f> positions) : m_positions(positions)
 {
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);

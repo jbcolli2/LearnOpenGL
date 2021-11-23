@@ -16,7 +16,7 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "OrthoVert.glsl", SHADER_FOLDER + "Ch30WideLineGeom.glsl", SHADER_FOLDER + "SolidColor.frag");
+    m_objShader = Shader(SHADER_FOLDER + "OrthoVert.glsl", SHADER_FOLDER + "Ch30HouseGeom.glsl", SHADER_FOLDER + "Ch30Frag.glsl");
     m_objShader.makeProgram();
     m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
     m_skyboxShader.makeProgram();
@@ -85,13 +85,14 @@ void Scene::setupShapes()
         ASSET_FOLDER + "skybox/back.jpg"
     };
     
-    std::vector<Vert3f> points = {
-        Vert3f(-.25, .5, 0),
-        Vert3f(-.5, -.5, 0),
-        Vert3f(.4, .3, 0)
+    std::vector<Vert3x3f> points = {
+        Vert3x3f(-.5f, .5f, 0.f, 1.f, 0.f, 0.f),
+        Vert3x3f(-.5f, -.5f, 0.f, 0.f, 1.f, 0.f),
+        Vert3x3f(.5f, .5f, 0.f, 0.f, 0.f, 1.f),
+        Vert3x3f(.5f, -.5f, 0.f, 1.f, 0.f, 1.f)
     };
     
-    m_shapes.push_back(std::make_unique<Line>(points));
+    m_shapes.push_back(std::make_unique<Points>(points));
     
 //    m_glass = Model(glassPath.c_str());
 //    m_glass.m_transform.scale = glm::vec3(.1f);
@@ -328,7 +329,6 @@ void Scene::drawObjects()
 
     
     m_objShader.useProgram();
-    m_objShader.setUniform4f("color", .6f, 0.f, 1.f, 1.f);
     for(auto& shape: m_shapes)
     {
         shape->Draw(m_objShader);

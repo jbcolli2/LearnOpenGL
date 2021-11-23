@@ -108,11 +108,11 @@ public:
 
 class Points : public Shape
 {
-    std::vector<Vert3f> m_positions;
+    std::vector<Vert3x3f> m_positions;
     std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) override {return std::vector<Vert3x3x2f>();};
     
 public:
-    Points(std::vector<Vert3f> positions);
+    Points(std::vector<Vert3x3f> positions);
     
     void virtual Draw(Shader shader) override;
 };
