@@ -43,7 +43,7 @@ void Shape::setupMesh(const std::vector<std::string>& diffTexturePaths,
 
 
 
-void Shape::Draw(Shader shader)
+void Shape::Draw(Shader shader, int instances)
 {
     // Setup the model matrix
     glm::mat4 model = glm::mat4(1.f);
@@ -83,7 +83,15 @@ void Shape::Draw(Shader shader)
     
     
     glBindVertexArray(m_VAO);
-    glDrawArrays(GL_TRIANGLES, 0, m_verts.size());
+    if(instances == 0)
+    {
+        glDrawArrays(GL_TRIANGLES, 0, m_verts.size());
+    }
+    else
+    {
+        glDrawArraysInstanced(GL_TRIANGLES, 0, m_verts.size(), instances);
+    }
+    
     
     if(m_outlined)
     {
@@ -122,7 +130,7 @@ Points::Points(std::vector<Vert3x3f> positions) : m_positions(positions)
 }
 
 
-void Points::Draw(Shader shader)
+void Points::Draw(Shader shader, int instances)
 {
     glBindVertexArray(m_VAO);
     glDrawArrays(GL_POINTS, 0, m_positions.size());
@@ -137,7 +145,7 @@ void Points::Draw(Shader shader)
 //*********************************************
 //            Line class
 //*********************************************
-Line::Line(std::vector<Vert3f> positions) : m_positions(positions)
+Line::Line(std::vector<Vert3x3f> positions) : m_positions(positions)
 {
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
@@ -146,7 +154,7 @@ Line::Line(std::vector<Vert3f> positions) : m_positions(positions)
 }
 
 
-void Line::Draw(Shader shader)
+void Line::Draw(Shader shader, int instances)
 {
     glBindVertexArray(m_VAO);
     glDrawArrays(GL_LINE_STRIP, 0, m_positions.size());

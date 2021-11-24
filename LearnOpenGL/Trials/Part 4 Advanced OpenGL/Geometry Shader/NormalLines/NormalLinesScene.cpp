@@ -87,14 +87,11 @@ void Scene::setupShapes()
         ASSET_FOLDER + "skybox/back.jpg"
     };
     
-    std::vector<Vert3x3f> square = {
-        Vert3x3f(-.05f, -.05f, 0.f, 1.f, 0.f, 0.f),
-        Vert3x3f(-.05f, .05f, 0.f, 0.f, 1.f, 0.f),
-        Vert3x3f(.05f, .05f, 0.f, 0.f, 1.f, 0.f),
-        
-        Vert3x3f(-.05f, -.05f, 0.f, 1.f, 0.f, 0.f),
-        Vert3x3f(.05f, .05f, 0.f, 0.f, 1.f, 0.f),
-        Vert3x3f(.05f, -.05f, 0.f, 0.f, 0.f, 1.f),
+    std::vector<Vert3x3f> points = {
+        Vert3x3f(-.5f, .5f, 0.f, 1.f, 0.f, 0.f),
+        Vert3x3f(-.5f, -.5f, 0.f, 0.f, 1.f, 0.f),
+        Vert3x3f(.5f, .5f, 0.f, 0.f, 0.f, 1.f),
+        Vert3x3f(.5f, -.5f, 0.f, 1.f, 0.f, 1.f)
     };
     
 //    m_shapes.push_back(std::make_unique<Line>(points));
@@ -106,12 +103,12 @@ void Scene::setupShapes()
 //    m_glass.m_transform.scale = glm::vec3(.1f);
 //    m_glass.m_transform.position.z = -2.f;
     
-//    m_backpack = Model(backpackPath.c_str());
-//    m_backpack.m_transform.scale = glm::vec3(.2f);
-//    m_backpack.m_transform.position.z = -2.f;
+    m_backpack = Model(backpackPath.c_str());
+    m_backpack.m_transform.scale = glm::vec3(.2f);
+    m_backpack.m_transform.position.z = -2.f;
 
-//    stbi_set_flip_vertically_on_load(false);
-//    m_skybox = Skybox(skyboxPath);
+    stbi_set_flip_vertically_on_load(false);
+    m_skybox = Skybox(skyboxPath);
 
 }
 
@@ -352,13 +349,13 @@ void Scene::drawObjects()
     }
     m_backpack.Draw(m_objShader);
     
-//    m_effectShader.useProgram();
-//    m_effectShader.setUniform3f("color", .5f, 0.f, 1.f);
-//    for(auto& shape: m_shapes)
-//    {
-//        shape->Draw(m_effectShader);
-//    }
-//    m_backpack.Draw(m_effectShader);
+    m_effectShader.useProgram();
+    m_effectShader.setUniform3f("color", .5f, 0.f, 1.f);
+    for(auto& shape: m_shapes)
+    {
+        shape->Draw(m_effectShader);
+    }
+    m_backpack.Draw(m_effectShader);
     
     
     

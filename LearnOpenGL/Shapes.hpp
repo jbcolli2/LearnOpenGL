@@ -70,7 +70,7 @@ public:
     
     
     
-    void virtual Draw(Shader shader);
+    void virtual Draw(Shader shader, int instances = 0);
   
     
     
@@ -114,7 +114,7 @@ class Points : public Shape
 public:
     Points(std::vector<Vert3x3f> positions);
     
-    void virtual Draw(Shader shader) override;
+    void virtual Draw(Shader shader, int instances = 0) override;
 };
 
 
@@ -127,13 +127,13 @@ public:
 
 class Line : public Shape
 {
-    std::vector<Vert3f> m_positions;
+    std::vector<Vert3x3f> m_positions;
     std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) override {return std::vector<Vert3x3x2f>();};
     
 public:
-    Line(std::vector<Vert3f> positions);
+    Line(std::vector<Vert3x3f> positions);
     
-    void virtual Draw(Shader shader) override;
+    void virtual Draw(Shader shader, int instances = 0) override;
 };
 
 
