@@ -41,7 +41,7 @@ class Scene
 {
     unsigned int vao, vbo, instance_vbo;
     
-    std::vector<Inst3f> translations{100};
+    glm::vec3 translations[100];
     
     
     

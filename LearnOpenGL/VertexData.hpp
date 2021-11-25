@@ -69,4 +69,7 @@ struct Vert3x2f
 };
 
 
+typedef Vert3f Inst3f;
+
+
 #endif /* VertexData_h */

@@ -26,65 +26,65 @@ struct Transform
 
 
 
-inline void rglVertexAttribPointer(Vert3f v)
+inline void rglVertexAttribPointer(Vert3f v, int layoutOffset = 0)
 {
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0 + layoutOffset, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0 + layoutOffset);
 };
 
 
-inline void rglVertexAttribPointer(Vert3x3f v)
+inline void rglVertexAttribPointer(Vert3x3f v, int layoutOffset = 0)
 {
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
+    glVertexAttribPointer(0 + layoutOffset, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1 + layoutOffset, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1 + layoutOffset);
 };
 
 
-inline void rglVertexAttribPointer(Vert3x3x2f v)
+inline void rglVertexAttribPointer(Vert3x3x2f v, int layoutOffset = 0)
 {
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0 + layoutOffset, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0 + layoutOffset);
     
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1 + layoutOffset, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1 + layoutOffset);
     
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2 + layoutOffset, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2 + layoutOffset);
  
 };
 
 
 
-inline void rglVertexAttribPointer(Vert3x_x_f v)
+inline void rglVertexAttribPointer(Vert3x_x_f v, int layoutOffset = 0)
 {
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0 + layoutOffset, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0 + layoutOffset);
 
 };
 
 
 
-inline void rglVertexAttribPointer(Vert2x2f v)
+inline void rglVertexAttribPointer(Vert2x2f v, int layoutOffset = 0)
 {
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0 + layoutOffset, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0 + layoutOffset);
     
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(offsetof(Vert2x2f, u)));
-    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1 + layoutOffset, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(offsetof(Vert2x2f, u)));
+    glEnableVertexAttribArray(1 + layoutOffset);
 };
 
 
 
-inline void rglVertexAttribPointer(Vert3x2f v)
+inline void rglVertexAttribPointer(Vert3x2f v, int layoutOffset = 0)
 {
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0 + layoutOffset, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0 + layoutOffset);
     
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(offsetof(Vert3x2f, u)));
-    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1 + layoutOffset, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(offsetof(Vert3x2f, u)));
+    glEnableVertexAttribArray(1 + layoutOffset);
 };
 
 
@@ -97,7 +97,7 @@ inline void rglVertexAttribPointer(Vert3x2f v)
 
 
 template <class T>
-unsigned int loadVBOData(std::vector<T> vec)
+unsigned int loadVBOData(std::vector<T> vec, int layoutOffset = 0)
 {
     unsigned int VBO;
     glGenBuffers(1, &VBO);
@@ -105,7 +105,7 @@ unsigned int loadVBOData(std::vector<T> vec)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vec.size()*sizeof(T), &vec[0], GL_STATIC_DRAW);
     
-    rglVertexAttribPointer(vec[0]);
+    rglVertexAttribPointer(vec[0], layoutOffset);
     
     return VBO;
 }

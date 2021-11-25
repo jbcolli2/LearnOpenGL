@@ -16,7 +16,7 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "Ch31Square2Vert.glsl", SHADER_FOLDER + "Ch31Square2Frag.glsl");
+    m_objShader = Shader(SHADER_FOLDER + "Ch31Square1Vert.glsl", SHADER_FOLDER + "Ch31SquareFrag.glsl");
     m_objShader.makeProgram();
 //    m_effectShader = Shader(SHADER_FOLDER + "Ch30NormalVert.glsl", SHADER_FOLDER + "Ch30Geom.glsl", SHADER_FOLDER + "SolidColor.frag");
 //    m_effectShader.makeProgram();
@@ -235,7 +235,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
-    Inst3f translation;
+    m_objShader.useProgram();
+    glm::vec3 translation;
     for (int ii = 0; ii < 10; ++ii)
     {
         for (int jj = 0; jj < 10; ++jj)
@@ -243,13 +244,9 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
             translation.x = 0.1f + ii*.2f - 1.f;
             translation.y = 0.1f + jj*.2f - 1.f;
             translations[ii*10 + jj] = translation;
+            m_objShader.setUniform3f("translations[" + std::to_string(ii*10+jj) + "]", translation.x, translation.y, 0.f);
         }
     }
-    
-    glBindVertexArray(vao);
-    instance_vbo = loadVBOData(translations, 2);
-    glVertexAttribDivisor(2, 1);
-    glBindVertexArray(0);
 
     
     
