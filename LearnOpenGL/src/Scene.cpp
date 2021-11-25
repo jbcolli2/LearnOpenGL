@@ -16,10 +16,10 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Texture.frag");
+    m_objShader = Shader(SHADER_FOLDER + "Ch31Square1Vert.glsl", SHADER_FOLDER + "Ch31SquareFrag.glsl");
     m_objShader.makeProgram();
-    m_effectShader = Shader(SHADER_FOLDER + "Ch30NormalVert.glsl", SHADER_FOLDER + "Ch30Geom.glsl", SHADER_FOLDER + "SolidColor.frag");
-    m_effectShader.makeProgram();
+//    m_effectShader = Shader(SHADER_FOLDER + "Ch30NormalVert.glsl", SHADER_FOLDER + "Ch30Geom.glsl", SHADER_FOLDER + "SolidColor.frag");
+//    m_effectShader.makeProgram();
     m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
     m_skyboxShader.makeProgram();
     m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
@@ -97,10 +97,15 @@ void Scene::setupShapes()
         Vert3x3f(.05f, -.05f, 0.f, 0.f, 0.f, 1.f),
     };
     
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    loadVBOData(square);
+    glBindVertexArray(0);
+    
 //    m_shapes.push_back(std::make_unique<Line>(points));
     
-    m_shapes.push_back((std::make_unique<Cube>(marblePath)));
-    m_shapes[0]->m_transform.position = glm::vec3(1.f, .5f, -4.f);
+//    m_shapes.push_back((std::make_unique<Cube>(marblePath)));
+//    m_shapes[0]->m_transform.position = glm::vec3(1.f, .5f, -4.f);
     
 //    m_glass = Model(glassPath.c_str());
 //    m_glass.m_transform.scale = glm::vec3(.1f);
@@ -187,7 +192,6 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_height(height), m_nearField(nearField), m_farField(farField), m_fov(fov)
 {
     
-    m_startTime = glfwGetTime();
     
     Scene::GLFWCallbackWrapper::setScene(this);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -231,10 +235,18 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
-    
-    m_effectShader.useProgram();
-    m_effectShader.setUniform1f("magnitude", .1f);
-    glUseProgram(0);
+    m_objShader.useProgram();
+    glm::vec3 translation;
+    for (int ii = 0; ii < 10; ++ii)
+    {
+        for (int jj = 0; jj < 10; ++jj)
+        {
+            translation.x = 0.1f + ii*.2f - 1.f;
+            translation.y = 0.1f + jj*.2f - 1.f;
+            translations[ii*10 + jj] = translation;
+            m_objShader.setUniform3f("translations[" + std::to_string(ii*10+jj) + "]", translation.x, translation.y, 0.f);
+        }
+    }
 
     
     
@@ -341,24 +353,19 @@ void Scene::updateLightUniforms()
 void Scene::drawObjects()
 {
 
-    m_skyboxShader.useProgram();
-    m_skyboxShader.setUniformTex("skybox", 10);
-    m_skybox.Draw(m_skyboxShader);
+//    m_skyboxShader.useProgram();
+//    m_skyboxShader.setUniformTex("skybox", 10);
+//    m_skybox.Draw(m_skyboxShader);
     
     m_objShader.useProgram();
-    for(auto& shape: m_shapes)
-    {
-        shape->Draw(m_objShader);
-    }
-    m_backpack.Draw(m_objShader);
-    
-//    m_effectShader.useProgram();
-//    m_effectShader.setUniform3f("color", .5f, 0.f, 1.f);
 //    for(auto& shape: m_shapes)
 //    {
-//        shape->Draw(m_effectShader);
+//        shape->Draw(m_objShader);
 //    }
-//    m_backpack.Draw(m_effectShader);
+    
+    glBindVertexArray(vao);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
+    
     
     
     

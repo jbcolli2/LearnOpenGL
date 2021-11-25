@@ -39,9 +39,9 @@ public:
 
 class Scene
 {
-    float m_startTime;
+    unsigned int vao, vbo, instance_vbo;
     
-    
+    glm::vec3 translations[100];
     
     
     
