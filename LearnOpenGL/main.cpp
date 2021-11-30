@@ -13,6 +13,10 @@
 #include <cmath>
 #include <algorithm>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include "Scene.hpp"
 
 
@@ -65,8 +69,15 @@ int main(int argc, const char * argv[]) {
     
     
     
+    // IMGUI setup
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
     
-    glUniformBlockBinding( 1,1,1);
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+    
     
     
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -82,6 +93,7 @@ int main(int argc, const char * argv[]) {
     float currentFrame = 0.f;
     float lastFrame = 0.f;
     float deltaTime = 0.f;
+    std::string FPSstr;
 
     //Main loop
     while(!glfwWindowShouldClose(window))
@@ -92,14 +104,33 @@ int main(int argc, const char * argv[]) {
         scene.processInput(deltaTime);
         
         
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        
+//        ImGui::Begin(std::to_string(deltaTime).c_str());
+        ImGui::Begin("Hello");
+        FPSstr =std::to_string((int)(1.f/deltaTime)) + " fps\n";
+        ImGui::Text(FPSstr.c_str());
+        
+        ImGui::End();
+        
         
         
         
         scene.draw();
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+    
+    
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     
     
     glfwTerminate();

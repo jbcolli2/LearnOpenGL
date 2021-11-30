@@ -348,7 +348,7 @@ void Scene::drawObjects()
     }
     m_models[0]->Draw(m_objShader);
     
-    int numAsteroids = 100;
+    int numAsteroids = 10;
     float asteroidRadius = 10.f;
     for(int ii = 0; ii < numAsteroids; ++ii)
     {
