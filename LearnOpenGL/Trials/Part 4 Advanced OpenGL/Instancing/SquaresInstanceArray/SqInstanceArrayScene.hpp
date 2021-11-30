@@ -12,8 +12,6 @@
 #include <vector>
 #include <string>
 
-#include <glm/gtc/random.hpp>
-
 
 #include "Shapes.hpp"
 #include "Shader.hpp"
@@ -41,10 +39,11 @@ public:
 
 class Scene
 {
+    unsigned int vao, vbo, instance_vbo;
+    
+    std::vector<Inst3f> translations{100};
     
     
-    std::vector<glm::mat4> asteroidModels;
-    float randx, randy, randz;
     
     struct FBO
     {
@@ -73,7 +72,6 @@ class Scene
     int selectCommandIndex = 0;
     
     std::vector< std::unique_ptr<Shape> > m_shapes;
-    std::vector< std::unique_ptr<Model> > m_models;
     Skybox m_skybox;
     Model m_backpack;
     Model m_glass;

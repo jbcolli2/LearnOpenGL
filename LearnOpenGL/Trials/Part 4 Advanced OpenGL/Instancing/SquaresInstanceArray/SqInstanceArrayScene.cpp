@@ -16,7 +16,7 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Texture.frag");
+    m_objShader = Shader(SHADER_FOLDER + "Ch31Square2Vert.glsl", SHADER_FOLDER + "Ch31Square2Frag.glsl");
     m_objShader.makeProgram();
 //    m_effectShader = Shader(SHADER_FOLDER + "Ch30NormalVert.glsl", SHADER_FOLDER + "Ch30Geom.glsl", SHADER_FOLDER + "SolidColor.frag");
 //    m_effectShader.makeProgram();
@@ -76,12 +76,8 @@ void Scene::setupShapes()
     std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
     std::vector<std::string> grassPath = {ASSET_FOLDER+"grass.png"};
     std::vector<std::string> windowPath = {ASSET_FOLDER+"blending_transparent_window.png"};
-    
     std::string backpackPath = ASSET_FOLDER + "backpack/backpack.obj";
     std::string glassPath = ASSET_FOLDER + "cocktail glass/cocktail glass.obj";
-    std::string planetPath = ASSET_FOLDER + "planet/planet.obj";
-    std::string rockPath = ASSET_FOLDER + "rock/rock.obj";
-    
     std::vector<std::string> skyboxPath = {
         ASSET_FOLDER + "skybox/right.jpg",
         ASSET_FOLDER + "skybox/left.jpg",
@@ -91,22 +87,33 @@ void Scene::setupShapes()
         ASSET_FOLDER + "skybox/back.jpg"
     };
     
+    std::vector<Vert3x3f> square = {
+        Vert3x3f(-.05f, -.05f, 0.f, 1.f, 0.f, 0.f),
+        Vert3x3f(-.05f, .05f, 0.f, 0.f, 1.f, 0.f),
+        Vert3x3f(.05f, .05f, 0.f, 0.f, 1.f, 0.f),
+        
+        Vert3x3f(-.05f, -.05f, 0.f, 1.f, 0.f, 0.f),
+        Vert3x3f(.05f, .05f, 0.f, 0.f, 1.f, 0.f),
+        Vert3x3f(.05f, -.05f, 0.f, 0.f, 0.f, 1.f),
+    };
     
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    loadVBOData(square);
+    glBindVertexArray(0);
     
+//    m_shapes.push_back(std::make_unique<Line>(points));
     
 //    m_shapes.push_back((std::make_unique<Cube>(marblePath)));
 //    m_shapes[0]->m_transform.position = glm::vec3(1.f, .5f, -4.f);
     
-    m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
-    m_models.back()->m_transform.scale = glm::vec3(.5f);
-    m_models.push_back(std::make_unique<Model>(rockPath.c_str()));
-    m_models.back()->m_transform.scale = glm::vec3(.1f);
+//    m_glass = Model(glassPath.c_str());
+//    m_glass.m_transform.scale = glm::vec3(.1f);
+//    m_glass.m_transform.position.z = -2.f;
     
-    
-    float posRand = 1.f;
-    randx = glm::linearRand(-posRand, posRand);
-    randy = glm::linearRand(-posRand, posRand);
-    randz = glm::linearRand(-posRand, posRand);
+//    m_backpack = Model(backpackPath.c_str());
+//    m_backpack.m_transform.scale = glm::vec3(.2f);
+//    m_backpack.m_transform.position.z = -2.f;
 
 //    stbi_set_flip_vertically_on_load(false);
 //    m_skybox = Skybox(skyboxPath);
@@ -208,7 +215,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     //  Setup the camera
-    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(0.f, 6.f, 23.f));
+    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField);
 
 
 
@@ -228,9 +235,21 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
+    Inst3f translation;
+    for (int ii = 0; ii < 10; ++ii)
+    {
+        for (int jj = 0; jj < 10; ++jj)
+        {
+            translation.x = 0.1f + ii*.2f - 1.f;
+            translation.y = 0.1f + jj*.2f - 1.f;
+            translations[ii*10 + jj] = translation;
+        }
+    }
     
-    
-   
+    glBindVertexArray(vao);
+    instance_vbo = loadVBOData(translations, 2);
+    glVertexAttribDivisor(2, 1);
+    glBindVertexArray(0);
 
     
     
@@ -342,22 +361,13 @@ void Scene::drawObjects()
 //    m_skybox.Draw(m_skyboxShader);
     
     m_objShader.useProgram();
-    for(auto& shape: m_shapes)
-    {
-        shape->Draw(m_objShader);
-    }
-    m_models[0]->Draw(m_objShader);
+//    for(auto& shape: m_shapes)
+//    {
+//        shape->Draw(m_objShader);
+//    }
     
-    int numAsteroids = 100;
-    float asteroidRadius = 10.f;
-    for(int ii = 0; ii < numAsteroids; ++ii)
-    {
-        m_models[1]->m_transform.position.x = asteroidRadius*glm::cos(ii*6.28/numAsteroids) + randx;
-        m_models[1]->m_transform.position.z = asteroidRadius*glm::sin(ii*6.28/numAsteroids) + randz;
-        m_models[1]->m_transform.position.y = randy;
-        m_models[1]->Draw(m_objShader);
-    }
-
+    glBindVertexArray(vao);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
     
     
     
