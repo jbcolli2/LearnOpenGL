@@ -73,6 +73,8 @@ int main(int argc, const char * argv[]) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_BACKSPACE;
+    io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
     
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -109,7 +111,8 @@ int main(int argc, const char * argv[]) {
         ImGui::NewFrame();
         
 //        ImGui::Begin(std::to_string(deltaTime).c_str());
-        ImGui::Begin("Hello");
+        bool test = true;
+        ImGui::Begin("Display Info", &test, ImGuiWindowFlags_AlwaysAutoResize);
         FPSstr =std::to_string((int)(1.f/deltaTime)) + " fps\n";
         ImGui::Text(FPSstr.c_str());
         

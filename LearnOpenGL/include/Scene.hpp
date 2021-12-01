@@ -14,6 +14,9 @@
 
 #include <glm/gtc/random.hpp>
 
+#include "imgui/imgui.h"
+
+
 
 #include "Shapes.hpp"
 #include "Shader.hpp"
@@ -44,7 +47,10 @@ class Scene
     
     
     std::vector<glm::mat4> asteroidModels;
-    float randx, randy, randz;
+    std::vector<float> randx, randy, randz;
+    int numAsteroids = 10;
+    float posRand = 1.f;
+    float asteroidRadius = 10.f;
     
     struct FBO
     {
@@ -101,6 +107,7 @@ class Scene
     float m_lastMousePosX, m_lastMousePosY;
     bool m_firstMouse;
     const float m_mouseSensitivity = 0.1f;
+    bool m_mouseCam = true;
     
     
     //*******  Camera/Window Variables *******//

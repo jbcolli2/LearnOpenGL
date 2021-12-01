@@ -103,10 +103,14 @@ void Scene::setupShapes()
     m_models.back()->m_transform.scale = glm::vec3(.1f);
     
     
-    float posRand = 1.f;
-    randx = glm::linearRand(-posRand, posRand);
-    randy = glm::linearRand(-posRand, posRand);
-    randz = glm::linearRand(-posRand, posRand);
+    
+    for(int ii = 0; ii < numAsteroids; ++ii)
+    {
+        randx.push_back(glm::linearRand(-posRand, posRand));
+        randy.push_back(glm::linearRand(-posRand, posRand));
+        randz.push_back(glm::linearRand(-posRand, posRand));
+    }
+    
 
 //    stbi_set_flip_vertically_on_load(false);
 //    m_skybox = Skybox(skyboxPath);
@@ -269,7 +273,22 @@ void Scene::draw()
     
     clearBuffers();
     
-    
+    ImGui::Begin("Display Info");
+    ImGui::Text(std::to_string(m_cam.m_camPos.x).c_str());
+    if(ImGui::InputInt("Number of Asteroids", &numAsteroids))
+    {
+        randx = std::vector<float>(numAsteroids);
+        randy = std::vector<float>(numAsteroids);
+        randz = std::vector<float>(numAsteroids);
+        for(int ii = 0; ii < numAsteroids; ++ii)
+        {
+            randx[ii] = glm::linearRand(-posRand, posRand);
+            randy[ii] = glm::linearRand(-posRand, posRand);
+            randz[ii] = glm::linearRand(-posRand, posRand);
+        }
+    }
+    ImGui::InputFloat("Radius", &asteroidRadius);
+    ImGui::End();
     
     // Set VP uniform buffer data
     glBindBuffer(GL_UNIFORM_BUFFER, m_uboVP);
@@ -348,13 +367,11 @@ void Scene::drawObjects()
     }
     m_models[0]->Draw(m_objShader);
     
-    int numAsteroids = 10;
-    float asteroidRadius = 10.f;
     for(int ii = 0; ii < numAsteroids; ++ii)
     {
-        m_models[1]->m_transform.position.x = asteroidRadius*glm::cos(ii*6.28/numAsteroids) + randx;
-        m_models[1]->m_transform.position.z = asteroidRadius*glm::sin(ii*6.28/numAsteroids) + randz;
-        m_models[1]->m_transform.position.y = randy;
+        m_models[1]->m_transform.position.x = asteroidRadius*glm::cos(ii*6.28/numAsteroids) + randx[ii];
+        m_models[1]->m_transform.position.z = asteroidRadius*glm::sin(ii*6.28/numAsteroids) + randz[ii];
+        m_models[1]->m_transform.position.y = randy[ii];
         m_models[1]->Draw(m_objShader);
     }
 
@@ -432,34 +449,47 @@ void Scene::processInput(float deltaTime)
         KeyEvent keyEvent = inputHandler->m_unhandledKeys.front();
         inputHandler->m_unhandledKeys.pop();
         
-        if(keyEvent.key == GLFW_KEY_SPACE && keyEvent.action == GLFW_PRESS )
+        if(keyEvent.key == GLFW_KEY_Q && keyEvent.action == GLFW_PRESS)
         {
-            m_shapes[m_selectedShape]->m_outlined = false;
-            m_selectedShape = (m_selectedShape + 1) % m_shapes.size();
-            m_shapes[m_selectedShape]->m_outlined = true;
+            m_mouseCam = !m_mouseCam;
+            if(m_mouseCam)
+            {
+                glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            }
+            else
+            {
+                glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
         }
         
-        if(keyEvent.key == GLFW_KEY_0 && keyEvent.action == GLFW_PRESS)
-        {
-            selectCommandIndex = 0;
-            
-        }
-        if(keyEvent.key == GLFW_KEY_1 && keyEvent.action == GLFW_PRESS)
-        {
-            m_ptLight[m_selectedLight].setOutline(false);
-            selectCommandIndex = 1;
-            m_shapes[m_selectedShape]->m_outlined = true;
-        }
-        if(keyEvent.key == GLFW_KEY_2 && keyEvent.action == GLFW_PRESS)
-        {
-            m_shapes[m_selectedShape]->m_outlined = false;
-            selectCommandIndex = 2;
-            m_ptLight[m_selectedLight].setOutline(true);
-        }
-        if(keyEvent.key == GLFW_KEY_TAB && keyEvent.action == GLFW_PRESS)
-        {
-            m_selectCommands[selectCommandIndex]->changeSelect();
-        }
+//        if(keyEvent.key == GLFW_KEY_SPACE && keyEvent.action == GLFW_PRESS )
+//        {
+//            m_shapes[m_selectedShape]->m_outlined = false;
+//            m_selectedShape = (m_selectedShape + 1) % m_shapes.size();
+//            m_shapes[m_selectedShape]->m_outlined = true;
+//        }
+        
+//        if(keyEvent.key == GLFW_KEY_0 && keyEvent.action == GLFW_PRESS)
+//        {
+//            selectCommandIndex = 0;
+//
+//        }
+//        if(keyEvent.key == GLFW_KEY_1 && keyEvent.action == GLFW_PRESS)
+//        {
+//            m_ptLight[m_selectedLight].setOutline(false);
+//            selectCommandIndex = 1;
+//            m_shapes[m_selectedShape]->m_outlined = true;
+//        }
+//        if(keyEvent.key == GLFW_KEY_2 && keyEvent.action == GLFW_PRESS)
+//        {
+//            m_shapes[m_selectedShape]->m_outlined = false;
+//            selectCommandIndex = 2;
+//            m_ptLight[m_selectedLight].setOutline(true);
+//        }
+//        if(keyEvent.key == GLFW_KEY_TAB && keyEvent.action == GLFW_PRESS)
+//        {
+//            m_selectCommands[selectCommandIndex]->changeSelect();
+//        }
         
         Input::instance().m_keyPress[keyEvent.key] = keyEvent.action == GLFW_PRESS || keyEvent.action == GLFW_REPEAT;
         
@@ -563,9 +593,11 @@ void Scene::mouse_callback(GLFWwindow* window, double xpos, double ypos)
     xoffset *= m_mouseSensitivity;
     yoffset *= m_mouseSensitivity;
     
-    
-    m_cam.turnYaw(xoffset);
-    m_cam.turnPitch(yoffset);
+    if(m_mouseCam)
+    {
+        m_cam.turnYaw(xoffset);
+        m_cam.turnPitch(yoffset);
+    }
     
 }
 
