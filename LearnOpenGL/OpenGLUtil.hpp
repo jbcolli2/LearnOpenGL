@@ -32,6 +32,22 @@ inline void rglVertexAttribPointer(Vert3f v, int layoutOffset = 0)
     glEnableVertexAttribArray(0 + layoutOffset);
 };
 
+inline void rglVertexAttribPointer(Inst3f v, int layoutOffset = 0)
+{
+    glVertexAttribPointer(0 + layoutOffset, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0 + layoutOffset);
+    glVertexAttribDivisor(0 + layoutOffset, 1);
+};
+
+inline void rglVertexAttribPointer(Inst4f v, int layoutOffset = 0)
+{
+    glVertexAttribPointer(0 + layoutOffset, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0 + layoutOffset);
+    glVertexAttribDivisor(0 + layoutOffset, 1);
+};
+
+
+
 
 inline void rglVertexAttribPointer(Vert3x3f v, int layoutOffset = 0)
 {

@@ -21,12 +21,8 @@ m_vertices(vertices), m_indices(indices), m_textures(textures)
 
 
 
-
-
-
-void Mesh::Draw(Shader& shader)
+void Mesh::setupTextureForDraw(Shader& shader)
 {
-    glBindVertexArray(m_VAO);
     unsigned int diffUnit = 0, specUnit = 0;
     
     for(int ii = 0; ii < m_textures.size(); ++ii)
@@ -47,9 +43,27 @@ void Mesh::Draw(Shader& shader)
         
         glBindTexture(GL_TEXTURE_2D, m_textures[ii].id);
     }
-    
+}
+
+
+void Mesh::Draw(Shader& shader)
+{
+    glBindVertexArray(m_VAO);
+
+    setupTextureForDraw(shader);
     
     glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+
+
+void Mesh::Draw(Shader& shader, int instances)
+{
+    glBindVertexArray(m_VAO);
+
+    setupTextureForDraw(shader);
+    
+    glDrawElementsInstanced(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0, instances);
     glBindVertexArray(0);
 }
 

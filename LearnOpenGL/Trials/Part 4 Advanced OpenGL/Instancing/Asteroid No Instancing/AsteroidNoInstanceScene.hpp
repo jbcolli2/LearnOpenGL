@@ -42,20 +42,15 @@ public:
 };
 
 
-
-
 class Scene
 {
     
-    unsigned int inst_vbo[4];
+    
     std::vector<glm::mat4> asteroidModels;
     std::vector<float> randx, randy, randz;
     int numAsteroids = 10;
     float posRand = 1.f;
     float asteroidRadius = 10.f;
-    float asteroidScale = 0.1f;
-    
-    void fillInstArray();
     
     struct FBO
     {

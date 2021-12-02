@@ -27,7 +27,15 @@ public:
         loadModel(path);
     }
     
-    void Draw(Shader& shader);
+    void Draw(Shader& shader, int instances = 1);
+    
+    void BindVertexArray()
+    {
+        for(auto& mesh : m_Meshes)
+        {
+            mesh.BindVertexArray();
+        }
+    };
     
     
 private:

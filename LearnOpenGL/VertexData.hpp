@@ -17,6 +17,23 @@ struct Vert3f
     Vert3f(float x, float y, float z) : x(x), y(y), z(z) {};
 };
 
+struct Inst3f
+{
+    float x,y,z;
+    
+    Inst3f() : x(0.f), y(0.f), z(0.f) {};
+    Inst3f(float x, float y, float z) : x(x), y(y), z(z) {};
+};
+
+struct Inst4f
+{
+    float x,y,z,w;
+    
+    Inst4f() : x(0.f), y(0.f), z(0.f), w(0.f) {};
+    Inst4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {};
+};
+
+
 struct Vert3x3f
 {
     float x,y,z;
@@ -69,7 +86,6 @@ struct Vert3x2f
 };
 
 
-typedef Vert3f Inst3f;
 
 
 #endif /* VertexData_h */

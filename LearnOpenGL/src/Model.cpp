@@ -13,7 +13,7 @@
 
 
 
-void Model::Draw(Shader &shader)
+void Model::Draw(Shader &shader, int instances)
 {
     glm::mat4 model = glm::mat4(1.f);
     model = glm::translate(model, m_transform.position);
@@ -23,10 +23,21 @@ void Model::Draw(Shader &shader)
     model = glm::scale(model, m_transform.scale);
     shader.setUniformMatrix4f("model", model);
 
-    for(auto mesh : m_Meshes)
+    if(instances <= 1)
     {
-        mesh.Draw(shader);
+        for(auto mesh : m_Meshes)
+        {
+            mesh.Draw(shader);
+        }
     }
+    else
+    {
+        for(auto mesh : m_Meshes)
+        {
+            mesh.Draw(shader, instances);
+        }
+    }
+    
 }
 
 

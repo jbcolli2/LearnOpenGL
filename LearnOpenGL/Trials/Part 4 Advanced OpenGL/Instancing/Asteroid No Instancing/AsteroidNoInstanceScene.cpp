@@ -18,8 +18,8 @@ void Scene::setupShaders()
 {
     m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Texture.frag");
     m_objShader.makeProgram();
-    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
-    m_effectShader.makeProgram();
+//    m_effectShader = Shader(SHADER_FOLDER + "Ch30NormalVert.glsl", SHADER_FOLDER + "Ch30Geom.glsl", SHADER_FOLDER + "SolidColor.frag");
+//    m_effectShader.makeProgram();
     m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
     m_skyboxShader.makeProgram();
     m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
@@ -100,12 +100,8 @@ void Scene::setupShapes()
     m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
     m_models.back()->m_transform.scale = glm::vec3(.5f);
     m_models.push_back(std::make_unique<Model>(rockPath.c_str()));
-    m_models.back()->m_transform.scale = glm::vec3(asteroidScale);
+    m_models.back()->m_transform.scale = glm::vec3(.1f);
     
-    
-    m_models[1]->BindVertexArray();
-    fillInstArray();
-    glBindVertexArray(0);
     
     
     for(int ii = 0; ii < numAsteroids; ++ii)
@@ -123,33 +119,7 @@ void Scene::setupShapes()
 
 
 
-void Scene::fillInstArray()
-{
-    std::vector<Inst4f> modelCol1(numAsteroids), modelCol2(numAsteroids),
-        modelCol3(numAsteroids), modelCol4(numAsteroids);
-    
-    glm::mat4 id{1.f}, model;
-    glm::vec3 translation;
-    
-    for(int ii = 0; ii < numAsteroids; ++ii)
-    {
-        translation = glm::vec3(asteroidRadius*glm::cos(ii*6.28/numAsteroids) + glm::linearRand(-posRand, posRand),
-                                glm::linearRand(-posRand, posRand),
-                                asteroidRadius*glm::sin(ii*6.28/numAsteroids) + glm::linearRand(-posRand, posRand));
-        model = glm::translate(id, translation);
-        model = glm::scale(model, glm::vec3(asteroidScale));
-       
-        modelCol1[ii] = Inst4f(model[0].x, model[0].y, model[0].z, model[0].w);
-        modelCol2[ii] = Inst4f(model[1].x, model[1].y, model[1].z, model[1].w);
-        modelCol3[ii] = Inst4f(model[2].x, model[2].y, model[2].z, model[2].w);
-        modelCol4[ii] = Inst4f(model[3].x, model[3].y, model[3].z, model[3].w);
-    }
-    
-    inst_vbo[0] = loadVBOData(modelCol1, 3);
-    inst_vbo[1] = loadVBOData(modelCol2, 4);
-    inst_vbo[2] = loadVBOData(modelCol3, 5);
-    inst_vbo[3] = loadVBOData(modelCol4, 6);
-}
+
 
 
 
@@ -307,22 +277,17 @@ void Scene::draw()
     ImGui::Text(std::to_string(m_cam.m_camPos.x).c_str());
     if(ImGui::InputInt("Number of Asteroids", &numAsteroids))
     {
-        m_models[1]->BindVertexArray();
-        fillInstArray();
-        glBindVertexArray(0);
+        randx = std::vector<float>(numAsteroids);
+        randy = std::vector<float>(numAsteroids);
+        randz = std::vector<float>(numAsteroids);
+        for(int ii = 0; ii < numAsteroids; ++ii)
+        {
+            randx[ii] = glm::linearRand(-posRand, posRand);
+            randy[ii] = glm::linearRand(-posRand, posRand);
+            randz[ii] = glm::linearRand(-posRand, posRand);
+        }
     }
-    if(ImGui::InputFloat("Radius", &asteroidRadius))
-    {
-        m_models[1]->BindVertexArray();
-        fillInstArray();
-        glBindVertexArray(0);
-    }
-    if(ImGui::InputFloat("Scale", &asteroidScale))
-    {
-        m_models[1]->BindVertexArray();
-        fillInstArray();
-        glBindVertexArray(0);
-    }
+    ImGui::InputFloat("Radius", &asteroidRadius);
     ImGui::End();
     
     // Set VP uniform buffer data
@@ -402,10 +367,13 @@ void Scene::drawObjects()
     }
     m_models[0]->Draw(m_objShader);
     
-    m_effectShader.useProgram();
-    m_models[1]->Draw(m_effectShader, numAsteroids);
-    
-    
+    for(int ii = 0; ii < numAsteroids; ++ii)
+    {
+        m_models[1]->m_transform.position.x = asteroidRadius*glm::cos(ii*6.28/numAsteroids) + randx[ii];
+        m_models[1]->m_transform.position.z = asteroidRadius*glm::sin(ii*6.28/numAsteroids) + randz[ii];
+        m_models[1]->m_transform.position.y = randy[ii];
+        m_models[1]->Draw(m_objShader);
+    }
 
     
     
@@ -481,7 +449,7 @@ void Scene::processInput(float deltaTime)
         KeyEvent keyEvent = inputHandler->m_unhandledKeys.front();
         inputHandler->m_unhandledKeys.pop();
         
-        if(keyEvent.key == GLFW_KEY_M && keyEvent.action == GLFW_PRESS)
+        if(keyEvent.key == GLFW_KEY_Q && keyEvent.action == GLFW_PRESS)
         {
             m_mouseCam = !m_mouseCam;
             if(m_mouseCam)
