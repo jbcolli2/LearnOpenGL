@@ -16,14 +16,14 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
+    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Texture.frag");
     m_objShader.makeProgram();
-//    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
-//    m_effectShader.makeProgram();
-//    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
-//    m_skyboxShader.makeProgram();
-//    m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
-//    m_debugShader.makeProgram();
+    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
+    m_effectShader.makeProgram();
+    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
+    m_skyboxShader.makeProgram();
+    m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
+    m_debugShader.makeProgram();
     Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
     Shader::solidShader.makeProgram();
 }
@@ -94,12 +94,26 @@ void Scene::setupShapes()
     
     
     
-    m_shapes.push_back((std::make_unique<Cube>(marblePath)));
-    m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.f);
+//    m_shapes.push_back((std::make_unique<Cube>(marblePath)));
+//    m_shapes[0]->m_transform.position = glm::vec3(1.f, .5f, -4.f);
     
-//    m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
+    m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
+    m_models.back()->m_transform.scale = glm::vec3(.5f);
+    m_models.push_back(std::make_unique<Model>(rockPath.c_str()));
+    m_models.back()->m_transform.scale = glm::vec3(asteroidScale);
     
     
+    m_models[1]->BindVertexArray();
+    fillInstArray();
+    glBindVertexArray(0);
+    
+    
+    for(int ii = 0; ii < numAsteroids; ++ii)
+    {
+        randx.push_back(glm::linearRand(-posRand, posRand));
+        randy.push_back(glm::linearRand(-posRand, posRand));
+        randz.push_back(glm::linearRand(-posRand, posRand));
+    }
     
 
 //    stbi_set_flip_vertically_on_load(false);
@@ -109,6 +123,33 @@ void Scene::setupShapes()
 
 
 
+void Scene::fillInstArray()
+{
+    std::vector<Inst4f> modelCol1(numAsteroids), modelCol2(numAsteroids),
+        modelCol3(numAsteroids), modelCol4(numAsteroids);
+    
+    glm::mat4 id{1.f}, model;
+    glm::vec3 translation;
+    
+    for(int ii = 0; ii < numAsteroids; ++ii)
+    {
+        translation = glm::vec3(asteroidRadius*glm::cos(ii*6.28/numAsteroids) + glm::linearRand(-posRand, posRand),
+                                glm::linearRand(-posRand, posRand),
+                                asteroidRadius*glm::sin(ii*6.28/numAsteroids) + glm::linearRand(-posRand, posRand));
+        model = glm::translate(id, translation);
+        model = glm::scale(model, glm::vec3(asteroidScale));
+       
+        modelCol1[ii] = Inst4f(model[0].x, model[0].y, model[0].z, model[0].w);
+        modelCol2[ii] = Inst4f(model[1].x, model[1].y, model[1].z, model[1].w);
+        modelCol3[ii] = Inst4f(model[2].x, model[2].y, model[2].z, model[2].w);
+        modelCol4[ii] = Inst4f(model[3].x, model[3].y, model[3].z, model[3].w);
+    }
+    
+    inst_vbo[0] = loadVBOData(modelCol1, 3);
+    inst_vbo[1] = loadVBOData(modelCol2, 4);
+    inst_vbo[2] = loadVBOData(modelCol3, 5);
+    inst_vbo[3] = loadVBOData(modelCol4, 6);
+}
 
 
 
@@ -255,7 +296,7 @@ void Scene::draw()
 {
     m_proj = m_cam.getProjMatrix();
     m_view = glm::mat4(glm::mat3(m_cam.getViewMatrix()));
-//    updateVP(m_skyboxShader);
+    updateVP(m_skyboxShader);
     
     m_view = m_cam.getViewMatrix();
     glEnable(GL_DEPTH_TEST);
@@ -263,7 +304,25 @@ void Scene::draw()
     clearBuffers();
     
     ImGui::Begin("Display Info");
-    ImGui::Text("Cam Position: (%4.2f, %4.2f, %4.2f)", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
+    ImGui::Text(std::to_string(m_cam.m_camPos.x).c_str());
+    if(ImGui::InputInt("Number of Asteroids", &numAsteroids))
+    {
+        m_models[1]->BindVertexArray();
+        fillInstArray();
+        glBindVertexArray(0);
+    }
+    if(ImGui::InputFloat("Radius", &asteroidRadius))
+    {
+        m_models[1]->BindVertexArray();
+        fillInstArray();
+        glBindVertexArray(0);
+    }
+    if(ImGui::InputFloat("Scale", &asteroidScale))
+    {
+        m_models[1]->BindVertexArray();
+        fillInstArray();
+        glBindVertexArray(0);
+    }
     ImGui::End();
     
     // Set VP uniform buffer data
@@ -337,11 +396,14 @@ void Scene::drawObjects()
 //    m_skybox.Draw(m_skyboxShader);
     
     m_objShader.useProgram();
-    m_objShader.setUniform3f("color", 0.f, 1.f, 0.f);
     for(auto& shape: m_shapes)
     {
         shape->Draw(m_objShader);
     }
+    m_models[0]->Draw(m_objShader);
+    
+    m_effectShader.useProgram();
+    m_models[1]->Draw(m_effectShader, numAsteroids);
     
     
 
