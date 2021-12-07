@@ -9,5 +9,5 @@ void main()
 {
     FragColor = color;
     
-    FragColor = vec4(1.0);
+//    FragColor = vec4(1.0);
 }

@@ -201,8 +201,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     //  Setup the camera
-    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(0.f, 6.f, 23.f));
-
+    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-.11f, .62f, .14f));
 
 
     
@@ -337,7 +336,7 @@ void Scene::drawObjects()
 //    m_skybox.Draw(m_skyboxShader);
     
     m_objShader.useProgram();
-    m_objShader.setUniform3f("color", 0.f, 1.f, 0.f);
+    m_objShader.setUniform4f("color", 0.f, 1.f, 0.f, 1.f);
     for(auto& shape: m_shapes)
     {
         shape->Draw(m_objShader);
