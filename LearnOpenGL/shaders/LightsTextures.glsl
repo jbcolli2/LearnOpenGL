@@ -9,8 +9,8 @@ out vec4 FragColor;
 
 struct Material
 {
-    sampler2D diffuse;
-    sampler2D specular;
+    sampler2D diffuse0;
+    sampler2D specular0;
     float shininess;
 };
 
@@ -40,7 +40,7 @@ struct SpotLight
     vec3 direction;
     float innerCutoff;
     float outerCutoff;
-    
+    View P
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -53,15 +53,29 @@ struct SpotLight
 
 };
 
-#define NUM_PTLIGHTS 4
+#define MAX_LIGHTS 10
+uniform int numDirLights, numPtLights, numSpotLights;
+
+//*********************************************
+//            Material and light uniforms
+//*********************************************
 uniform Material material;
-uniform PointLight ptLights[NUM_PTLIGHTS];
-uniform DirLight dirLight;
-uniform SpotLight spotLight;
+uniform PointLight ptLights[MAX_LIGHTS];
+uniform DirLight dirLights[MAX_LIGHTS];
+uniform SpotLight spotLights[MAX_LIGHTS];
+
+
+//*********************************************
+//            View and Projection Uniform buffer
+//*********************************************
+layout (std140) uniform VP
+{
+    mat4 view;
+    mat4 proj;
+};
 
 
 
-uniform mat4 view;
 
 vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPosition);
@@ -73,14 +87,20 @@ void main()
     vec3 normal = normalize(Normal);
     vec3 viewDir = -normalize(FragPos);
     vec3 result = vec3(0.0);
-    result += computeDirLight(dirLight, normal, viewDir);
+    for(int ii = 0; ii < numDirLights; ++ii)
+    {
+        result += computeDirLight(dirLights[ii], normal, viewDir);
+    }
 
-    for(int ii = 0; ii < NUM_PTLIGHTS; ++ii)
+    for(int ii = 0; ii < numPtLights; ++ii)
     {
         result += computePtLight(ptLights[ii], normal, viewDir, FragPos);
     }
     
-    result += computeSpotLight(spotLight, normal, viewDir, FragPos);
+    for(int ii = 0; ii < numSpotLights; ++ii)
+    {
+        result += computeSpotLight(spotLights[ii], normal, viewDir, FragPos);
+    }
     
     FragColor = vec4(result, 1.0);
 }
@@ -95,9 +115,9 @@ void main()
 vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     // The precomputed variables for the calculations
-    vec3 light2Frag = normalize(vec3(view*vec4(light.direction,0.0)));
-    vec3 diffuseMat = vec3(texture(material.diffuse, UV));
-    vec3 specMat = vec3(texture(material.specular, UV));
+    vec3 light2Frag = normalize(light.direction);
+    vec3 diffuseMat = vec3(texture(material.diffuse0, UV));
+    vec3 specMat = vec3(texture(material.specular0, UV));
 
     //Compute ambient component
     vec3 ambComponent = diffuseMat * light.ambient;
@@ -121,10 +141,10 @@ vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
 vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPosition)
 {
     // The precomputed variables for the calculation
-    vec3 diffuseMat = vec3(texture(material.diffuse, UV));
-    vec3 specMat = vec3(texture(material.specular, UV));
+    vec3 diffuseMat = vec3(texture(material.diffuse0, UV));
+    vec3 specMat = vec3(texture(material.specular0, UV));
 
-    vec3 light2Frag = fragPosition - vec3(view*vec4(light.position,1.0));
+    vec3 light2Frag = fragPosition - light.position;
     float distLight2Frag = length(light2Frag);
     light2Frag = normalize(light2Frag);
     vec3 frag2Light = -light2Frag;
@@ -158,10 +178,10 @@ vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPositi
 vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosition)
 {
     // The precomputed variables for the calculation
-    vec3 diffuseMat = vec3(texture(material.diffuse, UV));
-    vec3 specMat = vec3(texture(material.specular, UV));
+    vec3 diffuseMat = vec3(texture(material.diffuse0, UV));
+    vec3 specMat = vec3(texture(material.specular0, UV));
 
-    vec3 light2Frag = fragPosition - vec3(view*vec4(light.position,1.0));
+    vec3 light2Frag = fragPosition - light.position;
     float distLight2Frag = length(light2Frag);
     light2Frag = normalize(light2Frag);
     vec3 frag2Light = -light2Frag;
@@ -173,7 +193,7 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
     float spotAngle = dot(spotDirection, light2Frag);
     
     // Ambient light if fragment is outside of the cone of light
-    vec3 result = light.ambient * vec3(texture(material.diffuse,UV));
+    vec3 result = light.ambient * vec3(texture(material.diffuse0,UV));
     vec3 ambComponent = result;
     
     // Calculations of all light types if fragment is inside the light cone
