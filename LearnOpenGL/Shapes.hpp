@@ -148,6 +148,7 @@ class Plane : public Shape
     
     
     std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) override;
+    float m_UVCorner;
 
 public:
     float m_width, m_height;
@@ -156,7 +157,7 @@ public:
     
     Plane(const std::vector<std::string>& diffTexturePaths = std::vector<std::string>(),
          const std::vector<std::string>& specTexturePaths = std::vector<std::string>(),
-         const Material& material = Material());
+         float UVCorner = 1.f, const Material& material = Material());
     Plane(const Material& material);
     Plane(const Plane& otherBox);
     

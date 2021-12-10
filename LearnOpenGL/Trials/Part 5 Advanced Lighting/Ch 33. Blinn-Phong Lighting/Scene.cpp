@@ -32,7 +32,7 @@ void Scene::setupShaders()
 void Scene::setupLights()
 {
     PointLight temp{glm::vec3(0.f, 1.5f, -.5f)};
-    temp.setDiffuse(glm::vec3(1.f));
+    temp.setDiffuse(glm::vec3(.3f));
     temp.setSpecular(.7f);
     temp.setAmbient(.05f);
     m_ptLights.push_back(temp);
@@ -50,7 +50,6 @@ void Scene::setupLights()
     }
     
     m_objShader.setUniform1i("specularMap", 0);
-    m_objShader.setUniform1i("phong", m_phong);
     
     m_objShader.stopUseProgram();
 }
@@ -90,7 +89,7 @@ void Scene::setupShapes()
     
     
     
-    m_shapes.push_back((std::make_unique<Plane>(woodPath, std::vector<std::string>(), 10.f)));
+    m_shapes.push_back((std::make_unique<Plane>(woodPath)));
     m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.f);
     m_shapes[0]->m_material.shininess = 2.f;
     m_shapes[0]->m_transform.scale = glm::vec3(10.f);
@@ -221,7 +220,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
    
-    
+
     
     
     
@@ -259,7 +258,36 @@ void Scene::draw()
     
     clearBuffers();
     
-    SetupImGui();
+    ImGui::Begin("Display Info");
+    ImGui::Text("Cam Position: (%4.2f, %4.2f, %4.2f)", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
+    if(ImGui::BeginCombo(("Light " + std::to_string(m_selectedLight)).c_str(), "Light 0", ImGuiComboFlags_NoPreview))
+    {
+        for(int ii = 0; ii < m_ptLights.size(); ++ii)
+        {
+            if(ImGui::Selectable(("Light " + std::to_string(ii)).c_str()))
+            {
+                m_selectCommands[2]->selectIndex(ii);
+            }
+        }
+        
+        ImGui::EndCombo();
+        
+    }
+    
+    if(ImGui::Checkbox("Phong Lighting", &m_phong))
+    {
+        m_objShader.useProgram();
+        m_objShader.setUniform1i("phong", m_phong);
+        m_objShader.stopUseProgram();
+    }
+    if(ImGui::SliderFloat("Shininess", &m_shapes[0]->m_material.shininess, 1, 200))
+    {
+        m_objShader.useProgram();
+        m_objShader.setUniform1f("material.shininess", m_shapes[0]->m_material.shininess);
+        m_objShader.stopUseProgram();
+    }
+    
+    ImGui::End();
     
     // Set VP uniform buffer data
     glBindBuffer(GL_UNIFORM_BUFFER, m_uboVP);
@@ -287,33 +315,7 @@ void Scene::draw()
 
 
 
-void Scene::SetupImGui()
-{
-    ImGui::Begin("Display Info");
-    ImGui::Text("Cam Position: (%4.2f, %4.2f, %4.2f)", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
-    if(ImGui::BeginCombo(("Light " + std::to_string(m_selectedLight)).c_str(), "Light 0", ImGuiComboFlags_NoPreview))
-    {
-        for(int ii = 0; ii < m_ptLights.size(); ++ii)
-        {
-            if(ImGui::Selectable(("Light " + std::to_string(ii)).c_str()))
-            {
-                m_selectCommands[2]->selectIndex(ii);
-            }
-        }
-        
-        ImGui::EndCombo();
-        
-    }
-    
-    if(ImGui::Checkbox("Phong Lighting", &m_phong))
-    {
-        m_objShader.useProgram();
-        m_objShader.setUniform1i("phong", m_phong);
-        m_objShader.stopUseProgram();
-    }
-    
-    ImGui::End();
-}
+
 
 
 

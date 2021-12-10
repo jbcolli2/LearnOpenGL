@@ -143,10 +143,6 @@ float computeSpecCoeff(vec3 light2Frag, vec3 normal, vec3 viewDir)
 
 
 
-
-//*********************************************
-//           Direction Light computation
-//*********************************************
 vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     // The precomputed variables for the calculations
@@ -183,11 +179,6 @@ vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
 
 
 
-
-
-//*********************************************
-//           Point Light Computation
-//*********************************************
 vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPosition)
 {
     // The precomputed variables for the calculation
@@ -232,10 +223,6 @@ vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPositi
 
 
 
-
-//*********************************************
-//           SpotLight Computation
-//*********************************************
 vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosition)
 {
     // The precomputed variables for the calculation

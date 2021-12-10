@@ -31,6 +31,7 @@ struct Vertex
 
 struct Texture
 {
+    const static std::string materialName;
     const static std::string diffuseName;
     const static std::string specName;
     unsigned int id;

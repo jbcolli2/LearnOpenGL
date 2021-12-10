@@ -9,8 +9,9 @@
 
 #include "Mesh.hpp"
 
-const std::string Texture::diffuseName = "material.diffuse";
-const std::string Texture::specName = "material.specular";
+const std::string Texture::materialName = "material";
+const std::string Texture::diffuseName = Texture::materialName + ".diffuse";
+const std::string Texture::specName = Texture::materialName + ".specular";
 
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) :

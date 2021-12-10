@@ -80,6 +80,7 @@ void Shape::Draw(Shader shader, int instances)
         
         glBindTexture(GL_TEXTURE_2D, m_textures[ii].id);
     }
+    shader.setUniform1f(Texture::materialName + ".shininess", m_material.shininess);
     
     
     glBindVertexArray(m_VAO);
@@ -169,7 +170,7 @@ void Line::Draw(Shader shader, int instances)
 
 
 Plane::Plane(const std::vector<std::string>& diffTexturePaths, const std::vector<std::string>& specTexturePaths,
-           const Material& material)
+           float UVCorner, const Material& material) : m_UVCorner(UVCorner)
 {
     m_verts = fillVerts();
     
@@ -185,7 +186,7 @@ Plane::Plane(const Material& material)
     
     std::vector<std::string> blank;
     
-    Plane(blank, blank, material);
+    Plane(blank, blank, 1.f, material);
 
 }
 
@@ -214,12 +215,12 @@ std::vector<Vert3x3x2f> Plane::fillVerts(std::vector<Vert3x3x2f> verts)
 {
     std::vector<Vert3x3x2f> temp = {
         Vert3x3x2f(-0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f), //top
-        Vert3x3x2f(0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(-0.5f, 0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+        Vert3x3x2f(0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f, m_UVCorner, 0.0f),
+        Vert3x3x2f(-0.5f, 0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, m_UVCorner),
         
-        Vert3x3x2f(0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
-        Vert3x3x2f(0.5f, 0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f),
-        Vert3x3x2f(-0.5f, 0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+        Vert3x3x2f(0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f, m_UVCorner, 0.0f),
+        Vert3x3x2f(0.5f, 0.0f, -0.5f, 0.0f, 1.0f, 0.0f, m_UVCorner, m_UVCorner),
+        Vert3x3x2f(-0.5f, 0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, m_UVCorner),
     };
     
     

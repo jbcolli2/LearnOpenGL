@@ -100,6 +100,7 @@ int main(int argc, const char * argv[]) {
     float deltaTime = 0.f;
     std::string FPSstr;
 
+    bool imguiOpen = true;
     //Main loop
     while(!glfwWindowShouldClose(window))
     {
@@ -113,9 +114,7 @@ int main(int argc, const char * argv[]) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         
-//        ImGui::Begin(std::to_string(deltaTime).c_str());
-        bool test = true;
-        ImGui::Begin("Display Info", &test, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Display Info", &imguiOpen, ImGuiWindowFlags_AlwaysAutoResize);
         FPSstr =std::to_string((int)(1.f/deltaTime)) + " fps\n";
         ImGui::Text(FPSstr.c_str());
         
