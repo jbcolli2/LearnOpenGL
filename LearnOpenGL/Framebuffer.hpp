@@ -17,8 +17,9 @@ class Scene;
 
 class Framebuffer
 {
-    unsigned int m_fbo, m_rbo;
-    int m_width, m_height;
+    unsigned int m_fbo, m_rbo, m_tboShadow;
+    int m_width, m_height, m_shadowWidth, m_shadowHeight;
+    Shader m_shadowShader;
     Scene* m_scene;
     
     std::vector<glm::vec3> m_cubemapDirs = {
@@ -34,6 +35,9 @@ public:
     Framebuffer(){};
     Framebuffer(Scene* scene, GLFWwindow* window);
     
+    void SetupShadowMap(std::string vertSource, std::string fragSource);
+    
+    unsigned int RenderShadowMap(const glm::mat4& lightVP);
     void RenderToTexture2D(unsigned int tbo, const glm::vec3& position, const glm::vec3& direction, const glm::mat4& proj);
     void RenderToCubemap(unsigned int tbo, const glm::vec3& position, const glm::mat4& proj);
     

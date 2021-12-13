@@ -30,6 +30,101 @@ Framebuffer::Framebuffer(Scene* scene, GLFWwindow* window) : m_scene(scene)
 
 
 
+
+
+
+// ///////////// SetupShadowMap   ////////////////
+/**
+ \brief Perform all the setup work to create a shadow map using the objects in the scene.  This will make the shader program.
+ 
+ \param vertSourcePath - path for the source code of the vertex shader
+ \param fragSourcePath - path for the source code of the fragment shader
+ 
+
+ */
+void Framebuffer::SetupShadowMap(std::string vertSourcePath, std::string fragSourcePath, int shadowMapWidth, int shadowMapHeight)
+{
+    m_shadowShader = Shader(SHADER_FOLDER + vertSourcePath, SHADER_FOLDER + fragSourcePath);
+    m_shadowShader.makeProgram();
+    
+    glGenFramebuffers(1, &m_fbo);
+    m_shadowWidth = shadowMapWidth;
+    m_shadowHeight = m_shadowHeight;
+    glGenTextures(1, &m_tboShadow);
+}
+
+
+
+
+
+
+
+
+// ///////////// RenderShadowMap   ////////////////
+/**
+ \brief Render the scene from the lights perspective and store the results in a depth texture.  Lights View/Proj matrix is passed in from the scene and the handle
+        to the depth texture is passed back to the scene.  Scene can then use this depth texture to create shadows during the actual rendering.
+ 
+ \param lightVP - view/proj matrix for the particular light creating these shadows
+ 
+ \returns tbo handle for the depth texture
+ */
+unsigned int Framebuffer::RenderShadowMap(const glm::mat4& lightVP)
+{
+    
+    // ********  Setup the shadow map texture and framebuffer  ********** //
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    
+    // Create empty texture
+    glBindTexture(GL_TEXTURE_2D, m_tboShadow);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_shadowWidth, m_shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // Bind texture to the depth component of framebuffer, and use no color buffer
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_tboShadow, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    
+    // Check if framebuffer complete
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer NOT complete\n";
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    
+    
+    // ********  Render the shadow map  ********** //
+    m_shadowShader.useProgram();
+    m_shadowShader.setUniformMatrix4f("lightVP", lightVP);
+    
+    for(auto& shape : m_scene->m_shapes)
+    {
+        shape->Draw(m_shadowShader);
+    }
+    for(auto& model : m_scene->m_models)
+    {
+        model->Draw(m_shadowShader);
+    }
+    m_shadowShader.stopUseProgram();
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    
+    return m_tboShadow;
+}
+
+
+
+
+
+
+
+
+
+
 // ///////////// RenderToTexture   ////////////////
 /**
  \brief Point a camera into the scene and render what it sees to a texture.  The empty tbo is generated and its parameters
@@ -41,10 +136,7 @@ Framebuffer::Framebuffer(Scene* scene, GLFWwindow* window) : m_scene(scene)
         the perspecitve of a particular object.
  
  \param tbo - Empty texture object created from calling method
- \param target - Target to bind the tbo to, such as GL_TEXTURE_2D, or GL_TEXTURE_CUBE_MAP
- \param texTarget - Target used to create the texture data.  This could be GL_TEXTURE_2D, or a direction for the cubemap such as
-            GL_TEXTURE_CUBE_MAP_POSITIVE_X
- 
+  
  */
 void Framebuffer::RenderToTexture2D(unsigned int tbo,
                      const glm::vec3& position, const glm::vec3& direction, const glm::mat4& proj)
@@ -56,6 +148,9 @@ void Framebuffer::RenderToTexture2D(unsigned int tbo,
     // Create empty texture of correct size
     glBindTexture(GL_TEXTURE_2D, tbo);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
     
     // Attach tbo and rbo to framebuffer and check for completness
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo, 0);

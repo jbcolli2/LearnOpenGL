@@ -83,14 +83,6 @@ class Scene
     
 
     
-    //*********************************************
-    //            Shapes and Models
-    //*********************************************
-    std::vector< std::unique_ptr<Shape> > m_shapes;
-    std::vector< std::unique_ptr<Model> > m_models;
-    Skybox m_skybox;
-    Model m_backpack;
-    Model m_glass;
     
     
     //*********************************************
@@ -242,19 +234,34 @@ class Scene
     void setupShaders();
     void setupLights();
     void setupShapes();
-    void setupFBO();
+    void SetupFBORender();
     
     void clearBuffers();
     void updateVP(Shader shader);
     void updateLightUniforms();
     void drawObjects();
-    void drawFBOQuad();
+    void RenderFBO();
     void updateLights();
     
     
     
     
 public:
+    
+    //*********************************************
+    //            Shapes and Models
+    //*********************************************
+    std::vector< std::unique_ptr<Shape> > m_shapes;
+    std::vector< std::unique_ptr<Model> > m_models;
+    Skybox m_skybox;
+    Model m_backpack;
+    Model m_glass;
+    
+    
+    
+    
+    
+    
     
     Scene(GLFWwindow* window, int width, int height, float fov = 45.f, float nearField = .1f, float farField = 100.f);
     

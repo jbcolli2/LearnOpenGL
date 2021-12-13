@@ -113,7 +113,7 @@ void Scene::setupShapes()
 
 
 
-void Scene::setupFBO()
+void Scene::SetupFBORender()
 {
     //*********  Plane with framebuffer texture ************//
     std::vector<Vert3x2f> fbo_vert = {
@@ -136,30 +136,6 @@ void Scene::setupFBO()
     
     
     
-    int fb_width, fb_height;
-    glfwGetFramebufferSize(m_window, &fb_width, &fb_height);
-    
-    //************  Create and setup Framebuffer **********//
-    glGenFramebuffers(1, &m_fbo.fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo.fbo);
-    
-    glGenTextures(1, &m_fbo.tbo);
-    glBindTexture(GL_TEXTURE_2D, m_fbo.tbo);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fb_width, fb_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_fbo.tbo, 0);
-    
-    glGenRenderbuffers(1, &m_fbo.rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_fbo.rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fb_width, fb_height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_fbo.rbo);
-    
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cout << "Framebuffer NOT complete\n";
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 
@@ -386,18 +362,15 @@ void Scene::drawObjects()
 
 
 
-void Scene::drawFBOQuad()
+void Scene::RenderFBO()
 {
     m_fboShader.useProgram();
-    glm::mat4 model = glm::mat4(1.0f);
-    m_fboShader.setUniformMatrix4f("model", model);
-    m_fboShader.setUniformMatrix4f("view", glm::mat4(1.f));
-    m_fboShader.setUniformMatrix4f("proj", glm::mat4(1.f));
     glBindVertexArray(m_fbo.vao);
     glBindTexture(GL_TEXTURE_2D, m_fbo.tbo);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
 }
 
