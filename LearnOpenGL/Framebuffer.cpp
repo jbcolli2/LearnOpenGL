@@ -44,7 +44,7 @@ Framebuffer::Framebuffer(Scene* scene, GLFWwindow* window) : m_scene(scene)
  */
 void Framebuffer::SetupShadowMap(std::string vertSourcePath, std::string fragSourcePath, int shadowMapWidth, int shadowMapHeight)
 {
-    m_shadowShader = Shader(SHADER_FOLDER + vertSourcePath, SHADER_FOLDER + fragSourcePath);
+    m_shadowShader = Shader(vertSourcePath, fragSourcePath);
     m_shadowShader.makeProgram();
     
     glGenFramebuffers(1, &m_fbo);
@@ -97,6 +97,8 @@ unsigned int Framebuffer::RenderShadowMap(const glm::mat4& lightVP)
     
     
     // ********  Render the shadow map  ********** //
+    glViewport(0, 0, m_shadowWidth, m_shadowHeight);
+    glClear(GL_DEPTH_BUFFER_BIT);
     m_shadowShader.useProgram();
     m_shadowShader.setUniformMatrix4f("lightVP", lightVP);
     
@@ -111,6 +113,7 @@ unsigned int Framebuffer::RenderShadowMap(const glm::mat4& lightVP)
     m_shadowShader.stopUseProgram();
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, m_width, m_height);
     
     
     return m_tboShadow;
@@ -162,7 +165,7 @@ void Framebuffer::RenderToTexture2D(unsigned int tbo,
 
     // Render the scene to the framebuffer
     glm::mat4 view = glm::lookAt(position, position + direction, glm::vec3(0.f, 1.f, 0.f));
-    m_scene->RenderScene(view, proj);
+//    m_scene->RenderScene(view, proj);
     
     glBindTexture(GL_TEXTURE_2D, 0);
     
@@ -192,7 +195,7 @@ void Framebuffer::RenderToCubemap(unsigned int tbo, const glm::vec3 &position, c
     {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + ii, tbo, 0);
         view = glm::lookAt(position, position + m_cubemapDirs[ii], glm::vec3(0.f, 1.f, 0.f));
-        m_scene->RenderScene(view, proj1);
+//        m_scene->RenderScene(view, proj1);
     }
     glViewport(0,0, m_width, m_height);
     

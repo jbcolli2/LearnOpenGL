@@ -35,7 +35,7 @@ public:
     Framebuffer(){};
     Framebuffer(Scene* scene, GLFWwindow* window);
     
-    void SetupShadowMap(std::string vertSource, std::string fragSource);
+    void SetupShadowMap(std::string vertSource, std::string fragSource, int, int);
     
     unsigned int RenderShadowMap(const glm::mat4& lightVP);
     void RenderToTexture2D(unsigned int tbo, const glm::vec3& position, const glm::vec3& direction, const glm::mat4& proj);

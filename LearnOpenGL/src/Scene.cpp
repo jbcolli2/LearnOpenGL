@@ -22,6 +22,9 @@ void Scene::setupShaders()
 //    m_effectShader.makeProgram();
 //    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
 //    m_skyboxShader.makeProgram();
+    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "FBOFrag.glsl");
+    m_fboShader.makeProgram();
+
 //    m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
 //    m_debugShader.makeProgram();
     Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
@@ -31,11 +34,11 @@ void Scene::setupShaders()
 
 void Scene::setupLights()
 {
-    PointLight temp{glm::vec3(0.f, 1.5f, -.5f)};
+    DirLight temp{glm::vec3(0.f, -1.5f, -.5f)};
     temp.setDiffuse(glm::vec3(1.f));
-    temp.setSpecular(.7f);
+    temp.setSpecular(.3f);
     temp.setAmbient(.05f);
-    m_ptLights.push_back(temp);
+    m_dirLights.push_back(temp);
     
     
     m_objShader.useProgram();
@@ -44,9 +47,13 @@ void Scene::setupLights()
     m_objShader.setUniform1i("numPtLights", m_ptLights.size());
     m_objShader.setUniform1i("numSpotLights", m_spotLights.size());
     
-    for(auto& ptLight : m_ptLights)
+    for(int ii = 0; ii < m_ptLights.size(); ++ii)
     {
-        ptLight.setUniformPtLight(m_objShader, 0);
+        m_ptLights[ii].setUniformPtLight(m_objShader, ii);
+    }
+    for(int ii = 0; ii < m_dirLights.size(); ++ii)
+    {
+        m_dirLights[ii].setUniformDirLight(m_objShader, ii);
     }
     
     m_objShader.setUniform1i("specularMap", 0);
@@ -94,6 +101,15 @@ void Scene::setupShapes()
     m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.f);
     m_shapes[0]->m_material.shininess = 2.f;
     m_shapes[0]->m_transform.scale = glm::vec3(10.f);
+    
+    m_shapes.push_back((std::make_unique<Cube>(containerPath)));
+    m_shapes.back()->m_transform.position = glm::vec3(-.5f, 1.f, -.5f);
+    m_shapes.back()->m_transform.scale = glm::vec3(.4f);
+    
+    m_shapes.push_back((std::make_unique<Cube>(containerPath)));
+    m_shapes.back()->m_transform.position = glm::vec3(.5f, .7f, -1.8f);
+    m_shapes.back()->m_transform.rotation = glm::vec3(40.f, 10.f, 0.f);
+    m_shapes.back()->m_transform.scale = glm::vec3(.5f);
     
 //    m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
     
@@ -195,8 +211,21 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
+    //*********************************************
+    //            Shadow map setup
+    //*********************************************
+    SetupFBORender();
     
+    glm::mat4 lightView = glm::lookAt(-5.f*m_dirLights[0].m_direction, m_dirLights[0].m_direction, glm::vec3(0.f, 1.f, 0.f));
+    glm::mat4 lightProj = glm::ortho(-10.f, 10.f, -10.f, 10.f, .1f, 100.f);
+    m_lightVP = lightProj*lightView;
+    
+    m_fboShadow = Framebuffer(this, m_window);
+    m_fboShadow.SetupShadowMap(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl", 1024, 1024);
    
+    //*********************************************
+    //            Shadow map setup
+    //*********************************************
     
     
     
@@ -243,16 +272,19 @@ void Scene::draw()
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_proj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
-
-    m_objShader.useProgram();
-    updateLightUniforms();
-    drawObjects();
-    m_objShader.stopUseProgram();
-    
-    
+    m_fbo.tbo = m_fboShadow.RenderShadowMap(m_lightVP);
+    RenderFBO();
     
 
-    updateLights();
+//    m_objShader.useProgram();
+//    updateLightUniforms();
+//    drawObjects();
+//    m_objShader.stopUseProgram();
+    
+    
+    
+
+//    updateLights();
    
     
 }

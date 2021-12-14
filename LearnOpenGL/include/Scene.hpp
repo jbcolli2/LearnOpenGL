@@ -24,6 +24,7 @@
 #include "Light.hpp"
 #include "Model.hpp"
 #include "Skybox.hpp"
+#include "Framebuffer.hpp"
 
 
 
@@ -43,10 +44,13 @@ public:
 };
 
 
-
+class Framebuffer;
 
 class Scene
 {
+    
+    glm::mat4 m_lightVP;
+    Framebuffer m_fboShadow;
     
     bool m_phong = true;
     
