@@ -50,7 +50,7 @@ class Scene
 {
     
     glm::mat4 m_lightVP;
-    Framebuffer m_fboShadow;
+    Framebuffer* m_fboShadow;
     
     bool m_phong = true;
     

@@ -220,8 +220,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     glm::mat4 lightProj = glm::ortho(-10.f, 10.f, -10.f, 10.f, .1f, 100.f);
     m_lightVP = lightProj*lightView;
     
-    m_fboShadow = Framebuffer(this, m_window);
-    m_fboShadow.SetupShadowMap(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl", 1024, 1024);
+    m_fboShadow = new Framebuffer(this, m_window);
+    m_fboShadow->SetupShadowMap(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl", 1024, 1024);
    
     //*********************************************
     //            Shadow map setup
@@ -272,7 +272,7 @@ void Scene::draw()
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_proj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
-    m_fbo.tbo = m_fboShadow.RenderShadowMap(m_lightVP);
+    m_fbo.tbo = m_fboShadow->RenderShadowMap(m_lightVP);
     RenderFBO();
     
 
