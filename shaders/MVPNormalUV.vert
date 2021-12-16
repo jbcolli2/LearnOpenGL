@@ -16,6 +16,7 @@ layout (std140) uniform VP
     mat4 proj;
 };
 
+
 void main()
 {
     gl_Position = proj*view*model*vec4(pos, 1.0f);

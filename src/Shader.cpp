@@ -126,8 +126,9 @@ void Shader::makeProgram()
 
 std::string Shader::loadShaderFile(const char *path)
 {
-    std::ifstream shaderFile(path);
+    std::ifstream shaderFile;
     try {
+        shaderFile.open(path, std::ifstream::in);
         std::stringstream shaderStream;
         shaderStream << shaderFile.rdbuf();
         

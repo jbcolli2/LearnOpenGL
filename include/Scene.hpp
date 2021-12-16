@@ -243,7 +243,7 @@ class Scene
     void clearBuffers();
     void updateVP(Shader shader);
     void updateLightUniforms();
-    void drawObjects();
+    void drawObjects(Shader shader);
     void RenderFBO();
     void updateLights();
     

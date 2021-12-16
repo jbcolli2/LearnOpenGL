@@ -49,8 +49,30 @@ void Framebuffer::SetupShadowMap(std::string vertSourcePath, std::string fragSou
     
     glGenFramebuffers(1, &m_fbo);
     m_shadowWidth = shadowMapWidth;
-    m_shadowHeight = m_shadowHeight;
+    m_shadowHeight = shadowMapHeight;
     glGenTextures(1, &m_tboShadow);
+    
+    // ********  Setup the shadow map texture and framebuffer  ********** //
+    
+    // Create empty texture
+    glBindTexture(GL_TEXTURE_2D, m_tboShadow);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_shadowWidth, m_shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // Bind texture to the depth component of framebuffer, and use no color buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_tboShadow, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    // Check if framebuffer complete
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer NOT complete\n" << "Status = " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << "\n" << GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 
@@ -72,35 +94,17 @@ void Framebuffer::SetupShadowMap(std::string vertSourcePath, std::string fragSou
 unsigned int Framebuffer::RenderShadowMap(const glm::mat4& lightVP)
 {
     
-    // ********  Setup the shadow map texture and framebuffer  ********** //
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-    
-    // Create empty texture
-    glBindTexture(GL_TEXTURE_2D, m_tboShadow);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_shadowWidth, m_shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
-    // Bind texture to the depth component of framebuffer, and use no color buffer
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_tboShadow, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    
-    // Check if framebuffer complete
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cout << "Framebuffer NOT complete\n";
-    
-    glBindTexture(GL_TEXTURE_2D, 0);
     
     
+    
+    m_shadowShader.useProgram();
+    m_shadowShader.setUniformMatrix4f("lightVP", lightVP);
+
     
     // ********  Render the shadow map  ********** //
     glViewport(0, 0, m_shadowWidth, m_shadowHeight);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     glClear(GL_DEPTH_BUFFER_BIT);
-    m_shadowShader.useProgram();
-    m_shadowShader.setUniformMatrix4f("lightVP", lightVP);
     
     for(auto& shape : m_scene->m_shapes)
     {

@@ -25,8 +25,8 @@ void Scene::setupShaders()
     m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "FBOFrag.glsl");
     m_fboShader.makeProgram();
 
-//    m_debugShader = Shader(SHADER_FOLDER + "DebugVert.vert", SHADER_FOLDER + "DebugFrag.frag");
-//    m_debugShader.makeProgram();
+    m_debugShader = Shader(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl");
+    m_debugShader.makeProgram();
     Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
     Shader::solidShader.makeProgram();
 }
@@ -98,7 +98,7 @@ void Scene::setupShapes()
     
     
     m_shapes.push_back((std::make_unique<Plane>(woodPath, std::vector<std::string>(), 10.f)));
-    m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.f);
+    m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.0f);
     m_shapes[0]->m_material.shininess = 2.f;
     m_shapes[0]->m_transform.scale = glm::vec3(10.f);
     
@@ -191,7 +191,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     //  Setup the camera
-    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-.11f, .62f, 2.14f));
+    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-.11f, 2.5f, 2.14f), -40.f);
 
 
     
@@ -216,8 +216,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     //*********************************************
     SetupFBORender();
     
-    glm::mat4 lightView = glm::lookAt(-5.f*m_dirLights[0].m_direction, m_dirLights[0].m_direction, glm::vec3(0.f, 1.f, 0.f));
-    glm::mat4 lightProj = glm::ortho(-10.f, 10.f, -10.f, 10.f, .1f, 100.f);
+    glm::mat4 lightView = glm::lookAt(glm::vec3(-.11f, 2.5f, 2.14f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+    glm::mat4 lightProj = glm::ortho(-10.f, 10.f, -10.f, 10.f, .5f, 18.f);
     m_lightVP = lightProj*lightView;
     
     m_fboShadow = new Framebuffer(this, m_window);
@@ -275,6 +275,18 @@ void Scene::draw()
     m_fbo.tbo = m_fboShadow->RenderShadowMap(m_lightVP);
     RenderFBO();
     
+    //*********************************************
+    //            Debug Begin
+    //*********************************************
+//    m_debugShader.useProgram();
+//    m_debugShader.setUniformMatrix4f("lightVP", m_lightVP);
+//    drawObjects(m_debugShader);
+//    m_debugShader.stopUseProgram();
+    
+    //*********************************************
+    //            Debug End
+    //*********************************************
+    
 
 //    m_objShader.useProgram();
 //    updateLightUniforms();
@@ -290,6 +302,26 @@ void Scene::draw()
 }
 
 
+
+
+
+
+// ///////////// drawObjects   ////////////////
+/**
+ \brief Helper subroutine to draw all objects in the scene.  There is no shader calls here, just draw calls.
+ */
+void Scene::drawObjects(Shader shader)
+{
+
+//    m_skyboxShader.useProgram();
+//    m_skyboxShader.setUniformTex("skybox", 10);
+//    m_skybox.Draw(m_skyboxShader);
+    
+    for(auto& shape: m_shapes)
+    {
+        shape->Draw(shader);
+    }
+}
 
 
 
@@ -370,26 +402,6 @@ void Scene::updateLightUniforms()
 
 
 
-void Scene::drawObjects()
-{
-
-//    m_skyboxShader.useProgram();
-//    m_skyboxShader.setUniformTex("skybox", 10);
-//    m_skybox.Draw(m_skyboxShader);
-    
-    for(auto& shape: m_shapes)
-    {
-        shape->Draw(m_objShader);
-    }
-    
-    
-
-    
-    
-    
-    
-
-}
 
 
 
@@ -398,7 +410,9 @@ void Scene::RenderFBO()
 {
     m_fboShader.useProgram();
     glBindVertexArray(m_fbo.vao);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_fbo.tbo);
+    m_fboShader.setUniform1i("FBOtex", 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glDrawArrays(GL_TRIANGLES, 0, 6);
