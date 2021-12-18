@@ -34,7 +34,7 @@ void Scene::setupShaders()
 
 void Scene::setupLights()
 {
-    DirLight temp{glm::vec3(0.f, -1.5f, -.5f)};
+    DirLight temp{glm::vec3(1.f, -1.5f, 0.0001f)};
     temp.setDiffuse(glm::vec3(1.f));
     temp.setSpecular(.3f);
     temp.setAmbient(.15f);
@@ -107,7 +107,7 @@ void Scene::setupShapes()
     m_shapes.back()->m_transform.scale = glm::vec3(.4f);
     
     m_shapes.push_back((std::make_unique<Cube>(containerPath)));
-    m_shapes.back()->m_transform.position = glm::vec3(.5f, .7f, -1.8f);
+    m_shapes.back()->m_transform.position = glm::vec3(.5f, .5f, -.5f);
     m_shapes.back()->m_transform.rotation = glm::vec3(40.f, 10.f, 0.f);
     m_shapes.back()->m_transform.scale = glm::vec3(.5f);
     
@@ -216,7 +216,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     //*********************************************
     SetupFBORender();
     
-    glm::mat4 lightView = glm::lookAt(glm::vec3(-.11f, 2.5f, 2.14f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+    glm::mat4 lightView = glm::lookAt(-3.f*m_dirLights[0].m_direction, glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
     glm::mat4 lightProj = glm::ortho(-10.f, 10.f, -10.f, 10.f, .5f, 18.f);
     m_lightVP = lightProj*lightView;
     

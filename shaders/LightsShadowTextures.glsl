@@ -87,7 +87,7 @@ layout (std140) uniform VP
 
 
 
-vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir, float shadowCoeff);
+vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPosition);
 vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosition);
 
@@ -95,29 +95,27 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
 
 
 
-float computeShadowCoeff()
+float computeShadowCoeff(vec3 normal, vec3 lightDir)
 {
     vec3 projCoords = lightSpaceFragPos.xyz / lightSpaceFragPos.w;
     projCoords = projCoords * 0.5 + 0.5;
     float FragDepth = projCoords.z;
     float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float bias = max(.05 * (1.0 - dot(normal, lightDir)), .005);
     
-    return FragDepth > closestDepth ? 1.0 : 0.0;
+    return FragDepth - bias > closestDepth ? 1.0 : 0.0;
 }
 
 
 
 void main()
 {
-    
-    float shadowCoeff = computeShadowCoeff();
-    
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(cameraPos - FragPos);
     vec3 result = vec3(0.0);
     for(int ii = 0; ii < numDirLights; ++ii)
     {
-        result += computeDirLight(dirLights[ii], normal, viewDir, shadowCoeff);
+        result += computeDirLight(dirLights[ii], normal, viewDir);
     }
 
     for(int ii = 0; ii < numPtLights; ++ii)
@@ -161,8 +159,11 @@ float computeSpecCoeff(vec3 light2Frag, vec3 normal, vec3 viewDir)
 //*********************************************
 //           Direction Light computation
 //*********************************************
-vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir, float shadowCoeff)
+vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
+    // Compute the shadow coefficient
+    
+    
     // The precomputed variables for the calculations
     vec3 light2Frag = normalize(light.direction);
     vec3 diffuseMat = vec3(texture(material.diffuse0, UV));
@@ -176,6 +177,9 @@ vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir, float shadowCoef
     {
         specMat = vec3(1.0);
     }
+    
+    // Compute the shadow coefficient
+    float shadowCoeff = computeShadowCoeff(normal, -light2Frag);
     
     //////////  Compute Amb/Diff/Spec contributions /////////////
 
