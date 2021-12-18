@@ -34,7 +34,7 @@ void Scene::setupShaders()
 
 void Scene::setupLights()
 {
-    DirLight temp{glm::vec3(1.f, -1.5f, 0.0001f)};
+    DirLight temp{glm::vec3(1.f, -1.5f, 0.9f)};
     temp.setDiffuse(glm::vec3(1.f));
     temp.setSpecular(.3f);
     temp.setAmbient(.15f);
@@ -100,16 +100,16 @@ void Scene::setupShapes()
     m_shapes.push_back((std::make_unique<Plane>(woodPath, std::vector<std::string>(), 10.f)));
     m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.0f);
     m_shapes[0]->m_material.shininess = 2.f;
-    m_shapes[0]->m_transform.scale = glm::vec3(10.f);
+    m_shapes[0]->m_transform.scale = glm::vec3(20.f);
     
     m_shapes.push_back((std::make_unique<Cube>(containerPath)));
-    m_shapes.back()->m_transform.position = glm::vec3(-.5f, 1.f, -.5f);
+    m_shapes.back()->m_transform.position = glm::vec3(-.5f, 0.2f, -.4f);
     m_shapes.back()->m_transform.scale = glm::vec3(.4f);
     
-    m_shapes.push_back((std::make_unique<Cube>(containerPath)));
-    m_shapes.back()->m_transform.position = glm::vec3(.5f, .5f, -.5f);
-    m_shapes.back()->m_transform.rotation = glm::vec3(40.f, 10.f, 0.f);
-    m_shapes.back()->m_transform.scale = glm::vec3(.5f);
+//    m_shapes.push_back((std::make_unique<Cube>(containerPath)));
+//    m_shapes.back()->m_transform.position = glm::vec3(.5f, .5f, -.5f);
+//    m_shapes.back()->m_transform.rotation = glm::vec3(40.f, 10.f, 0.f);
+//    m_shapes.back()->m_transform.scale = glm::vec3(.5f);
     
 //    m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
     
@@ -216,8 +216,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     //*********************************************
     SetupFBORender();
     
-    glm::mat4 lightView = glm::lookAt(-3.f*m_dirLights[0].m_direction, glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
-    glm::mat4 lightProj = glm::ortho(-10.f, 10.f, -10.f, 10.f, .5f, 18.f);
+    glm::mat4 lightView = glm::lookAt(-2.f*m_dirLights[0].m_direction, glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+    glm::mat4 lightProj = glm::ortho(-5.f, 5.f, -5.f, 5.f, .5f, 5.f);
     m_lightVP = lightProj*lightView;
     
     m_fboShadow = new Framebuffer(this, m_window);
@@ -272,7 +272,9 @@ void Scene::draw()
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_proj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
+    glCullFace(GL_FRONT);
     m_fbo.tbo = m_fboShadow->RenderShadowMap(m_lightVP);
+    glCullFace(GL_BACK);
 //    RenderFBO();
     
     

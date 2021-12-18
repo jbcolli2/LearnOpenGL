@@ -103,6 +103,9 @@ float computeShadowCoeff(vec3 normal, vec3 lightDir)
     float closestDepth = texture(shadowMap, projCoords.xy).r;
     float bias = max(.05 * (1.0 - dot(normal, lightDir)), .005);
     
+    if(FragDepth > 1.0)
+        return 0.0;
+    
     return FragDepth - bias > closestDepth ? 1.0 : 0.0;
 }
 
