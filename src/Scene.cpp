@@ -16,7 +16,7 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.glsl");
+    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsShadowTextures.glsl");
     m_objShader.makeProgram();
 //    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
 //    m_effectShader.makeProgram();
@@ -37,7 +37,7 @@ void Scene::setupLights()
     DirLight temp{glm::vec3(0.f, -1.5f, -.5f)};
     temp.setDiffuse(glm::vec3(1.f));
     temp.setSpecular(.3f);
-    temp.setAmbient(.05f);
+    temp.setAmbient(.15f);
     m_dirLights.push_back(temp);
     
     
@@ -273,30 +273,23 @@ void Scene::draw()
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
     m_fbo.tbo = m_fboShadow->RenderShadowMap(m_lightVP);
-    RenderFBO();
+//    RenderFBO();
     
-    //*********************************************
-    //            Debug Begin
-    //*********************************************
-//    m_debugShader.useProgram();
-//    m_debugShader.setUniformMatrix4f("lightVP", m_lightVP);
-//    drawObjects(m_debugShader);
-//    m_debugShader.stopUseProgram();
-    
-    //*********************************************
-    //            Debug End
-    //*********************************************
     
 
-//    m_objShader.useProgram();
-//    updateLightUniforms();
-//    drawObjects();
-//    m_objShader.stopUseProgram();
+    m_objShader.useProgram();
+    updateLightUniforms();
+    m_objShader.setUniformMatrix4f("lightVP", m_lightVP);
+    m_objShader.setUniform1i("shadowMap", 7);
+    glActiveTexture(GL_TEXTURE0 + 7);
+    glBindTexture(GL_TEXTURE_2D, m_fbo.tbo);
+    drawObjects(m_objShader);
+    m_objShader.stopUseProgram();
     
     
     
 
-//    updateLights();
+    updateLights();
    
     
 }

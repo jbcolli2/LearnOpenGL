@@ -7,9 +7,11 @@ layout (location = 2) in vec2 aUV;
 out vec3 Normal;
 out vec3 FragPos;
 out vec2 UV;
+out vec4 lightSpaceFragPos;
 
 
 uniform mat4 model;
+uniform mat4 lightVP;
 layout (std140) uniform VP
 {
     mat4 view;
@@ -26,4 +28,5 @@ void main()
     mat3 invTransModel = mat3(inverse(transpose(model)));
     Normal = invTransModel*aNormal;
     UV = aUV;
+    lightSpaceFragPos = lightVP * vec4(FragPos, 1.0);
 }
