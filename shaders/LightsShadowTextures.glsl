@@ -101,7 +101,7 @@ float computeShadowCoeff(vec3 normal, vec3 lightDir)
     projCoords = projCoords * 0.5 + 0.5;
     float FragDepth = projCoords.z;
     float closestDepth = texture(shadowMap, projCoords.xy).r;
-    float bias = max(.05 * (1.0 - dot(normal, lightDir)), .005);
+    float bias = max(.01 * (1.0 - dot(normal, normalize(lightDir))), .005);
     
     if(FragDepth > 1.0)
         return 0.0;
@@ -111,6 +111,10 @@ float computeShadowCoeff(vec3 normal, vec3 lightDir)
 
 
 
+
+//*********************************************
+//           Main()
+//*********************************************
 void main()
 {
     vec3 normal = normalize(Normal);
@@ -271,15 +275,18 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
         specMat = vec3(1.0);
     }
     
+    
     vec3 light2Frag = fragPosition - light.position;
     float distLight2Frag = length(light2Frag);
     light2Frag = normalize(light2Frag);
     vec3 frag2Light = -light2Frag;
+    // Compute the shadow coefficient
+    float shadowCoeff = computeShadowCoeff(normal, -light2Frag);
 
     float attenuation = 1.0/(light.constAtten + distLight2Frag*light.linAtten +
                              distLight2Frag*distLight2Frag*light.quadAtten);
     
-    vec3 spotDirection = normalize(vec3(view*vec4(light.direction, 0.0)));
+    vec3 spotDirection = normalize(vec3(vec4(light.direction, 0.0)));
     float spotAngle = dot(spotDirection, light2Frag);
     
     // Ambient light if fragment is outside of the cone of light
@@ -309,7 +316,7 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
         diffComponent *= fuzzyMult;
         specComponent *= fuzzyMult;
         
-        result = (ambComponent + diffComponent + specComponent);
+        result = ambComponent + (1.0 - shadowCoeff)*(diffComponent + specComponent);
     }
     
     return result;

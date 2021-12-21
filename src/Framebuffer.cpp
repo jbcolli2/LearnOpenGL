@@ -95,10 +95,6 @@ void Framebuffer::SetupShadowMap(std::string vertSourcePath, std::string fragSou
  */
 unsigned int Framebuffer::RenderShadowMap(const glm::mat4& lightVP)
 {
-    
-    
-    
-    
     m_shadowShader.useProgram();
     m_shadowShader.setUniformMatrix4f("lightVP", lightVP);
 

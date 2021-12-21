@@ -258,7 +258,7 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
     float attenuation = 1.0/(light.constAtten + distLight2Frag*light.linAtten +
                              distLight2Frag*distLight2Frag*light.quadAtten);
     
-    vec3 spotDirection = normalize(vec3(view*vec4(light.direction, 0.0)));
+    vec3 spotDirection = normalize(vec3(vec4(light.direction, 0.0)));
     float spotAngle = dot(spotDirection, light2Frag);
     
     // Ambient light if fragment is outside of the cone of light

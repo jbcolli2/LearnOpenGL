@@ -244,7 +244,7 @@ class Scene
     void updateVP(Shader shader);
     void updateLightUniforms();
     void drawObjects(Shader shader);
-    void RenderFBO();
+    void RenderFBO(float nearPlane = 0.f, float farPlane = 0.f);
     void updateLights();
     
     

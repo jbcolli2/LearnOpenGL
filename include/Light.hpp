@@ -65,6 +65,11 @@ public:
     
     void draw();
     
+    void setInnerCutoff(float innerDeg) {m_innerCutoff = glm::cos(glm::radians(innerDeg));
+        if(m_outerCutoff > m_innerCutoff) m_outerCutoff = m_innerCutoff - .02;
+    };
+    void setOuterCutoff(float outerDeg) {m_outerCutoff = glm::cos(glm::radians(outerDeg));};
+    
     
     void translate(const glm::vec3& delta);
     void setScale(float uniformScale) {m_uniformScale = uniformScale;};
@@ -93,11 +98,11 @@ public:
 class PointLight : public PosLight
 {
 public:
-    PointLight() = default;
+    PointLight() {structName = "ptLights";};
     PointLight(const glm::vec3& position)
     : PosLight()
     {
-        structName = "ptLights";
+        PointLight();
         
         m_position = position;
     };
@@ -107,12 +112,12 @@ public:
 class SpotLight : public PosLight
 {
 public:
-    SpotLight() = default;
+    SpotLight() {structName = "spotLights";};
     SpotLight(const glm::vec3& position, const glm::vec3& direction,
-               float innerCutoff = glm::cos(glm::radians(12.f)), float outerCutoff = glm::cos(glm::radians(17.f)))
+               float innerCutoff = glm::cos(glm::radians(89.f)), float outerCutoff = glm::cos(glm::radians(90.f)))
     : PosLight()
     {
-        structName = "spotLights";
+        SpotLight();
         
         m_position = position;
         m_direction = direction;

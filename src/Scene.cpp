@@ -34,11 +34,19 @@ void Scene::setupShaders()
 
 void Scene::setupLights()
 {
-    DirLight temp{glm::vec3(1.f, -1.5f, 0.9f)};
-    temp.setDiffuse(glm::vec3(1.f));
-    temp.setSpecular(.3f);
-    temp.setAmbient(.15f);
-    m_dirLights.push_back(temp);
+    DirLight tempdir{glm::vec3(1.f, -1.5f, 0.9f)};
+    tempdir.setDiffuse(glm::vec3(1.f));
+    tempdir.setSpecular(.3f);
+    tempdir.setAmbient(.15f);
+    m_dirLights.push_back(tempdir);
+    
+    SpotLight tempspot;
+    tempspot.setAmbient(.15f);
+    tempspot.setDiffuse(glm::vec3(1.f));
+    tempspot.setSpecular(.3f);
+    tempspot.m_position =glm::vec3(-.11f, 2.f, 2.14f);
+    tempspot.m_direction = glm::vec3(0.f, -.64f, -.77f);
+    m_spotLights.push_back(tempspot);
     
     
     m_objShader.useProgram();
@@ -54,6 +62,10 @@ void Scene::setupLights()
     for(int ii = 0; ii < m_dirLights.size(); ++ii)
     {
         m_dirLights[ii].setUniformDirLight(m_objShader, ii);
+    }
+    for(int ii = 0; ii < m_spotLights.size(); ++ii)
+    {
+        m_spotLights[ii].setUniformSpotLight(m_objShader, ii);
     }
     
     m_objShader.setUniform1i("specularMap", 0);
@@ -161,7 +173,9 @@ void Scene::SetupFBORender()
 
 
 
-//**********  Constructor ****************
+//*********************************************
+//            Scene Constructor
+//*********************************************
 
 Scene::Scene(GLFWwindow* window, int width, int height, float fov,
              float nearField, float farField) : m_window(window), m_firstMouse(true), m_width(width),
@@ -191,7 +205,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     //  Setup the camera
-    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-.11f, 2.5f, 2.14f), -40.f);
+    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-.11f, 2.f, 2.14f), -40.f);
 
 
     
@@ -216,9 +230,9 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     //*********************************************
     SetupFBORender();
     
-    glm::mat4 lightView = glm::lookAt(-2.f*m_dirLights[0].m_direction, glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
-    glm::mat4 lightProj = glm::ortho(-5.f, 5.f, -5.f, 5.f, .5f, 5.f);
-    m_lightVP = lightProj*lightView;
+//    glm::mat4 lightView = glm::lookAt(-2.f*m_dirLights[0].m_direction, glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+//    glm::mat4 lightProj = glm::ortho(-5.f, 5.f, -5.f, 5.f, .5f, 5.f);
+//    m_lightVP = lightProj*lightView;
     
     m_fboShadow = new Framebuffer(this, m_window);
     m_fboShadow->SetupShadowMap(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl", 1024, 1024);
@@ -272,10 +286,16 @@ void Scene::draw()
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_proj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
+    updateLights();
+
+    // ********  Create Shadow Map  ********** //
+    glm::mat4 shadowView = glm::lookAt(m_spotLights[0].m_position, m_spotLights[0].m_position + m_spotLights[0].m_direction, glm::vec3(0.f, 1.f, 0.f));
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.f), 1.f, .1f, 10.f);
+    m_lightVP = shadowProj * shadowView;
     glCullFace(GL_FRONT);
     m_fbo.tbo = m_fboShadow->RenderShadowMap(m_lightVP);
     glCullFace(GL_BACK);
-//    RenderFBO();
+//    RenderFBO(.1f, 10.f);
     
     
 
@@ -291,7 +311,6 @@ void Scene::draw()
     
     
 
-    updateLights();
    
     
 }
@@ -326,6 +345,10 @@ void Scene::SetupImGui()
 {
     ImGui::Begin("Display Info");
     ImGui::Text("Cam Position: (%4.2f, %4.2f, %4.2f)", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
+    glm::vec3 dir = m_cam.getDirection();
+    ImGui::Text("Cam Direction: (%4.2f, %4.2f, %4.2f)", dir.x, dir.y, dir.z);
+    ImGui::Text("Spot Position: (%4.2f, %4.2f, %4.2f)", m_spotLights[0].m_position.x, m_spotLights[0].m_position.y, m_spotLights[0].m_position.z);
+    ImGui::Text("Spot Dir: (%4.2f, %4.2f, %4.2f)", m_spotLights[0].m_direction.x, m_spotLights[0].m_direction.y, m_spotLights[0].m_direction.z);
     if(ImGui::BeginCombo(("Light " + std::to_string(m_selectedLight)).c_str(), "Light 0", ImGuiComboFlags_NoPreview))
     {
         for(int ii = 0; ii < m_ptLights.size(); ++ii)
@@ -401,13 +424,15 @@ void Scene::updateLightUniforms()
 
 
 
-void Scene::RenderFBO()
+void Scene::RenderFBO(float nearPlane, float farPlane)
 {
     m_fboShader.useProgram();
     glBindVertexArray(m_fbo.vao);
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0 + 7);
     glBindTexture(GL_TEXTURE_2D, m_fbo.tbo);
-    m_fboShader.setUniform1i("FBOtex", 0);
+    m_fboShader.setUniform1f("near_plane", nearPlane);
+    m_fboShader.setUniform1f("far_plane", farPlane);
+    m_fboShader.setUniform1i("FBOtex", 7);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -423,8 +448,13 @@ void Scene::updateLights()
     {
         m_ptLights[ii].draw();
     }
-//        m_spotLights.position = m_cam.getPosition();
-//        m_spotLights.direction = m_cam.getDirection();
+    
+    
+    m_spotLights[0].m_position = m_cam.getPosition();
+    m_spotLights[0].m_position.x += .2;
+    m_spotLights[0].m_position.y -= .2;
+    m_spotLights[0].m_direction = m_cam.getDirection();
+    
 
 }
 
