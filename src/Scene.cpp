@@ -16,13 +16,13 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsShadowTextures.glsl");
+    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "OmniBugTest.glsl");
     m_objShader.makeProgram();
 //    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
 //    m_effectShader.makeProgram();
 //    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
 //    m_skyboxShader.makeProgram();
-    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "FBOFrag.glsl");
+    m_fboShader = Shader(SHADER_FOLDER + "FBOCubeVert.glsl", SHADER_FOLDER + "FBOCubeFrag.glsl");
     m_fboShader.makeProgram();
 
     m_debugShader = Shader(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl");
@@ -34,19 +34,22 @@ void Scene::setupShaders()
 
 void Scene::setupLights()
 {
-    DirLight tempdir{glm::vec3(1.f, -1.5f, 0.9f)};
-    tempdir.setDiffuse(glm::vec3(1.f));
-    tempdir.setSpecular(.3f);
-    tempdir.setAmbient(.15f);
-    m_dirLights.push_back(tempdir);
+//    DirLight tempdir{glm::vec3(1.f, -1.5f, 0.9f)};
+//    tempdir.setDiffuse(glm::vec3(1.f));
+//    tempdir.setSpecular(.3f);
+//    tempdir.setAmbient(.15f);
+//    m_dirLights.push_back(tempdir);
+//
+//    SpotLight tempspot;
+//    tempspot.setAmbient(.15f);
+//    tempspot.setDiffuse(glm::vec3(1.f));
+//    tempspot.setSpecular(.3f);
+//    tempspot.m_position =glm::vec3(-.11f, 2.f, 2.14f);
+//    tempspot.m_direction = glm::vec3(0.f, -.64f, -.77f);
+//    m_spotLights.push_back(tempspot);
     
-    SpotLight tempspot;
-    tempspot.setAmbient(.15f);
-    tempspot.setDiffuse(glm::vec3(1.f));
-    tempspot.setSpecular(.3f);
-    tempspot.m_position =glm::vec3(-.11f, 2.f, 2.14f);
-    tempspot.m_direction = glm::vec3(0.f, -.64f, -.77f);
-    m_spotLights.push_back(tempspot);
+    PointLight temppt{glm::vec3(0.f, 1.3f, 1.f)};
+    m_ptLights.push_back(temppt);
     
     
     m_objShader.useProgram();
@@ -118,10 +121,10 @@ void Scene::setupShapes()
     m_shapes.back()->m_transform.position = glm::vec3(-.5f, 0.2f, -.4f);
     m_shapes.back()->m_transform.scale = glm::vec3(.4f);
     
-//    m_shapes.push_back((std::make_unique<Cube>(containerPath)));
-//    m_shapes.back()->m_transform.position = glm::vec3(.5f, .5f, -.5f);
-//    m_shapes.back()->m_transform.rotation = glm::vec3(40.f, 10.f, 0.f);
-//    m_shapes.back()->m_transform.scale = glm::vec3(.5f);
+    m_shapes.push_back((std::make_unique<Cube>(containerPath)));
+    m_shapes.back()->m_transform.position = glm::vec3(.5f, .5f, -.5f);
+    m_shapes.back()->m_transform.rotation = glm::vec3(40.f, 10.f, 0.f);
+    m_shapes.back()->m_transform.scale = glm::vec3(.5f);
     
 //    m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
     
@@ -161,7 +164,7 @@ void Scene::SetupFBORender()
     glBindVertexArray(0);
 
     
-    
+    m_fbo.skybox = Skybox(0);
     
     
 
@@ -206,8 +209,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     //  Setup the camera
     m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-.11f, 2.f, 2.14f), -40.f);
-
-
+    
     
     setupShapes();
 
@@ -230,12 +232,16 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     //*********************************************
     SetupFBORender();
     
-//    glm::mat4 lightView = glm::lookAt(-2.f*m_dirLights[0].m_direction, glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
-//    glm::mat4 lightProj = glm::ortho(-5.f, 5.f, -5.f, 5.f, .5f, 5.f);
-//    m_lightVP = lightProj*lightView;
+    
     
     m_fboShadow = new Framebuffer(this, m_window);
-    m_fboShadow->SetupShadowMap(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl", 1024, 1024);
+    m_fboShadow->SetupShadowCubeMap(SHADER_FOLDER + "ShadowOmniLightVert.glsl", SHADER_FOLDER + "ShadowOmniLightGeom.glsl",
+                                    SHADER_FOLDER + "ShadowOmniLightFrag.glsl", m_ptLights[0].m_position, 1.f, 10.f,
+                                    1024, 1024);
+    m_objShader.useProgram();
+    m_objShader.setUniform1f("farPlane", 10.f);
+    m_objShader.stopUseProgram();
+
    
     //*********************************************
     //            Shadow map setup
@@ -289,11 +295,10 @@ void Scene::draw()
     updateLights();
 
     // ********  Create Shadow Map  ********** //
-    glm::mat4 shadowView = glm::lookAt(m_spotLights[0].m_position, m_spotLights[0].m_position + m_spotLights[0].m_direction, glm::vec3(0.f, 1.f, 0.f));
-    glm::mat4 shadowProj = glm::perspective(glm::radians(90.f), 1.f, .1f, 10.f);
-    m_lightVP = shadowProj * shadowView;
+    
     glCullFace(GL_FRONT);
-    m_fbo.tbo = m_fboShadow->RenderShadowMap(m_lightVP);
+    m_fbo.tbo = m_fboShadow->RenderShadowCubeMap(m_ptLights[0].m_position);
+    m_fbo.skybox.SetCubemap(m_fbo.tbo);
     glCullFace(GL_BACK);
 //    RenderFBO(.1f, 10.f);
     
@@ -301,10 +306,9 @@ void Scene::draw()
 
     m_objShader.useProgram();
     updateLightUniforms();
-    m_objShader.setUniformMatrix4f("lightVP", m_lightVP);
     m_objShader.setUniform1i("shadowMap", 7);
     glActiveTexture(GL_TEXTURE0 + 7);
-    glBindTexture(GL_TEXTURE_2D, m_fbo.tbo);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_fbo.tbo);
     drawObjects(m_objShader);
     m_objShader.stopUseProgram();
     
@@ -347,8 +351,6 @@ void Scene::SetupImGui()
     ImGui::Text("Cam Position: (%4.2f, %4.2f, %4.2f)", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
     glm::vec3 dir = m_cam.getDirection();
     ImGui::Text("Cam Direction: (%4.2f, %4.2f, %4.2f)", dir.x, dir.y, dir.z);
-    ImGui::Text("Spot Position: (%4.2f, %4.2f, %4.2f)", m_spotLights[0].m_position.x, m_spotLights[0].m_position.y, m_spotLights[0].m_position.z);
-    ImGui::Text("Spot Dir: (%4.2f, %4.2f, %4.2f)", m_spotLights[0].m_direction.x, m_spotLights[0].m_direction.y, m_spotLights[0].m_direction.z);
     if(ImGui::BeginCombo(("Light " + std::to_string(m_selectedLight)).c_str(), "Light 0", ImGuiComboFlags_NoPreview))
     {
         for(int ii = 0; ii < m_ptLights.size(); ++ii)
@@ -427,17 +429,14 @@ void Scene::updateLightUniforms()
 void Scene::RenderFBO(float nearPlane, float farPlane)
 {
     m_fboShader.useProgram();
-    glBindVertexArray(m_fbo.vao);
+//    glBindVertexArray(m_fbo.vao);
     glActiveTexture(GL_TEXTURE0 + 7);
-    glBindTexture(GL_TEXTURE_2D, m_fbo.tbo);
-    m_fboShader.setUniform1f("near_plane", nearPlane);
-    m_fboShader.setUniform1f("far_plane", farPlane);
-    m_fboShader.setUniform1i("FBOtex", 7);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_fbo.tbo);
+    m_fboShader.setUniform1i("fboTex", 7);
+    m_fboShader.setUniformMatrix4f("skyboxView", glm::mat4(glm::mat3(m_cam.getViewMatrix())));
+    m_fbo.skybox.Draw(m_fboShader);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+//    glBindVertexArray(0);
 }
 
 
@@ -446,14 +445,10 @@ void Scene::updateLights()
 {
     for(int ii = 0; ii < m_ptLights.size(); ++ii)
     {
-        m_ptLights[ii].draw();
+//        m_ptLights[ii].draw();
     }
     
     
-    m_spotLights[0].m_position = m_cam.getPosition();
-    m_spotLights[0].m_position.x += .2;
-    m_spotLights[0].m_position.y -= .2;
-    m_spotLights[0].m_direction = m_cam.getDirection();
     
 
 }

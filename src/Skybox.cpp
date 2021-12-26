@@ -59,6 +59,28 @@ Skybox::Skybox(std::vector<std::string> texFilenames)
 
 
 
+// ///////////// Skybox Ctor - Using tbo   ////////////////
+/**
+ \brief Construct the skybox mesh data, but just store a passed in cubemap tbo generated outside of the class.
+ 
+ \param tbo - texture object for the cubemap
+ 
+ */
+
+Skybox::Skybox(unsigned int tbo) : m_tbo(tbo)
+{
+    
+    // Setup VAO
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
+    
+    m_vbo = loadVBOData(m_box);
+    
+    glBindVertexArray(0);
+}
+
+
+
 void Skybox::Draw(Shader shader)
 {
     m_model = glm::mat4(1.0);

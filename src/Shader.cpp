@@ -103,11 +103,11 @@ void Shader::makeProgram()
     glAttachShader(m_program, fragShader);
     glLinkProgram(m_program);
     int linkSuccess;
-    glGetShaderiv(m_program, GL_LINK_STATUS, &linkSuccess);
-    if(!fragSuccess)
+    glGetProgramiv(m_program, GL_LINK_STATUS, &linkSuccess);
+    if(!linkSuccess)
     {
-        glGetShaderInfoLog(m_program, 512, NULL, infoLog);
-        std::cout << "ShaderProgram::Linkerr::Fail  " << infoLog << std::endl;
+        glGetProgramInfoLog(m_program, 512, NULL, infoLog);
+        std::cout << "ShaderProgram::Linker::Fail  " << infoLog << std::endl;
     }
 
     glDeleteShader(vertShader);

@@ -49,7 +49,7 @@ class Framebuffer;
 class Scene
 {
     
-    glm::mat4 m_lightVP;
+    glm::mat4 m_lightVP[6];
     Framebuffer* m_fboShadow;
     
     bool m_phong = true;
@@ -58,6 +58,7 @@ class Scene
     struct FBO
     {
         unsigned int vao, vbo, fbo, tbo, rbo;
+        Skybox skybox;
     };
     
     FBO m_fbo;

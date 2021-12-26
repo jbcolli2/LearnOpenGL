@@ -25,19 +25,31 @@ class Framebuffer
     std::vector<glm::vec3> m_cubemapDirs = {
         glm::vec3(1.f, 0.f, 0.f),
         glm::vec3(-1.f, 0.f, 0.f),
-        glm::vec3(0.f, 1.f, 0.00001f),
+        glm::vec3(0.f, 1.f, 0.f),
         glm::vec3(0.f, -1.f, 0.f),
-        glm::vec3(0.f, 0.f, -1.f),
-        glm::vec3(0.f, 0.f, 1.f)
+        glm::vec3(0.f, 0.f, 1.f),
+        glm::vec3(0.f, 0.f, -1.f)
     };
+    std::vector<glm::vec3> m_cubemapUps = {
+        glm::vec3(0.f, -1.f, 0.f),
+        glm::vec3(0.f, -1.f, 0.f),
+        glm::vec3(0.f, 0.f, 1.f),
+        glm::vec3(0.f, 0.f, -1.f),
+        glm::vec3(0.f, -1.f, 0.f),
+        glm::vec3(0.f, -1.f, 0.f)
+    };
+    
+    glm::mat4 m_lightVPCube[6];
     
 public:
     Framebuffer(){};
     Framebuffer(Scene* scene, GLFWwindow* window);
     
-    void SetupShadowMap(std::string vertSource, std::string fragSource, int, int);
+    void SetupShadowMap(std::string vertSource, std::string fragSource, int width, int height);
+    void SetupShadowCubeMap(std::string vertSource, std::string geomSource, std::string fragSource, const glm::vec3& lightPos, float near, float far, int width, int height);
     
     unsigned int RenderShadowMap(const glm::mat4& lightVP);
+    unsigned int RenderShadowCubeMap(const glm::vec3& position);
     void RenderToTexture2D(unsigned int tbo, const glm::vec3& position, const glm::vec3& direction, const glm::mat4& proj);
     void RenderToCubemap(unsigned int tbo, const glm::vec3& position, const glm::mat4& proj);
     

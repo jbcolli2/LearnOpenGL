@@ -83,12 +83,15 @@ class Skybox
     
 public:
     Skybox() = default;
+    Skybox(unsigned int tbo);
     Skybox(std::vector<std::string> texFilenames);
     
     void Draw(Shader shader);
     
     void RotateRight(float inc) {m_yaw += inc;};
     void RotateLeft(float inc) {m_yaw -= inc;};
+    
+    void SetCubemap(unsigned int tbo) {m_tbo = tbo;};
 };
 
 

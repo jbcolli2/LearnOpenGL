@@ -10,9 +10,11 @@ layout (std140) uniform VP
     mat4 proj;
 };
 
+uniform mat4 skyboxView;
+
 void main()
 {
-    vec4 pos = proj*view*vec4(apos, 1.0);
+    vec4 pos = proj*skyboxView*vec4(apos, 1.0);
     gl_Position = vec4(pos.x, pos.y, pos.w, pos.w);
     samplerCoords = apos;
 }

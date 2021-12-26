@@ -62,7 +62,9 @@ public:
     
     void setUniformMatrix4f(const std::string& uniformName, glm::mat4 mat)
     {
-        glUniformMatrix4fv(glGetUniformLocation(m_program, uniformName.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+        int loc = glGetUniformLocation(m_program, uniformName.c_str());
+        if(loc != -1)
+            glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(mat));
     }
     
     void bindUniformBlock(const std::string& uniformBlockName, int bindPoint)

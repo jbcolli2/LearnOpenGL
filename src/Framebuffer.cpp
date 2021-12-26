@@ -39,6 +39,7 @@ Framebuffer::Framebuffer(Scene* scene, GLFWwindow* window) : m_scene(scene)
  
  \param vertSourcePath - path for the source code of the vertex shader
  \param fragSourcePath - path for the source code of the fragment shader
+ \param shadowMapWidth/shadowMapHeight - set the resolution of the shadow depth map
  
 
  */
@@ -79,6 +80,76 @@ void Framebuffer::SetupShadowMap(std::string vertSourcePath, std::string fragSou
 
 
 
+
+
+
+
+// ///////////// SetupShadowCubeMap   ////////////////
+/**
+ \brief Create the cubemap texture object.  Create the light space transformations for all 6 sides of the cube centered around the light.
+    Attach cubemap to the framebuffer depth attachements and check that framebuffer is complete.
+ 
+ \param vertSourcePath - path for the source code of the vertex shader
+ \param geomSourcePath - path for the source code of the geometry shader
+ \param fragSourcePath - path for the source code of the fragment shader
+ \param lightPos -      Position of the light that the cubemap is centered on
+ \param near\far - value of the near\far field for the projection matrix
+ 
+ */
+void Framebuffer::SetupShadowCubeMap(std::string vertSourcePath, std::string geomSourcePath, std::string fragSourcePath, const glm::vec3& lightPos, float near, float far, int shadowWidth, int shadowHeight)
+{
+    m_shadowWidth = shadowWidth;
+    m_shadowHeight = shadowHeight;
+    
+    // ********  Create the light space transformation matrices  ********** //
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.f), 1.f, near, far);
+    for(int cubeSide = 0; cubeSide < 6; ++cubeSide)
+    {
+        glm::mat4 shadowView = glm::lookAt(lightPos, lightPos + m_cubemapDirs[cubeSide], m_cubemapUps[cubeSide]);
+        m_lightVPCube[cubeSide] = shadowProj * shadowView;
+    }
+    
+    
+    
+    // ********  Setup Shader  ********** //
+    m_shadowShader = Shader(vertSourcePath, geomSourcePath, fragSourcePath);
+    m_shadowShader.makeProgram();
+    
+    m_shadowShader.useProgram();
+    m_shadowShader.setUniform1f("farPlane", far);
+    m_shadowShader.stopUseProgram();
+    
+    
+    // ********  Generate and load data to the textures  ********** //
+    
+    // Create empty texture
+    glGenFramebuffers(1, &m_fbo);
+    glGenTextures(1, &m_tboShadow);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_tboShadow);
+    for(int side = 0; side < 6; ++side)
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + side, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    
+    //Set texture parameters
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+    float borderColor[] = {1.f, 1.f, 1.f, 1.f};
+    glTexParameterfv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BORDER_COLOR, borderColor);
+    
+    // Bind texture to the depth component of framebuffer, and use no color buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_tboShadow, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    // Check if framebuffer complete
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer NOT complete\n" << "Status = " << std::hex << glCheckFramebufferStatus(GL_FRAMEBUFFER) << "\n" << GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT << std::endl;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
 
 
@@ -125,7 +196,43 @@ unsigned int Framebuffer::RenderShadowMap(const glm::mat4& lightVP)
 
 
 
+// ///////////// RenderShadowCubeMap   ////////////////
+/**
+ \brief Render the scene from the lights perspective and store the results in a depth texture.  Lights View/Proj matrix is passed in from the scene and the handle
+        to the depth texture is passed back to the scene.  Scene can then use this depth texture to create shadows during the actual rendering.
+ 
+ 
+ \returns tbo handle for the depth texture
+ */
+unsigned int Framebuffer::RenderShadowCubeMap(const glm::vec3& position)
+{
+    m_shadowShader.useProgram();
+    m_shadowShader.setUniform3f("lightPos", position.x, position.y, position.z);
+    for(int side = 0; side < 6; side++)
+        m_shadowShader.setUniformMatrix4f("lightVPCube[" + std::to_string(side) + "]", m_lightVPCube[side]);
 
+    
+    // ********  Render the shadow map  ********** //
+    glViewport(0, 0, m_shadowWidth, m_shadowHeight);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    
+    for(auto& shape : m_scene->m_shapes)
+    {
+        shape->Draw(m_shadowShader);
+    }
+    for(auto& model : m_scene->m_models)
+    {
+        model->Draw(m_shadowShader);
+    }
+    m_shadowShader.stopUseProgram();
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, m_width, m_height);
+    
+    
+    return m_tboShadow;
+}
 
 
 

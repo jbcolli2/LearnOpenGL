@@ -102,7 +102,7 @@ public:
     PointLight(const glm::vec3& position)
     : PosLight()
     {
-        PointLight();
+        structName = "ptLights";
         
         m_position = position;
     };
