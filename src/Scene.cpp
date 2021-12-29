@@ -35,7 +35,7 @@ void Scene::setupShaders()
 void Scene::setupLights()
 {
 //    DirLight tempdir{glm::vec3(1.f, -1.5f, 0.9f)};
-//    tempdir.setDiffuse(glm::vec3(1.f));
+//    tempdir.setDiffuse(glm::vec3(.5f));
 //    tempdir.setSpecular(.3f);
 //    tempdir.setAmbient(.15f);
 //    m_dirLights.push_back(tempdir);
