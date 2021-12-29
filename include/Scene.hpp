@@ -96,12 +96,7 @@ class Scene
     std::vector<DirLight> m_dirLights;
     std::vector<PointLight> m_ptLights;
     std::vector<SpotLight> m_spotLights;
-    std::vector<glm::vec3> m_lightPos = {
-        glm::vec3(.5f, 2.f, -2.f),
-        glm::vec3(-1.f, 2.f, -4.f),
-        glm::vec3(0.f, 2.f, 0.f),
-        glm::vec3(-1.f, 3.f, -2.f)
-    };
+    
     
     
     

@@ -16,7 +16,7 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "OmniBugTest.glsl");
+    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsOmniShadowTextures.glsl");
     m_objShader.makeProgram();
 //    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
 //    m_effectShader.makeProgram();

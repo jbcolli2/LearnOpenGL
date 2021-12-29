@@ -100,14 +100,10 @@ void Framebuffer::SetupShadowCubeMap(std::string vertSourcePath, std::string geo
 {
     m_shadowWidth = shadowWidth;
     m_shadowHeight = shadowHeight;
+    m_near = near;
+    m_far = far;
     
-    // ********  Create the light space transformation matrices  ********** //
-    glm::mat4 shadowProj = glm::perspective(glm::radians(90.f), 1.f, near, far);
-    for(int cubeSide = 0; cubeSide < 6; ++cubeSide)
-    {
-        glm::mat4 shadowView = glm::lookAt(lightPos, lightPos + m_cubemapDirs[cubeSide], m_cubemapUps[cubeSide]);
-        m_lightVPCube[cubeSide] = shadowProj * shadowView;
-    }
+    
     
     
     
@@ -207,6 +203,13 @@ unsigned int Framebuffer::RenderShadowMap(const glm::mat4& lightVP)
 unsigned int Framebuffer::RenderShadowCubeMap(const glm::vec3& position)
 {
     m_shadowShader.useProgram();
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.f), 1.f, m_near, m_far);
+    for(int cubeSide = 0; cubeSide < 6; ++cubeSide)
+    {
+        glm::mat4 shadowView = glm::lookAt(position, position + m_cubemapDirs[cubeSide], m_cubemapUps[cubeSide]);
+        m_lightVPCube[cubeSide] = shadowProj * shadowView;
+    }
+
     m_shadowShader.setUniform3f("lightPos", position.x, position.y, position.z);
     for(int side = 0; side < 6; side++)
         m_shadowShader.setUniformMatrix4f("lightVPCube[" + std::to_string(side) + "]", m_lightVPCube[side]);

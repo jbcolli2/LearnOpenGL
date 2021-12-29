@@ -104,13 +104,12 @@ float computeShadowCoeff(vec3 frag2Light)
     float FragDepth = length(frag2Light);
     
 //    float bias = max(.01 * (1.0 - dot(normal, normalize(lightDir))), .005);
-    float bias = .005;
+    float bias = .05;
     
-    if(FragDepth > 1.0)
+    if(FragDepth > farPlane)
         return 0.0;
     
     return FragDepth - bias > closestDepth ? 1.0 : 0.0;
-//    return closestDepth;
 }
 
 
@@ -124,20 +123,15 @@ void main()
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(cameraPos - FragPos);
     vec3 result = vec3(0.0);
-    for(int ii = 0; ii < numDirLights; ++ii)
-    {
-        result += computeDirLight(dirLights[ii], normal, viewDir);
-    }
+    
+    result += computeDirLight(dirLights[0], normal, viewDir);
 
     for(int ii = 0; ii < numPtLights; ++ii)
     {
         result += computePtLight(ptLights[ii], normal, viewDir, FragPos);
     }
     
-    for(int ii = 0; ii < numSpotLights; ++ii)
-    {
-        result += computeSpotLight(spotLights[ii], normal, viewDir, FragPos);
-    }
+    result += computeSpotLight(spotLights[0], normal, viewDir, FragPos);
     
     FragColor = vec4(result, 1.0);
 }
@@ -235,7 +229,7 @@ vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPositi
     vec3 frag2Light = -light2Frag;
     
     // Shadow Calculation
-    float shadowCoeff = computeShadowCoeff(frag2Light);
+    float shadowCoeff = computeShadowCoeff(fragPosition - light.position);
 
     float attenuation = 1.0/(light.constAtten + distLight2Frag*light.linAtten +
                              distLight2Frag*distLight2Frag*light.quadAtten);

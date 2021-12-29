@@ -19,6 +19,7 @@ class Framebuffer
 {
     unsigned int m_fbo, m_rbo, m_tboShadow;
     int m_width, m_height, m_shadowWidth, m_shadowHeight;
+    float m_near, m_far;
     Shader m_shadowShader;
     Scene* m_scene;
     
