@@ -16,7 +16,7 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsOmniShadowTextures.glsl");
+    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsNormalTextures.glsl");
     m_objShader.makeProgram();
 //    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
 //    m_effectShader.makeProgram();
@@ -48,7 +48,10 @@ void Scene::setupLights()
 //    tempspot.m_direction = glm::vec3(0.f, -.64f, -.77f);
 //    m_spotLights.push_back(tempspot);
     
-    PointLight temppt{glm::vec3(0.f, 1.3f, 1.f)};
+    PointLight temppt{glm::vec3(0.2f, .3f, 1.f)};
+    temppt.setDiffuse(glm::vec3(.85f));
+    temppt.setAmbient(.15f);
+    temppt.setSpecular(0.f);
     m_ptLights.push_back(temppt);
     
     
@@ -90,6 +93,8 @@ void Scene::setupShapes()
     stbi_set_flip_vertically_on_load(true);
     std::vector<std::string> metalPath = {ASSET_FOLDER+"metal.png"};
     std::vector<std::string> marblePath = {ASSET_FOLDER+"marble.jpg"};
+    std::vector<std::string> brickwallPath = {ASSET_FOLDER+"brickwall.jpeg"};
+    std::vector<std::string> brickwallNormalPath = {ASSET_FOLDER +"brickwall_normal.jpeg"};
     std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
     std::vector<std::string> grassPath = {ASSET_FOLDER+"grass.png"};
     std::vector<std::string> woodPath = {ASSET_FOLDER+"wood.png"};
@@ -112,19 +117,11 @@ void Scene::setupShapes()
     
     
     
-    m_shapes.push_back((std::make_unique<Plane>(woodPath, std::vector<std::string>(), 10.f)));
+    m_shapes.push_back((std::make_unique<Plane>(brickwallPath, std::vector<std::string>(), brickwallNormalPath)));
     m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.0f);
-    m_shapes[0]->m_material.shininess = 2.f;
-    m_shapes[0]->m_transform.scale = glm::vec3(20.f);
+    m_shapes[0]->m_transform.rotation = glm::vec3(90.f, 0.f, 0.f);
+    m_shapes[0]->m_transform.scale = glm::vec3(2.f);
     
-    m_shapes.push_back((std::make_unique<Cube>(containerPath)));
-    m_shapes.back()->m_transform.position = glm::vec3(-.5f, 0.2f, -.4f);
-    m_shapes.back()->m_transform.scale = glm::vec3(.4f);
-    
-    m_shapes.push_back((std::make_unique<Cube>(containerPath)));
-    m_shapes.back()->m_transform.position = glm::vec3(.5f, .5f, -.5f);
-    m_shapes.back()->m_transform.rotation = glm::vec3(40.f, 10.f, 0.f);
-    m_shapes.back()->m_transform.scale = glm::vec3(.5f);
     
 //    m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
     
@@ -208,7 +205,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     //  Setup the camera
-    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-.11f, 2.f, 2.14f), -40.f);
+    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-.11f, .5f, 2.14f), -10.f);
     
     
     setupShapes();
@@ -227,25 +224,6 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
-    //*********************************************
-    //            Shadow map setup
-    //*********************************************
-    SetupFBORender();
-    
-    
-    
-    m_fboShadow = new Framebuffer(this, m_window);
-    m_fboShadow->SetupShadowCubeMap(SHADER_FOLDER + "ShadowOmniLightVert.glsl", SHADER_FOLDER + "ShadowOmniLightGeom.glsl",
-                                    SHADER_FOLDER + "ShadowOmniLightFrag.glsl", m_ptLights[0].m_position, 1.f, 10.f,
-                                    1024, 1024);
-    m_objShader.useProgram();
-    m_objShader.setUniform1f("farPlane", 10.f);
-    m_objShader.stopUseProgram();
-
-   
-    //*********************************************
-    //            Shadow map setup
-    //*********************************************
     
     
     
@@ -286,29 +264,22 @@ void Scene::draw()
     
     SetupImGui();
     
-    // Set VP uniform buffer data
+    // ********  Uniform buffer for VP matrices  ********** //
     glBindBuffer(GL_UNIFORM_BUFFER, m_uboVP);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(m_view));
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_proj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
+    
+    
+    
     updateLights();
 
-    // ********  Create Shadow Map  ********** //
-    
-    glCullFace(GL_FRONT);
-    m_fbo.tbo = m_fboShadow->RenderShadowCubeMap(m_ptLights[0].m_position);
-    m_fbo.skybox.SetCubemap(m_fbo.tbo);
-    glCullFace(GL_BACK);
-//    RenderFBO(.1f, 10.f);
     
     
-
+    // ********  Draw objects and models  ********** //
     m_objShader.useProgram();
     updateLightUniforms();
-    m_objShader.setUniform1i("shadowMap", 7);
-    glActiveTexture(GL_TEXTURE0 + 7);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_fbo.tbo);
     drawObjects(m_objShader);
     m_objShader.stopUseProgram();
     
@@ -445,7 +416,7 @@ void Scene::updateLights()
 {
     for(int ii = 0; ii < m_ptLights.size(); ++ii)
     {
-//        m_ptLights[ii].draw();
+        m_ptLights[ii].draw();
     }
     
     

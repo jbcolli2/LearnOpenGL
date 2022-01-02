@@ -12,6 +12,7 @@
 const std::string Texture::materialName = "material";
 const std::string Texture::diffuseName = Texture::materialName + ".diffuse";
 const std::string Texture::specName = Texture::materialName + ".specular";
+const std::string Texture::normalName = Texture::materialName + ".normal";
 
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) :

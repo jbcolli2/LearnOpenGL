@@ -59,6 +59,21 @@ struct Vert3x3x2f
 };
 
 
+struct Vert3x3x2x3x3f
+{
+    float x,y,z;
+    float r,g,b;
+    float s,t;
+    float x1,y1,z1, x2, y2, z2;
+    
+    Vert3x3x2x3x3f() : x(0.f), y(0.f), z(0.f), r(0.f), g(0.f), b(0.f), s(0.f), t(0.f),
+    x1(0.f), y1(0.f), z1(0.f), x2(0.f), y2(0.f), z2(0.f){};
+    Vert3x3x2x3x3f(float x, float y, float z, float r, float g, float b, float s, float t,
+               float x1, float y1, float z1, float x2, float y2, float z2) :
+    x(x), y(y), z(z), r(r), g(g), b(b), s(s), t(t), x1(x1), y1(y1), z1(z1), x2(x2), y2(y2), z2(z2) {};
+};
+
+
 
 struct Vert3x_x_f
 {

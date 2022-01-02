@@ -34,6 +34,7 @@ struct Texture
     const static std::string materialName;
     const static std::string diffuseName;
     const static std::string specName;
+    const static std::string normalName;
     unsigned int id;
     char unitID;
     std::string typeName;

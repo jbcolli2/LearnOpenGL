@@ -37,7 +37,7 @@ struct Material
 };
 
 
-
+std::vector<Vert3x3x2x3x3f> addTBtoVerts(std::vector<Vert3x3x2f>);
 
 
 
@@ -46,6 +46,7 @@ class Shape
     
 protected:
     unsigned int m_VAO, m_VBO;
+    unsigned int m_numVerts;
     std::vector<Vert3x3x2f> m_verts;
 
     std::vector<Texture> m_textures;
@@ -53,6 +54,7 @@ protected:
     
     void setupMesh(const std::vector<std::string>& diffTexturePaths = std::vector<std::string>(),
     const std::vector<std::string>& specTexturePaths = std::vector<std::string>(),
+                   const std::vector<std::string>& normalTexturePaths = std::vector<std::string>(),
                    const Material& material = Material());
     
     std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) = 0;
@@ -157,6 +159,7 @@ public:
     
     Plane(const std::vector<std::string>& diffTexturePaths = std::vector<std::string>(),
          const std::vector<std::string>& specTexturePaths = std::vector<std::string>(),
+          const std::vector<std::string>& normalTexturePaths = std::vector<std::string>(),
          float UVCorner = 1.f, const Material& material = Material());
     Plane(const Material& material);
     Plane(const Plane& otherBox);
