@@ -265,7 +265,7 @@ public:
     
     Scene(GLFWwindow* window, int width, int height, float fov = 45.f, float nearField = .1f, float farField = 100.f);
     
-    void draw();
+    void draw(float deltaTime);
     
     void processInput(float deltaTime);
     

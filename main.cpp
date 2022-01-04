@@ -123,7 +123,7 @@ int main(int argc, const char * argv[]) {
         
         
         
-        scene.draw();
+        scene.draw(deltaTime);
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         

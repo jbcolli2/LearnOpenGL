@@ -4,6 +4,7 @@ in vec3 Normal;
 in vec3 FragPos;
 in vec2 UV;
 in vec4 lightSpaceFragPos;
+in mat3 TBN;
 
 out vec4 FragColor;
 
@@ -108,6 +109,7 @@ void main()
 {
     vec3 normal = normalize(vec3(texture(material.normal0, UV)));
     normal = 2.0*normal - 1.0;
+//    normal = TBN*normal;
 //    vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(cameraPos - FragPos);
     vec3 result = vec3(0.0);

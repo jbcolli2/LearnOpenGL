@@ -16,7 +16,7 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsNormalTextures.glsl");
+    m_objShader = Shader(SHADER_FOLDER + "MVP_TBN_UV_Vert.glsl", SHADER_FOLDER + "LightsNormalTextures.glsl");
     m_objShader.makeProgram();
 //    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
 //    m_effectShader.makeProgram();
@@ -251,7 +251,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
 //*******************************************
 //********  draw()  *******************
 //********************************************//
-void Scene::draw()
+void Scene::draw(float deltaTime)
 {
     m_proj = m_cam.getProjMatrix();
     m_view = glm::mat4(glm::mat3(m_cam.getViewMatrix()));
@@ -280,6 +280,8 @@ void Scene::draw()
     // ********  Draw objects and models  ********** //
     m_objShader.useProgram();
     updateLightUniforms();
+//    m_shapes[0]->m_transform.rotation.y += 15.f*deltaTime;
+    m_shapes[0]->m_transform.rotation.x += 10.f*deltaTime;
     drawObjects(m_objShader);
     m_objShader.stopUseProgram();
     
