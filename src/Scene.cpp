@@ -16,29 +16,39 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_objShader = Shader(SHADER_FOLDER + "MVP_TBN_UV_Vert.glsl", SHADER_FOLDER + "LightsNormalTextures.glsl");
-    m_objShader.makeProgram();
+    m_noNormalMap = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.glsl");
+    m_noNormalMap.makeProgram();
+    m_fragNormalMap = Shader(SHADER_FOLDER + "MVP_TBN_UV_Vert.glsl", SHADER_FOLDER + "LightsTBNNormalTextures.glsl");
+    m_fragNormalMap.makeProgram();
+    m_vertNormalMap = Shader(SHADER_FOLDER + "MVP_invTBN_UV_Vert.glsl", SHADER_FOLDER + "LightsNormalTextures.glsl");
+    m_vertNormalMap.makeProgram();
+    
 //    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
 //    m_effectShader.makeProgram();
 //    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
 //    m_skyboxShader.makeProgram();
     m_fboShader = Shader(SHADER_FOLDER + "FBOCubeVert.glsl", SHADER_FOLDER + "FBOCubeFrag.glsl");
     m_fboShader.makeProgram();
+    
+    m_geomNormals = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Ch30NormalLinesGeom.glsl", SHADER_FOLDER + "SolidColor.frag");
+    m_geomNormals.makeProgram();
 
     m_debugShader = Shader(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl");
     m_debugShader.makeProgram();
     Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
     Shader::solidShader.makeProgram();
+    
+    m_currentObjShader = &m_vertNormalMap;
 }
 
 
-void Scene::setupLights()
+void Scene::createLights()
 {
-//    DirLight tempdir{glm::vec3(1.f, -1.5f, 0.9f)};
-//    tempdir.setDiffuse(glm::vec3(.5f));
-//    tempdir.setSpecular(.3f);
-//    tempdir.setAmbient(.15f);
-//    m_dirLights.push_back(tempdir);
+    DirLight tempdir{glm::vec3(0.2f, 0.2f, 1.9f)};
+    tempdir.setDiffuse(glm::vec3(0.8f));
+    tempdir.setSpecular(0.f);
+    tempdir.setAmbient(0.05f);
+    m_dirLights.push_back(tempdir);
 //
 //    SpotLight tempspot;
 //    tempspot.setAmbient(.15f);
@@ -50,34 +60,38 @@ void Scene::setupLights()
     
     PointLight temppt{glm::vec3(0.2f, .3f, 1.f)};
     temppt.setDiffuse(glm::vec3(.85f));
-    temppt.setAmbient(.15f);
+    temppt.setAmbient(.05f);
     temppt.setSpecular(0.f);
     m_ptLights.push_back(temppt);
+
+}
+
+void Scene::setupLights()
+{
     
+    m_currentObjShader->useProgram();
     
-    m_objShader.useProgram();
-    
-    m_objShader.setUniform1i("numDirLights", m_dirLights.size());
-    m_objShader.setUniform1i("numPtLights", m_ptLights.size());
-    m_objShader.setUniform1i("numSpotLights", m_spotLights.size());
+    m_currentObjShader->setUniform1i("numDirLights", m_dirLights.size());
+    m_currentObjShader->setUniform1i("numPtLights", m_ptLights.size());
+    m_currentObjShader->setUniform1i("numSpotLights", m_spotLights.size());
     
     for(int ii = 0; ii < m_ptLights.size(); ++ii)
     {
-        m_ptLights[ii].setUniformPtLight(m_objShader, ii);
+        m_ptLights[ii].setUniformPtLight(*m_currentObjShader, ii);
     }
     for(int ii = 0; ii < m_dirLights.size(); ++ii)
     {
-        m_dirLights[ii].setUniformDirLight(m_objShader, ii);
+        m_dirLights[ii].setUniformDirLight(*m_currentObjShader, ii);
     }
     for(int ii = 0; ii < m_spotLights.size(); ++ii)
     {
-        m_spotLights[ii].setUniformSpotLight(m_objShader, ii);
+        m_spotLights[ii].setUniformSpotLight(*m_currentObjShader, ii);
     }
     
-    m_objShader.setUniform1i("specularMap", 0);
-    m_objShader.setUniform1i("phong", m_phong);
+    m_currentObjShader->setUniform1i("specularMap", 0);
+    m_currentObjShader->setUniform1i("phong", m_phong);
     
-    m_objShader.stopUseProgram();
+    m_currentObjShader->stopUseProgram();
 }
 
 
@@ -117,7 +131,7 @@ void Scene::setupShapes()
     
     
     
-    m_shapes.push_back((std::make_unique<Plane>(brickwallPath, std::vector<std::string>(), brickwallNormalPath)));
+    m_shapes.push_back((std::make_unique<Cube>(brickwallPath, std::vector<std::string>(), brickwallNormalPath)));
     m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.0f);
     m_shapes[0]->m_transform.rotation = glm::vec3(90.f, 0.f, 0.f);
     m_shapes[0]->m_transform.scale = glm::vec3(2.f);
@@ -200,6 +214,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_selectCommands.push_back(std::make_unique<LightSelect>(this));
     selectCommandIndex = 2;
     
+    createLights();
     setupLights();
     
     
@@ -278,12 +293,14 @@ void Scene::draw(float deltaTime)
     
     
     // ********  Draw objects and models  ********** //
-    m_objShader.useProgram();
+    m_currentObjShader->useProgram();
     updateLightUniforms();
 //    m_shapes[0]->m_transform.rotation.y += 15.f*deltaTime;
-    m_shapes[0]->m_transform.rotation.x += 10.f*deltaTime;
-    drawObjects(m_objShader);
-    m_objShader.stopUseProgram();
+    m_shapes[0]->m_transform.rotation.x += m_rotSpeedMult*deltaTime;
+    drawObjects(*m_currentObjShader);
+    m_currentObjShader->stopUseProgram();
+    
+    
     
     
     
@@ -340,9 +357,27 @@ void Scene::SetupImGui()
     
     if(ImGui::Checkbox("Phong Lighting", &m_phong))
     {
-        m_objShader.useProgram();
-        m_objShader.setUniform1i("phong", m_phong);
-        m_objShader.stopUseProgram();
+        m_currentObjShader->useProgram();
+        m_currentObjShader->setUniform1i("phong", m_phong);
+        m_currentObjShader->stopUseProgram();
+    }
+    
+    if(ImGui::RadioButton("No normal map", m_currentObjShader == &m_noNormalMap))
+    {
+        m_currentObjShader = &m_noNormalMap;
+        setupLights();
+    }
+    ImGui::SameLine();
+    if(ImGui::RadioButton("Normal map(Frag)", m_currentObjShader == &m_fragNormalMap))
+    {
+        m_currentObjShader = &m_fragNormalMap;
+        setupLights();
+    }
+    ImGui::SameLine();
+    if(ImGui::RadioButton("Normal Map(Vert)", m_currentObjShader == &m_vertNormalMap))
+    {
+        m_currentObjShader = &m_vertNormalMap;
+        setupLights();
     }
     
     ImGui::End();
@@ -374,21 +409,21 @@ void Scene::updateVP(Shader shader)
 
 void Scene::updateLightUniforms()
 {
-    m_objShader.setUniform3f("cameraPos", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
+    m_currentObjShader->setUniform3f("cameraPos", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
     
     for (int ii = 0; ii < m_dirLights.size(); ++ii)
     {
-       m_dirLights[ii].setUniformDir(m_objShader, ii);
+       m_dirLights[ii].setUniformDir(*m_currentObjShader, ii);
     }
     for (int ii = 0; ii < m_ptLights.size(); ++ii)
     {
-       m_ptLights[ii].setUniformPos(m_objShader, ii);
+       m_ptLights[ii].setUniformPos(*m_currentObjShader, ii);
     }
 
     for (int ii = 0; ii < m_spotLights.size(); ++ii)
     {
-        m_spotLights[ii].setUniformPos(m_objShader, ii);
-        m_spotLights[ii].setUniformDir(m_objShader, ii);
+        m_spotLights[ii].setUniformPos(*m_currentObjShader, ii);
+        m_spotLights[ii].setUniformDir(*m_currentObjShader, ii);
     }
 }
 
@@ -473,6 +508,11 @@ void Scene::processInput(float deltaTime)
             {
                 glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
+        }
+        if(keyEvent.key == GLFW_KEY_SPACE && keyEvent.action == GLFW_PRESS)
+        {
+            m_rotSpeedMult += 10;
+            m_rotSpeedMult = m_rotSpeedMult % 30;
         }
         
 //        if(keyEvent.key == GLFW_KEY_SPACE && keyEvent.action == GLFW_PRESS )

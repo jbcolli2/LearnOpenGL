@@ -416,11 +416,11 @@ std::vector<Vert3x3x2f> Cube::fillVerts(std::vector<Vert3x3x2f> verts)
 
 
 Cube::Cube(const std::vector<std::string>& diffTexturePaths, const std::vector<std::string>& specTexturePaths,
-           const Material& material)
+           const std::vector<std::string>& normalTexturePaths, const Material& material)
 {
     m_verts = fillVerts();
     
-    setupMesh(diffTexturePaths, specTexturePaths, std::vector<std::string>(), material);
+    setupMesh(diffTexturePaths, specTexturePaths, normalTexturePaths, material);
 
 }
 
@@ -432,7 +432,7 @@ Cube::Cube(const Material& material)
     
     std::vector<std::string> blank;
     
-    Cube(blank, blank, material);
+    Cube(blank, blank, blank, material);
 
 }
 

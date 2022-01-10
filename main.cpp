@@ -50,8 +50,8 @@ int main(int argc, const char * argv[]) {
     
     
     
-    int width = 800;
-    int height = 600;
+    int width = 1200;
+    int height = 1000;
     
     
     GLFWwindow* window = glfwCreateWindow(width, height, "LearnOpenGL", NULL, NULL);

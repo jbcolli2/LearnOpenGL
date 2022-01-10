@@ -48,9 +48,18 @@ class Framebuffer;
 
 class Scene
 {
+    //*********************************************
+    //            Current Demo
+    //*********************************************
+    Shader* m_currentObjShader;
+    Shader m_noNormalMap, m_fragNormalMap, m_vertNormalMap;
+    int m_rotSpeedMult = 0;
+    //*********************************************
+    //            End Current Demo
+    //*********************************************
     
-    glm::mat4 m_lightVP[6];
-    Framebuffer* m_fboShadow;
+    
+    
     
     bool m_phong = true;
     
@@ -75,7 +84,9 @@ class Scene
     std::string IMAGE_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/";
     std::string ASSET_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/assets/";
     
-    Shader m_objShader, m_fboShader, m_debugShader, m_skyboxShader, m_effectShader;
+    Shader  m_fboShader, m_debugShader, m_skyboxShader, m_effectShader;
+    Shader m_geomNormals;
+    
     
     
     
@@ -232,6 +243,7 @@ class Scene
     void setupMirror();
     
     void setupShaders();
+    void createLights();
     void setupLights();
     void setupShapes();
     void SetupFBORender();

@@ -190,6 +190,7 @@ public:
     
     Cube(const std::vector<std::string>& diffTexturePaths = std::vector<std::string>(),
          const std::vector<std::string>& specTexturePaths = std::vector<std::string>(),
+         const std::vector<std::string>& normalTexturePaths = std::vector<std::string>(),
          const Material& material = Material());
     Cube(const Material& material);
     Cube(const Cube& otherBox);
