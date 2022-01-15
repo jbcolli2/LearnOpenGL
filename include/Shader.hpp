@@ -54,6 +54,11 @@ public:
         glUniform1i(glGetUniformLocation(m_program, uniformName.c_str()), i);
     }
     
+    void setUniform1ui(const std::string& uniformName, unsigned int i)
+    {
+        glUniform1ui(glGetUniformLocation(m_program, uniformName.c_str()), i);
+    }
+
     void setUniformTex(const std::string& uniformName, int i)
     {
         setUniform1i(uniformName, i);

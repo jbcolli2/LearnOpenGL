@@ -298,6 +298,7 @@ void Scene::draw(float deltaTime)
     // ********  Draw objects and models  ********** //
     m_currentObjShader->useProgram();
     m_currentObjShader->setUniform1f("heightScale", m_heightScale);
+    m_currentObjShader->setUniform1ui("parallaxType", m_parallaxType);
     updateLightUniforms();
     drawObjects(*m_currentObjShader);
     m_currentObjShader->stopUseProgram();
@@ -376,10 +377,18 @@ void Scene::SetupImGui()
         setupLights();
     }
     ImGui::SameLine();
-    if(ImGui::RadioButton("Normal Map and Parallax", m_currentObjShader == &m_normalParallax))
+    if(ImGui::RadioButton("Normal Map and Regular Parallax", (m_currentObjShader == &m_normalParallax) && (m_parallaxType == 1)))
     {
         m_currentObjShader = &m_normalParallax;
         setupLights();
+        m_parallaxType = 1;
+    }
+    ImGui::SameLine();
+    if(ImGui::RadioButton("Normal Map and Steep Parallax", (m_currentObjShader == &m_normalParallax) && (m_parallaxType == 2)))
+    {
+        m_currentObjShader = &m_normalParallax;
+        setupLights();
+        m_parallaxType = 2;
     }
     
     ImGui::SliderFloat("Height Scale", &m_heightScale, 0.0f, .15f);

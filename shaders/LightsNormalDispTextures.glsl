@@ -69,7 +69,12 @@ struct SpotLight
 uniform bool phong;
 uniform bool specularMap;
 uniform float heightScale;
+uniform uint parallaxType;
 
+//////////  parallax types /////////////
+const uint REGULAR_PARALLAX = 0x00000001u;
+const uint STEEP_PARALLAX = 0x00000002u;
+const uint OCLUSSION_PARALLAX = 0x00000004u;
 
 
 #define MAX_LIGHTS 5
@@ -103,8 +108,48 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 light2Fra
 
 
 
+//*********************************************
+//           Parallax Mapping Functions
+//*********************************************
+vec2 computeParallaxUV(vec2 texCoords, vec3 viewDir)
+{
+    float fragHeight = texture(material.disp0, texCoords).x;
+    vec2 UVoffset = (viewDir.xy)/viewDir.z * fragHeight * heightScale;
+    return texCoords - UVoffset;
+}
 
 
+vec2 computeSteepParallaxUV(vec2 texCoords, vec3 viewDir)
+{
+    int numSteps = 10;                      // resolution of depth layers
+    float currentDepthLayer = 0.0;          // start at top layer and go down
+    float depthIncrement = 1.0/numSteps;    // how much to go down after each iteration
+    
+    // Compute UV offset for each iteration
+    vec2 P = viewDir.xy/viewDir.z * heightScale;
+    vec2 texCoordOffset = P/numSteps;
+    
+    // Initialize iteration
+    vec2 currentTexCoords = texCoords;
+    float currentUVDepth = texture(material.disp0, currentTexCoords).x;
+    
+    // Iteration: Compare depth at current UV with depth layer.  If current is lower, keep going down
+    //      until current layer is below depth.
+    // This will eventually end when layer becomes 1.0, as depth can't be greater than 1.0
+    while(currentUVDepth > currentDepthLayer)
+    {
+        // Move texture coordinates by offset
+        currentTexCoords -= texCoordOffset;
+        
+        // Go down a depth layer
+        currentDepthLayer += depthIncrement;
+        
+        // sample depth at new texCoords
+        currentUVDepth = texture(material.disp0, currentTexCoords).x;
+    }
+    
+    return currentTexCoords;
+}
 
 
 
@@ -117,10 +162,16 @@ void main()
     normal = 2.0*normal - 1.0;
     
     // Compute parallax UV coordinates
-    float fragHeight = texture(material.disp0, fs_in.UV).x;
-    vec3 P = normalize(invTBN.viewDir);
-    vec2 UVoffset = (P.xy)/P.z * fragHeight * heightScale;
-    vec2 dispUV = fs_in.UV - UVoffset;
+    vec2 dispUV;
+    if(bool(parallaxType & REGULAR_PARALLAX))
+    {
+        dispUV = computeParallaxUV(fs_in.UV, invTBN.viewDir);
+    }
+    else if(bool(parallaxType & STEEP_PARALLAX))
+    {
+        dispUV = computeSteepParallaxUV(fs_in.UV, invTBN.viewDir);
+    }
+    
     
     vec3 result = vec3(0.0);
     
@@ -136,6 +187,7 @@ void main()
         result += computePtLight(ptLights[0], normal, invTBN.viewDir, normalize(invTBN.FragPos - invTBN.ptLightPos), dispUV);
 //    }
     
+    // TODO: Normal mapping not implemented for spotlight yet
 //    result += computeSpotLight(spotLights[0], normal, viewDir, fs_in.FragPos);
     
     FragColor = vec4(result, 1.0);

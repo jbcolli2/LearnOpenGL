@@ -54,6 +54,7 @@ class Scene
     Shader* m_currentObjShader;
     Shader m_justTexture, m_normalMap, m_normalParallax;
     float m_heightScale;
+    uint m_parallaxType = 1;
     //*********************************************
     //            End Current Demo
     //*********************************************
