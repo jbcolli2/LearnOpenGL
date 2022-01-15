@@ -109,7 +109,9 @@ std::vector<Vert3x3x2x3x3f> addTBtoVerts(std::vector<Vert3x3x2f> verts)
 
 void Shape::setupMesh(const std::vector<std::string>& diffTexturePaths,
                       const std::vector<std::string>& specTexturePaths,
-                      const std::vector<std::string>& normalTexturePaths,const Material& material)
+                      const std::vector<std::string>& normalTexturePaths,
+                      const std::vector<std::string>& dispTexturePaths,
+                      const Material& material)
 {
     
     m_numVerts = m_verts.size();
@@ -150,6 +152,10 @@ void Shape::setupMesh(const std::vector<std::string>& diffTexturePaths,
     {
         loadTexture(normalPath, Texture::normalName);
     }
+    for(auto dispPath : dispTexturePaths)
+    {
+        loadTexture(dispPath, Texture::dispName);
+    }
 
 }
 
@@ -171,7 +177,7 @@ void Shape::Draw(Shader shader, int instances)
     
     // SEtup the textures for the shape
     Texture tempTexture;
-    unsigned int diffUnit=0, specUnit=0, normalUnit = 0;
+    unsigned int diffUnit=0, specUnit=0, normalUnit = 0, dispUnit = 0;;
     for (int ii = 0; ii < m_textures.size(); ++ii)
     {
         glActiveTexture(GL_TEXTURE0 + ii);
@@ -194,6 +200,11 @@ void Shape::Draw(Shader shader, int instances)
         {
             shader.setUniform1i(Texture::normalName + std::to_string(normalUnit), ii);
             normalUnit++;
+        }
+        if(tempTexture.typeName == Texture::dispName)
+        {
+            shader.setUniform1i(Texture::dispName + std::to_string(dispUnit), ii);
+            dispUnit++;
         }
         
         glBindTexture(GL_TEXTURE_2D, m_textures[ii].id);
@@ -288,12 +299,13 @@ void Line::Draw(Shader shader, int instances)
 
 
 Plane::Plane(const std::vector<std::string>& diffTexturePaths, const std::vector<std::string>& specTexturePaths,
-             const std::vector<std::string>& normalTexturePaths, float UVCorner, const Material& material) : m_UVCorner(UVCorner)
+             const std::vector<std::string>& normalTexturePaths, const std::vector<std::string>& dispTexturePaths,
+             float UVCorner, const Material& material) : m_UVCorner(UVCorner)
 {
     m_verts = fillVerts();
     
     
-    setupMesh(diffTexturePaths, specTexturePaths, normalTexturePaths, material);
+    setupMesh(diffTexturePaths, specTexturePaths, normalTexturePaths, dispTexturePaths, material);
 
 }
 
@@ -305,7 +317,7 @@ Plane::Plane(const Material& material)
     
     std::vector<std::string> blank;
     
-    Plane(blank, blank, blank, 1.f, material);
+    Plane(blank, blank, blank, blank, 1.f, material);
 
 }
 
@@ -416,11 +428,12 @@ std::vector<Vert3x3x2f> Cube::fillVerts(std::vector<Vert3x3x2f> verts)
 
 
 Cube::Cube(const std::vector<std::string>& diffTexturePaths, const std::vector<std::string>& specTexturePaths,
-           const std::vector<std::string>& normalTexturePaths, const Material& material)
+           const std::vector<std::string>& normalTexturePaths, const std::vector<std::string>& dispTexturePaths,
+           const Material& material)
 {
     m_verts = fillVerts();
     
-    setupMesh(diffTexturePaths, specTexturePaths, normalTexturePaths, material);
+    setupMesh(diffTexturePaths, specTexturePaths, normalTexturePaths, dispTexturePaths, material);
 
 }
 
@@ -432,7 +445,7 @@ Cube::Cube(const Material& material)
     
     std::vector<std::string> blank;
     
-    Cube(blank, blank, blank, material);
+    Cube(blank, blank, blank, blank, material);
 
 }
 

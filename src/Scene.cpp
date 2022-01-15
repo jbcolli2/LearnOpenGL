@@ -16,12 +16,12 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_noNormalMap = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.glsl");
-    m_noNormalMap.makeProgram();
-    m_fragNormalMap = Shader(SHADER_FOLDER + "MVP_TBN_UV_Vert.glsl", SHADER_FOLDER + "LightsTBNNormalTextures.glsl");
-    m_fragNormalMap.makeProgram();
-    m_vertNormalMap = Shader(SHADER_FOLDER + "MVP_invTBN_UV_Vert.glsl", SHADER_FOLDER + "LightsNormalTextures.glsl");
-    m_vertNormalMap.makeProgram();
+    m_justTexture = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.glsl");
+    m_justTexture.makeProgram();
+    m_normalMap = Shader(SHADER_FOLDER + "MVP_invTBN_UV_Vert.glsl", SHADER_FOLDER + "LightsNormalTextures.glsl");
+    m_normalMap.makeProgram();
+    m_normalParallax = Shader(SHADER_FOLDER + "MVP_invTBN_UV_Vert.glsl", SHADER_FOLDER + "LightsNormalDispTextures.glsl");
+    m_normalParallax.makeProgram();
     
 //    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
 //    m_effectShader.makeProgram();
@@ -38,13 +38,13 @@ void Scene::setupShaders()
     Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
     Shader::solidShader.makeProgram();
     
-    m_currentObjShader = &m_vertNormalMap;
+    m_currentObjShader = &m_justTexture;
 }
 
 
 void Scene::createLights()
 {
-    DirLight tempdir{glm::vec3(0.2f, 0.2f, 1.9f)};
+    DirLight tempdir{glm::vec3(0.5f, 0.2f, 1.9f)};
     tempdir.setDiffuse(glm::vec3(0.8f));
     tempdir.setSpecular(0.f);
     tempdir.setAmbient(0.05f);
@@ -58,7 +58,7 @@ void Scene::createLights()
 //    tempspot.m_direction = glm::vec3(0.f, -.64f, -.77f);
 //    m_spotLights.push_back(tempspot);
     
-    PointLight temppt{glm::vec3(0.2f, .3f, 1.f)};
+    PointLight temppt{glm::vec3(0.2f, .3f, 1.3f)};
     temppt.setDiffuse(glm::vec3(.85f));
     temppt.setAmbient(.05f);
     temppt.setSpecular(0.f);
@@ -107,6 +107,9 @@ void Scene::setupShapes()
     stbi_set_flip_vertically_on_load(true);
     std::vector<std::string> metalPath = {ASSET_FOLDER+"metal.png"};
     std::vector<std::string> marblePath = {ASSET_FOLDER+"marble.jpg"};
+    std::vector<std::string> brick2Path = {ASSET_FOLDER+"bricks2.jpeg"};
+    std::vector<std::string> brick2NormalPath = {ASSET_FOLDER+"bricks2_normal.jpeg"};
+    std::vector<std::string> brick2HeightPath = {ASSET_FOLDER+"bricks2_disp.jpeg"};
     std::vector<std::string> brickwallPath = {ASSET_FOLDER+"brickwall.jpeg"};
     std::vector<std::string> brickwallNormalPath = {ASSET_FOLDER +"brickwall_normal.jpeg"};
     std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
@@ -131,7 +134,7 @@ void Scene::setupShapes()
     
     
     
-    m_shapes.push_back((std::make_unique<Cube>(brickwallPath, std::vector<std::string>(), brickwallNormalPath)));
+    m_shapes.push_back((std::make_unique<Cube>(brick2Path, std::vector<std::string>(), brick2NormalPath, brick2HeightPath)));
     m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.0f);
     m_shapes[0]->m_transform.rotation = glm::vec3(90.f, 0.f, 0.f);
     m_shapes[0]->m_transform.scale = glm::vec3(2.f);
@@ -238,7 +241,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
-    
+    m_heightScale = 1.f;
     
     
     
@@ -294,9 +297,8 @@ void Scene::draw(float deltaTime)
     
     // ********  Draw objects and models  ********** //
     m_currentObjShader->useProgram();
+    m_currentObjShader->setUniform1f("heightScale", m_heightScale);
     updateLightUniforms();
-//    m_shapes[0]->m_transform.rotation.y += 15.f*deltaTime;
-    m_shapes[0]->m_transform.rotation.x += m_rotSpeedMult*deltaTime;
     drawObjects(*m_currentObjShader);
     m_currentObjShader->stopUseProgram();
     
@@ -362,23 +364,25 @@ void Scene::SetupImGui()
         m_currentObjShader->stopUseProgram();
     }
     
-    if(ImGui::RadioButton("No normal map", m_currentObjShader == &m_noNormalMap))
+    if(ImGui::RadioButton("Just texture", m_currentObjShader == &m_justTexture))
     {
-        m_currentObjShader = &m_noNormalMap;
+        m_currentObjShader = &m_justTexture;
         setupLights();
     }
     ImGui::SameLine();
-    if(ImGui::RadioButton("Normal map(Frag)", m_currentObjShader == &m_fragNormalMap))
+    if(ImGui::RadioButton("Normal map", m_currentObjShader == &m_normalMap))
     {
-        m_currentObjShader = &m_fragNormalMap;
+        m_currentObjShader = &m_normalMap;
         setupLights();
     }
     ImGui::SameLine();
-    if(ImGui::RadioButton("Normal Map(Vert)", m_currentObjShader == &m_vertNormalMap))
+    if(ImGui::RadioButton("Normal Map and Parallax", m_currentObjShader == &m_normalParallax))
     {
-        m_currentObjShader = &m_vertNormalMap;
+        m_currentObjShader = &m_normalParallax;
         setupLights();
     }
+    
+    ImGui::SliderFloat("Height Scale", &m_heightScale, 0.0f, .15f);
     
     ImGui::End();
 }
@@ -508,11 +512,6 @@ void Scene::processInput(float deltaTime)
             {
                 glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
-        }
-        if(keyEvent.key == GLFW_KEY_SPACE && keyEvent.action == GLFW_PRESS)
-        {
-            m_rotSpeedMult += 10;
-            m_rotSpeedMult = m_rotSpeedMult % 30;
         }
         
 //        if(keyEvent.key == GLFW_KEY_SPACE && keyEvent.action == GLFW_PRESS )

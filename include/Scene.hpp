@@ -52,8 +52,8 @@ class Scene
     //            Current Demo
     //*********************************************
     Shader* m_currentObjShader;
-    Shader m_noNormalMap, m_fragNormalMap, m_vertNormalMap;
-    int m_rotSpeedMult = 0;
+    Shader m_justTexture, m_normalMap, m_normalParallax;
+    float m_heightScale;
     //*********************************************
     //            End Current Demo
     //*********************************************
