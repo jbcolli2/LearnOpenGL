@@ -44,11 +44,11 @@ void Scene::setupShaders()
 
 void Scene::createLights()
 {
-    DirLight tempdir{glm::vec3(0.5f, 0.2f, 1.9f)};
-    tempdir.setDiffuse(glm::vec3(0.8f));
-    tempdir.setSpecular(0.f);
-    tempdir.setAmbient(0.05f);
-    m_dirLights.push_back(tempdir);
+//    DirLight tempdir{glm::vec3(0.5f, 0.2f, 1.9f)};
+//    tempdir.setDiffuse(glm::vec3(1.f));
+//    tempdir.setSpecular(0.2f);
+//    tempdir.setAmbient(0.1f);
+//    m_dirLights.push_back(tempdir);
 //
 //    SpotLight tempspot;
 //    tempspot.setAmbient(.15f);
@@ -59,9 +59,9 @@ void Scene::createLights()
 //    m_spotLights.push_back(tempspot);
     
     PointLight temppt{glm::vec3(0.2f, .3f, 1.3f)};
-    temppt.setDiffuse(glm::vec3(.85f));
+    temppt.setDiffuse(glm::vec3(1.f));
     temppt.setAmbient(.05f);
-    temppt.setSpecular(0.f);
+    temppt.setSpecular(0.2f);
     m_ptLights.push_back(temppt);
 
 }
@@ -110,6 +110,9 @@ void Scene::setupShapes()
     std::vector<std::string> brick2Path = {ASSET_FOLDER+"bricks2.jpeg"};
     std::vector<std::string> brick2NormalPath = {ASSET_FOLDER+"bricks2_normal.jpeg"};
     std::vector<std::string> brick2HeightPath = {ASSET_FOLDER+"bricks2_disp.jpeg"};
+    std::vector<std::string> toyBoxPath = {ASSET_FOLDER+"toy_box_diffuse.png"};
+    std::vector<std::string> toyBoxNormalPath = {ASSET_FOLDER+"toy_box_normal.png"};
+    std::vector<std::string> toyBoxHeightPath = {ASSET_FOLDER+"toy_box_disp.png"};
     std::vector<std::string> brickwallPath = {ASSET_FOLDER+"brickwall.jpeg"};
     std::vector<std::string> brickwallNormalPath = {ASSET_FOLDER +"brickwall_normal.jpeg"};
     std::vector<std::string> containerPath = {ASSET_FOLDER+"container2.png"};
@@ -134,11 +137,16 @@ void Scene::setupShapes()
     
     
     
-    m_shapes.push_back((std::make_unique<Cube>(brick2Path, std::vector<std::string>(), brick2NormalPath, brick2HeightPath)));
+    m_shapes.push_back((std::make_unique<Cube>(toyBoxPath, std::vector<std::string>(), toyBoxNormalPath, toyBoxHeightPath)));
     m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.0f);
     m_shapes[0]->m_transform.rotation = glm::vec3(90.f, 0.f, 0.f);
     m_shapes[0]->m_transform.scale = glm::vec3(2.f);
-    
+ 
+    m_shapes.push_back((std::make_unique<Cube>(brick2Path, std::vector<std::string>(), brick2NormalPath, brick2HeightPath)));
+    m_shapes[0]->m_transform.position = glm::vec3(2.7f, 0.f, 0.0f);
+    m_shapes[0]->m_transform.rotation = glm::vec3(90.f, 0.f, 0.f);
+    m_shapes[0]->m_transform.scale = glm::vec3(2.f);
+
     
 //    m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
     
@@ -389,6 +397,13 @@ void Scene::SetupImGui()
         m_currentObjShader = &m_normalParallax;
         setupLights();
         m_parallaxType = 2;
+    }
+    ImGui::SameLine();
+    if(ImGui::RadioButton("Normal Map and Parallax Occlusion", (m_currentObjShader == &m_normalParallax) && (m_parallaxType == 4)))
+    {
+        m_currentObjShader = &m_normalParallax;
+        setupLights();
+        m_parallaxType = 4;
     }
     
     ImGui::SliderFloat("Height Scale", &m_heightScale, 0.0f, .15f);

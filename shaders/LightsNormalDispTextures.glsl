@@ -9,7 +9,7 @@ in VS_OUT
 
 in InvTBN
 {
-    vec3 viewDir;
+    vec3 camPos;
     vec3 FragPos;
     vec3 ptLightPos;
     vec3 dirLightDir;
@@ -74,7 +74,7 @@ uniform uint parallaxType;
 //////////  parallax types /////////////
 const uint REGULAR_PARALLAX = 0x00000001u;
 const uint STEEP_PARALLAX = 0x00000002u;
-const uint OCLUSSION_PARALLAX = 0x00000004u;
+const uint OCCLUSION_PARALLAX = 0x00000004u;
 
 
 #define MAX_LIGHTS 5
@@ -119,9 +119,68 @@ vec2 computeParallaxUV(vec2 texCoords, vec3 viewDir)
 }
 
 
+
+
+
+
+vec2 computeParallaxOcclusionUV(vec2 texCoords, vec3 viewDir)
+{
+    float minNumSteps = 8.0;
+    float maxNumSteps = 32.0;
+    float numSteps = mix(maxNumSteps, minNumSteps,  // resolution of depth layers
+                         max(dot(viewDir, vec3(0.0, 0.0, 1.0)), 0.0));
+    float currentDepthLayer = 0.0;          // start at top layer and go down
+    float depthIncrement = 1.0/numSteps;    // how much to go down after each iteration
+    
+    // Compute UV offset for each iteration
+    vec2 P = viewDir.xy/viewDir.z * heightScale;
+    vec2 texCoordOffset = P/numSteps;
+    
+    // Initialize iteration
+    vec2 currentTexCoords = texCoords;
+    float currentUVDepth = texture(material.disp0, currentTexCoords).x;
+    float prevUVDepth = currentUVDepth;
+    
+    // Iteration: Compare depth at current UV with depth layer.  If current is lower, keep going down
+    //      until current layer is below depth.
+    // This will eventually end when layer becomes 1.0, as depth can't be greater than 1.0
+    while(currentUVDepth > currentDepthLayer)
+    {
+        // Move texture coordinates by offset
+        currentTexCoords -= texCoordOffset;
+        
+        // Go down a depth layer
+        currentDepthLayer += depthIncrement;
+        
+        // Update previous texCoord depth
+        prevUVDepth = currentUVDepth;
+        // sample depth at new texCoords
+        currentUVDepth = texture(material.disp0, currentTexCoords).x;
+    }
+    
+    //////////  Linear Interpolation /////////////
+    // Linearly interpolate between depths at current and previous texture coordinates and
+    //    use the linear interpolation to try and match the negated view direction
+    
+    // linScale \in [0,1] = how much of a texCoordOffset to go back between currentCoords (linScale = 0) and
+    //      prevCoords (linScale = 1)
+    float linScale = (currentDepthLayer - currentUVDepth)/(prevUVDepth - currentUVDepth + depthIncrement);
+    
+    return currentTexCoords - linScale*texCoordOffset;
+}
+
+
+
+
+
+
+
 vec2 computeSteepParallaxUV(vec2 texCoords, vec3 viewDir)
 {
-    int numSteps = 10;                      // resolution of depth layers
+    float minNumSteps = 8.0;
+    float maxNumSteps = 32.0;
+    float numSteps = mix(maxNumSteps, minNumSteps,  // resolution of depth layers
+                         max(dot(viewDir, vec3(0.0, 0.0, 1.0)), 0.0));
     float currentDepthLayer = 0.0;          // start at top layer and go down
     float depthIncrement = 1.0/numSteps;    // how much to go down after each iteration
     
@@ -152,26 +211,32 @@ vec2 computeSteepParallaxUV(vec2 texCoords, vec3 viewDir)
 }
 
 
-
 //*********************************************
 //           Main()
 //*********************************************
 void main()
 {
-    vec3 normal = normalize(vec3(texture(material.normal0, fs_in.UV)));
-    normal = 2.0*normal - 1.0;
+    
+    vec3 viewDir = normalize(invTBN.camPos - invTBN.FragPos);
     
     // Compute parallax UV coordinates
     vec2 dispUV;
     if(bool(parallaxType & REGULAR_PARALLAX))
     {
-        dispUV = computeParallaxUV(fs_in.UV, invTBN.viewDir);
+        dispUV = computeParallaxUV(fs_in.UV, viewDir);
     }
     else if(bool(parallaxType & STEEP_PARALLAX))
     {
-        dispUV = computeSteepParallaxUV(fs_in.UV, invTBN.viewDir);
+        dispUV = computeSteepParallaxUV(fs_in.UV, viewDir);
+    }
+    else if(bool(parallaxType & OCCLUSION_PARALLAX))
+    {
+        dispUV = computeParallaxOcclusionUV(fs_in.UV, viewDir);
     }
     
+    vec3 normal = normalize(vec3(texture(material.normal0, dispUV)));
+    normal = 2.0*normal - 1.0;
+
     
     vec3 result = vec3(0.0);
     
@@ -179,12 +244,12 @@ void main()
     {
         DirLight tempDirLight = dirLights[0];
         tempDirLight.direction = invTBN.dirLightDir;
-        result += computeDirLight(tempDirLight, normal, invTBN.viewDir, dispUV);
+        result += computeDirLight(tempDirLight, normal, viewDir, dispUV);
     }
 
 //    for(int ii = 0; ii < numPtLights; ++ii)
 //    {
-        result += computePtLight(ptLights[0], normal, invTBN.viewDir, normalize(invTBN.FragPos - invTBN.ptLightPos), dispUV);
+        result += computePtLight(ptLights[0], normal, viewDir, normalize(invTBN.FragPos - invTBN.ptLightPos), dispUV);
 //    }
     
     // TODO: Normal mapping not implemented for spotlight yet

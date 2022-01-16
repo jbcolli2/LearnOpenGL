@@ -9,7 +9,7 @@ in VS_OUT
 
 in InvTBN
 {
-    vec3 viewDir;
+    vec3 camPos;
     vec3 FragPos;
     vec3 ptLightPos;
     vec3 dirLightDir;
@@ -114,18 +114,20 @@ void main()
     vec3 normal = normalize(vec3(texture(material.normal0, fs_in.UV)));
     normal = 2.0*normal - 1.0;
     
+    vec3 viewDir = normalize(invTBN.camPos - invTBN.FragPos);
+    
     vec3 result = vec3(0.0);
     
     if(numDirLights > 0)
     {
         DirLight tempDirLight = dirLights[0];
         tempDirLight.direction = invTBN.dirLightDir;
-        result += computeDirLight(tempDirLight, normal, invTBN.viewDir);
+        result += computeDirLight(tempDirLight, normal, viewDir);
     }
 
 //    for(int ii = 0; ii < numPtLights; ++ii)
 //    {
-        result += computePtLight(ptLights[0], normal, invTBN.viewDir, normalize(invTBN.FragPos - invTBN.ptLightPos));
+        result += computePtLight(ptLights[0], normal, viewDir, normalize(invTBN.FragPos - invTBN.ptLightPos));
 //    }
     
 //    result += computeSpotLight(spotLights[0], normal, viewDir, fs_in.FragPos);

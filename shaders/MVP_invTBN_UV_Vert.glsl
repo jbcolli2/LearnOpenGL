@@ -39,7 +39,7 @@ out VS_OUT
 
 out InvTBN
 {
-    vec3 viewDir;
+    vec3 camPos;
     vec3 FragPos;
     vec3 ptLightPos;
     vec3 dirLightDir;
@@ -79,7 +79,7 @@ void main()
     
     // Converting lighting variables to tangent space
     vec3 FragPos = vec3(model*vec4(apos, 1.0));
-    invTBN_out.viewDir = normalize(invTBN*(cameraPos - FragPos));
+    invTBN_out.camPos = invTBN*(cameraPos);
     invTBN_out.FragPos = invTBN*(FragPos);
     invTBN_out.ptLightPos = invTBN*ptLights[0].position;
     invTBN_out.dirLightDir = normalize(invTBN*dirLights[0].direction);
