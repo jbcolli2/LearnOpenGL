@@ -249,7 +249,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
-    m_heightScale = 1.f;
+    m_heightScale = .1f;
     
     
     

@@ -166,7 +166,7 @@ vec2 computeParallaxOcclusionUV(vec2 texCoords, vec3 viewDir)
     //      prevCoords (linScale = 1)
     float linScale = (currentDepthLayer - currentUVDepth)/(prevUVDepth - currentUVDepth + depthIncrement);
     
-    return currentTexCoords - linScale*texCoordOffset;
+    return currentTexCoords + linScale*texCoordOffset;
 }
 
 
