@@ -48,7 +48,10 @@ public:
     
     void setAmbient(float ambFactor) {m_ambient = m_diffuse*ambFactor;};
     void setDiffuse(const glm::vec3& diff) {m_diffuse = diff; m_color = diff;};
+    void setDiffBrightness(float brightness) {m_diffuse = brightness*glm::normalize(m_diffuse); m_color = m_diffuse;};
+    float getDiffBrightness() {return glm::length(m_diffuse);};
     void setSpecular(float specIntensity) {m_specular = glm::vec3(specIntensity);};
+    void setAtten(float constant, float lin, float quad) {m_constAtten = constant; m_linAtten = lin; m_quadAtten = quad;};
     
     void setUniformPos(Shader obj_Shader, int index = -1);
     void setUniformDir(Shader obj_Shader, int index = -1);

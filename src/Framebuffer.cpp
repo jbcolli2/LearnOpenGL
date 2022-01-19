@@ -240,48 +240,103 @@ unsigned int Framebuffer::RenderShadowCubeMap(const glm::vec3& position)
 
 
 
-// ///////////// RenderToTexture   ////////////////
+
+
+// ///////////// SetupToTexture2D   ////////////////
 /**
- \brief Point a camera into the scene and render what it sees to a texture.  The empty tbo is generated and its parameters
-    set in the calling method.
- 
-    The fbo will be created in this method.  The target is given for the texture, as well as the texture unit.
- 
-    This can be used to simply render the entire scene and then apply non-local effects.  This can also be called 6 times to create a cubemap of the scene from
-        the perspecitve of a particular object.
- 
- \param tbo - Empty texture object created from calling method
-  
+ \brief Setup needed to use a framebuffer to render to a Texture2D.  This includes creating the FBO and TBO, as well as attaching everything to the
+    framebuffer and checking for completeness.  The FBO should be totally ready for rendering after this method.
+
  */
-void Framebuffer::RenderToTexture2D(unsigned int tbo,
-                     const glm::vec3& position, const glm::vec3& direction, const glm::mat4& proj)
+void Framebuffer::SetupToTexture2D(GLint internalFormat)
 {
     // Generate framebuffer object
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     
     // Create empty texture of correct size
-    glBindTexture(GL_TEXTURE_2D, tbo);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glGenTextures(1, &m_tbo2D);
+    glBindTexture(GL_TEXTURE_2D, m_tbo2D);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     
     // Attach tbo and rbo to framebuffer and check for completness
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_tbo2D, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
     
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Framebuffer NOT complete\n";
+
+}
+
+
+
+
+// ///////////// RenderToTexture   ////////////////
+/**
+ \brief Point a camera into the scene and render what it sees to a texture.
+  
+    This can be used to simply render the entire scene and then apply non-local effects.  This can also be called 6 times to create a cubemap of the scene from
+        the perspecitve of a particular object.
+ 
+ \param shader - Shader program used to render scene to framebuffer texture
+ \param position - View position used for render
+ \param direction - View direction used for render
+ 
+ \returns The tbo of the texture rendered to through the framebuffer
+  
+ */
+unsigned int Framebuffer::RenderToTexture2D(Shader* shader, const glm::vec3& position, const glm::vec3& direction)
+{
     
 
     // Render the scene to the framebuffer
     glm::mat4 view = glm::lookAt(position, position + direction, glm::vec3(0.f, 1.f, 0.f));
-//    m_scene->RenderScene(view, proj);
     
-    glBindTexture(GL_TEXTURE_2D, 0);
+    // Change the UBO to the new view matrix
+    glBindBuffer(GL_UNIFORM_BUFFER, m_scene->m_uboVP);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(view));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    m_scene->RenderScene(shader);
+    
+    // Change the UBO back to the camera view matrix
+    glBindBuffer(GL_UNIFORM_BUFFER, m_scene->m_uboVP);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(m_scene->m_view));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    return m_tbo2D;
+}
+
+
+
+
+// ///////////// RenderToTexture   ////////////////
+/**
+ \brief Simply render the scene using the scene camera.  We are using a framebuffer to render the scene to a texture instead of the screen.
+  
+
+ 
+ \param shader - Shader program used to render scene to framebuffer texture
+ 
+ \return The tbo of the texture rendered to through the framebuffer
+  
+ */
+unsigned int Framebuffer::RenderToTexture2D(Shader* shader)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    m_scene->clearBuffers();
+    m_scene->RenderScene(shader);
+
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    return m_tbo2D;
 }
 
 

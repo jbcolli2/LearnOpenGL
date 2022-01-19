@@ -1,16 +1,28 @@
 #version 330 core
 
-in vec3 Normal;
-in vec3 FragPos;
-in vec2 UV;
+in VS_OUT
+{
+    vec3 Normal;
+    vec2 UV;
+
+} fs_in;
+
+in InvTBN
+{
+    vec3 camPos;
+    vec3 FragPos;
+    vec3 ptLightPos;
+    vec3 dirLightDir;
+} invTBN;
 
 out vec4 FragColor;
 
 
 struct Material
 {
-    sampler2D diffuse0;
+    sampler2D diffuse0, diffuse1;
     sampler2D specular0;
+    sampler2D normal0;
     float shininess;
 };
 
@@ -54,9 +66,7 @@ struct SpotLight
 };
 
 uniform bool phong;
-
 uniform bool specularMap;
-uniform vec3 cameraPos;
 
 
 
@@ -85,8 +95,8 @@ layout (std140) uniform VP
 
 
 vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir);
-vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPosition);
-vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosition);
+vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 light2Frag);
+vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 light2Frag);
 
 
 
@@ -96,28 +106,40 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
 
 
 
+//*********************************************
+//           Main()
+//*********************************************
 void main()
 {
-    vec3 normal = normalize(Normal);
-    vec3 viewDir = normalize(cameraPos - FragPos);
+    vec3 normal = normalize(vec3(texture(material.normal0, fs_in.UV)));
+    normal = 2.0*normal - 1.0;
+    
+    vec3 viewDir = normalize(invTBN.camPos - invTBN.FragPos);
+    
     vec3 result = vec3(0.0);
+    
     if(numDirLights > 0)
     {
-        result += computeDirLight(dirLights[0], normal, viewDir);
+        DirLight tempDirLight = dirLights[0];
+        tempDirLight.direction = invTBN.dirLightDir;
+        result += computeDirLight(tempDirLight, normal, viewDir);
     }
 
-    for(int ii = 0; ii < numPtLights; ++ii)
-    {
-        result += computePtLight(ptLights[ii], normal, viewDir, FragPos);
-    }
+//    for(int ii = 0; ii < numPtLights; ++ii)
+//    {
+        result += computePtLight(ptLights[0], normal, viewDir, normalize(invTBN.FragPos - invTBN.ptLightPos));
+//    }
     
-    if(numSpotLights > 0)
-    {
-        result += computeSpotLight(spotLights[0], normal, viewDir, FragPos);
-    }
+//    result += computeSpotLight(spotLights[0], normal, viewDir, fs_in.FragPos);
     
     FragColor = vec4(result, 1.0);
 }
+
+
+
+
+
+
 
 
 
@@ -149,19 +171,23 @@ float computeSpecCoeff(vec3 light2Frag, vec3 normal, vec3 viewDir)
 //*********************************************
 vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
+    // Compute the shadow coefficient
+    
+    
     // The precomputed variables for the calculations
     vec3 light2Frag = normalize(light.direction);
-    vec3 diffuseMat = vec3(texture(material.diffuse0, UV));
+    vec3 diffuseMat = vec3(texture(material.diffuse0, fs_in.UV));
     vec3 specMat;
     // If not specular map, assume constant specularity of 1.0 across texture
     if(specularMap)
     {
-        specMat = vec3(texture(material.specular0, UV));
+        specMat = vec3(texture(material.specular0, fs_in.UV));
     }
     else
     {
         specMat = vec3(1.0);
     }
+    
     
     //////////  Compute Amb/Diff/Spec contributions /////////////
 
@@ -176,7 +202,7 @@ vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
     float specAngleCoeff = computeSpecCoeff(light2Frag, normal, viewDir);
     vec3 specComponent = specAngleCoeff * specMat * light.specular;
 
-    return ambComponent + diffComponent + specComponent;
+    return ambComponent + (diffComponent + specComponent);
 }
 
 
@@ -188,24 +214,24 @@ vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
 //*********************************************
 //           Point Light Computation
 //*********************************************
-vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPosition)
+vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 light2Frag)
 {
     // The precomputed variables for the calculation
-    vec3 diffuseMat = vec3(texture(material.diffuse0, UV));
+    vec3 diffuseMat = vec3(texture(material.diffuse0, fs_in.UV));
     vec3 specMat;
     if(specularMap)
     {
-        specMat = vec3(texture(material.specular0, UV));
+        specMat = vec3(texture(material.specular0, fs_in.UV));
     }
     else
     {
         specMat = vec3(1.0);
     }
     
-    vec3 light2Frag = fragPosition - light.position;
     float distLight2Frag = length(light2Frag);
     light2Frag = normalize(light2Frag);
     vec3 frag2Light = -light2Frag;
+    
 
     float attenuation = 1.0/(light.constAtten + distLight2Frag*light.linAtten +
                              distLight2Frag*distLight2Frag*light.quadAtten);
@@ -239,21 +265,23 @@ vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPositi
 vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosition)
 {
     // The precomputed variables for the calculation
-    vec3 diffuseMat = vec3(texture(material.diffuse0, UV));
+    vec3 diffuseMat = vec3(texture(material.diffuse0, fs_in.UV));
     vec3 specMat;
     if(specularMap)
     {
-        specMat = vec3(texture(material.specular0, UV));
+        specMat = vec3(texture(material.specular0, fs_in.UV));
     }
     else
     {
         specMat = vec3(1.0);
     }
     
+    
     vec3 light2Frag = fragPosition - light.position;
     float distLight2Frag = length(light2Frag);
     light2Frag = normalize(light2Frag);
     vec3 frag2Light = -light2Frag;
+    
 
     float attenuation = 1.0/(light.constAtten + distLight2Frag*light.linAtten +
                              distLight2Frag*distLight2Frag*light.quadAtten);
@@ -262,7 +290,7 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
     float spotAngle = dot(spotDirection, light2Frag);
     
     // Ambient light if fragment is outside of the cone of light
-    vec3 result = light.ambient * vec3(texture(material.diffuse0,UV));
+    vec3 result = light.ambient * vec3(texture(material.diffuse0,fs_in.UV));
     vec3 ambComponent = result;
     
     // Calculations of all light types if fragment is inside the outer edge of the light cone
@@ -288,7 +316,7 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
         diffComponent *= fuzzyMult;
         specComponent *= fuzzyMult;
         
-        result = (ambComponent + diffComponent + specComponent);
+        result = ambComponent + (diffComponent + specComponent);
     }
     
     return result;

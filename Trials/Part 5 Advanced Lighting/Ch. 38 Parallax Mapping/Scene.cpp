@@ -18,14 +18,20 @@ void Scene::setupShaders()
 {
     m_justTexture = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.glsl");
     m_justTexture.makeProgram();
+    m_normalMap = Shader(SHADER_FOLDER + "MVP_invTBN_UV_Vert.glsl", SHADER_FOLDER + "LightsNormalTextures.glsl");
+    m_normalMap.makeProgram();
+    m_normalParallax = Shader(SHADER_FOLDER + "MVP_invTBN_UV_Vert.glsl", SHADER_FOLDER + "LightsNormalDispTextures.glsl");
+    m_normalParallax.makeProgram();
     
 //    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
 //    m_effectShader.makeProgram();
 //    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
 //    m_skyboxShader.makeProgram();
-    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "HDRFrag.glsl");
+    m_fboShader = Shader(SHADER_FOLDER + "FBOCubeVert.glsl", SHADER_FOLDER + "FBOCubeFrag.glsl");
     m_fboShader.makeProgram();
     
+    m_geomNormals = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "Ch30NormalLinesGeom.glsl", SHADER_FOLDER + "SolidColor.frag");
+    m_geomNormals.makeProgram();
 
     m_debugShader = Shader(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl");
     m_debugShader.makeProgram();
@@ -52,32 +58,10 @@ void Scene::createLights()
 //    tempspot.m_direction = glm::vec3(0.f, -.64f, -.77f);
 //    m_spotLights.push_back(tempspot);
     
-    PointLight temppt{glm::vec3(0.f, 0.f, -49.5f)};
-    temppt.setDiffuse(glm::vec3(200.f));
-    temppt.setAmbient(.0f);
-    temppt.setSpecular(0.0f);
-    temppt.setAtten(0.f, 0.f, 1.f);
-    m_ptLights.push_back(temppt);
-    
-    temppt = PointLight(glm::vec3(2.4f, 2.4f, -8.f));
-    temppt.setDiffuse(glm::vec3(.1f, 0.f, 0.f));
-    temppt.setAmbient(0.f);
-    temppt.setSpecular(0.f);
-    temppt.setAtten(0.f, 0.f, 1.f);
-    m_ptLights.push_back(temppt);
-    
-    temppt = PointLight(glm::vec3(-2.4f, -2.4f, -6.f));
-    temppt.setDiffuse(glm::vec3(0.f, .1f, 0.f));
-    temppt.setAmbient(0.f);
-    temppt.setSpecular(0.f);
-    temppt.setAtten(0.f, 0.f, 1.f);
-    m_ptLights.push_back(temppt);
-    
-    temppt = PointLight(glm::vec3(-2.4f, 2.4f, -2.f));
-    temppt.setDiffuse(glm::vec3(0.f, 0.f, .1f));
-    temppt.setAmbient(0.f);
-    temppt.setSpecular(0.f);
-    temppt.setAtten(0.f, 0.f, 1.f);
+    PointLight temppt{glm::vec3(0.2f, .3f, 1.3f)};
+    temppt.setDiffuse(glm::vec3(1.f));
+    temppt.setAmbient(.05f);
+    temppt.setSpecular(0.2f);
     m_ptLights.push_back(temppt);
 
 }
@@ -153,11 +137,15 @@ void Scene::setupShapes()
     
     
     
-    m_shapes.push_back((std::make_unique<Cube>(woodPath)));
-    m_shapes[0]->FlipNormals();
-    m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, -25.f);
-    m_shapes[0]->m_transform.scale = glm::vec3(5.f, 5.f, 2.f*28.f);
+    m_shapes.push_back((std::make_unique<Cube>(toyBoxPath, std::vector<std::string>(), toyBoxNormalPath, toyBoxHeightPath)));
+    m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, 0.0f);
+    m_shapes[0]->m_transform.rotation = glm::vec3(90.f, 0.f, 0.f);
+    m_shapes[0]->m_transform.scale = glm::vec3(2.f);
  
+    m_shapes.push_back((std::make_unique<Cube>(brick2Path, std::vector<std::string>(), brick2NormalPath, brick2HeightPath)));
+    m_shapes[0]->m_transform.position = glm::vec3(2.7f, 0.f, 0.0f);
+    m_shapes[0]->m_transform.rotation = glm::vec3(90.f, 0.f, 0.f);
+    m_shapes[0]->m_transform.scale = glm::vec3(2.f);
 
     
 //    m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
@@ -192,13 +180,13 @@ void Scene::SetupFBORender()
     };
     
 
-    glGenVertexArrays(1, &m_fboQuad.vao);
-    glBindVertexArray(m_fboQuad.vao);
-    m_fboQuad.vbo = loadVBOData(fbo_vert);
+    glGenVertexArrays(1, &m_fbo.vao);
+    glBindVertexArray(m_fbo.vao);
+    m_fbo.vbo = loadVBOData(fbo_vert);
     glBindVertexArray(0);
 
     
-//    m_fboQuad.skybox = Skybox(0);
+    m_fbo.skybox = Skybox(0);
     
     
 
@@ -221,12 +209,11 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     Scene::GLFWCallbackWrapper::setScene(this);
-//    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(window, Scene::GLFWCallbackWrapper::keyCallback);
     glfwSetFramebufferSizeCallback(window, Scene::GLFWCallbackWrapper::frameBufferSizeCallback);
     glfwSetCursorPosCallback(window, Scene::GLFWCallbackWrapper::mousePosCallback);
     glfwSetScrollCallback(window, Scene::GLFWCallbackWrapper::scrollCallback);
-    glfwSetMouseButtonCallback(window, Scene::GLFWCallbackWrapper::mouseButtonCallback);
 
     
     
@@ -244,7 +231,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     //  Setup the camera
-    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-0.3f, 0.f, 0.f), 0.f, 5.f);
+    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-.11f, .5f, 2.14f), -10.f);
     
     
     setupShapes();
@@ -262,19 +249,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     
     
     
-    //*********************************************
-    //            Demo Begin
-    //*********************************************
-    SetupFBORender();
-    m_fbo = new Framebuffer(this, m_window);
-    m_fbo->SetupToTexture2D(GL_RGBA16F);
-    m_doHDR = true;
-    m_fboShader.useProgram();
-    m_fboShader.setUniform1ui("hdr", m_doHDR);
-    m_fboShader.stopUseProgram();
-    //*********************************************
-    //            Demo End
-    //*********************************************
+    m_heightScale = .1f;
+    
     
     
     
@@ -303,14 +279,18 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
 //********************************************//
 void Scene::draw(float deltaTime)
 {
-    // ********  Uniform buffer for VP matrices  ********** //
     m_proj = m_cam.getProjMatrix();
     m_view = glm::mat4(glm::mat3(m_cam.getViewMatrix()));
 //    updateVP(m_skyboxShader);
     
     m_view = m_cam.getViewMatrix();
+    glEnable(GL_DEPTH_TEST);
     
-    // Fill the UBO with view and proj
+    clearBuffers();
+    
+    SetupImGui();
+    
+    // ********  Uniform buffer for VP matrices  ********** //
     glBindBuffer(GL_UNIFORM_BUFFER, m_uboVP);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(m_view));
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_proj));
@@ -319,47 +299,28 @@ void Scene::draw(float deltaTime)
     
     
     
-    
-    // ********  The actual rendering onto the screen  ********** //
-    
-    // Reset screen for a new render
-    glEnable(GL_DEPTH_TEST);
-    clearBuffers();
-    
-    // GUI stuff
-    SetupImGui();
-    
-    // Render scene to a texture
-    m_fboQuad.tbo = m_fbo->RenderToTexture2D(m_currentObjShader);
-    
-    RenderFBO();
-    
-}
-
-
-
-
-
-// ///////////// RenderScene   ////////////////
-/**
- \brief All the calls needed to render the scene.  No setup for the render is in this method, just the draw calls and seting the uniforms.
-    Can be done with any shader.  Main use for this is so the framebuffer can render the scene from its class.
- 
- \param shader - The shader program used to render the scene.
- */
-void Scene::RenderScene(Shader* shader)
-{    
-    
-    // This will draw the point lights onto the scene
-    //TODO: This call still has shader program being started and stoped within it.  Should move all shader program logic out of a draw call I think.
     updateLights();
+
     
-    shader->useProgram();
+    
+    // ********  Draw objects and models  ********** //
+    m_currentObjShader->useProgram();
+    m_currentObjShader->setUniform1f("heightScale", m_heightScale);
+    m_currentObjShader->setUniform1ui("parallaxType", m_parallaxType);
     updateLightUniforms();
     drawObjects(*m_currentObjShader);
-    shader->stopUseProgram();
+    m_currentObjShader->stopUseProgram();
+    
+    
+    
+    
+    
 
+   
+    
 }
+
+
 
 
 
@@ -387,7 +348,6 @@ void Scene::drawObjects(Shader shader)
 
 void Scene::SetupImGui()
 {
-    static float tempLightBright = m_ptLights[m_selectedLight].getDiffBrightness();
     ImGui::Begin("Display Info");
     ImGui::Text("Cam Position: (%4.2f, %4.2f, %4.2f)", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
     glm::vec3 dir = m_cam.getDirection();
@@ -399,19 +359,11 @@ void Scene::SetupImGui()
             if(ImGui::Selectable(("Light " + std::to_string(ii)).c_str()))
             {
                 m_selectCommands[2]->selectIndex(ii);
-                tempLightBright = m_ptLights[m_selectedLight].getDiffBrightness();
             }
         }
         
         ImGui::EndCombo();
         
-        
-    }
-    
-    
-    if(ImGui::DragFloat("Brightness", &tempLightBright, 0.1f, 0.1f, 500.f, "%.3f"))
-    {
-        m_ptLights[m_selectedLight].setDiffBrightness(tempLightBright);
     }
     
     if(ImGui::Checkbox("Phong Lighting", &m_phong))
@@ -421,24 +373,40 @@ void Scene::SetupImGui()
         m_currentObjShader->stopUseProgram();
     }
     
-    if(ImGui::Checkbox("HDR", &m_doHDR))
+    if(ImGui::RadioButton("Just texture", m_currentObjShader == &m_justTexture))
     {
-        m_fboShader.useProgram();
-        m_fboShader.setUniform1ui("hdr", m_doHDR);
-        m_fboShader.stopUseProgram();
+        m_currentObjShader = &m_justTexture;
+        setupLights();
+    }
+    ImGui::SameLine();
+    if(ImGui::RadioButton("Normal map", m_currentObjShader == &m_normalMap))
+    {
+        m_currentObjShader = &m_normalMap;
+        setupLights();
+    }
+    ImGui::SameLine();
+    if(ImGui::RadioButton("Normal Map and Regular Parallax", (m_currentObjShader == &m_normalParallax) && (m_parallaxType == 1)))
+    {
+        m_currentObjShader = &m_normalParallax;
+        setupLights();
+        m_parallaxType = 1;
+    }
+    ImGui::SameLine();
+    if(ImGui::RadioButton("Normal Map and Steep Parallax", (m_currentObjShader == &m_normalParallax) && (m_parallaxType == 2)))
+    {
+        m_currentObjShader = &m_normalParallax;
+        setupLights();
+        m_parallaxType = 2;
+    }
+    ImGui::SameLine();
+    if(ImGui::RadioButton("Normal Map and Parallax Occlusion", (m_currentObjShader == &m_normalParallax) && (m_parallaxType == 4)))
+    {
+        m_currentObjShader = &m_normalParallax;
+        setupLights();
+        m_parallaxType = 4;
     }
     
-//    if(ImGui::RadioButton("Just texture", m_currentObjShader == &m_justTexture))
-//    {
-//        m_currentObjShader = &m_justTexture;
-//        setupLights();
-//    }
-//    ImGui::SameLine();
-//    if(ImGui::RadioButton("Normal map", m_currentObjShader == &m_normalMap))
-//    {
-//        m_currentObjShader = &m_normalMap;
-//        setupLights();
-//    }
+    ImGui::SliderFloat("Height Scale", &m_heightScale, 0.0f, .15f);
     
     ImGui::End();
 }
@@ -473,12 +441,11 @@ void Scene::updateLightUniforms()
     
     for (int ii = 0; ii < m_dirLights.size(); ++ii)
     {
-        m_dirLights[ii].setUniformDir(*m_currentObjShader, ii);
+       m_dirLights[ii].setUniformDir(*m_currentObjShader, ii);
     }
     for (int ii = 0; ii < m_ptLights.size(); ++ii)
     {
-        m_ptLights[ii].setUniformPos(*m_currentObjShader, ii);
-        m_ptLights[ii].setUniformColor(*m_currentObjShader, ii);
+       m_ptLights[ii].setUniformPos(*m_currentObjShader, ii);
     }
 
     for (int ii = 0; ii < m_spotLights.size(); ++ii)
@@ -498,12 +465,14 @@ void Scene::updateLightUniforms()
 void Scene::RenderFBO(float nearPlane, float farPlane)
 {
     m_fboShader.useProgram();
-    glBindVertexArray(m_fboQuad.vao);
+//    glBindVertexArray(m_fbo.vao);
     glActiveTexture(GL_TEXTURE0 + 7);
-    glBindTexture(GL_TEXTURE_2D, m_fboQuad.tbo);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_fbo.tbo);
     m_fboShader.setUniform1i("fboTex", 7);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
+    m_fboShader.setUniformMatrix4f("skyboxView", glm::mat4(glm::mat3(m_cam.getViewMatrix())));
+    m_fbo.skybox.Draw(m_fboShader);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+//    glBindVertexArray(0);
 }
 
 
@@ -558,8 +527,8 @@ void Scene::processInput(float deltaTime)
         
         if(keyEvent.key == GLFW_KEY_M && keyEvent.action == GLFW_PRESS)
         {
-            m_mouseIsCam = !m_mouseIsCam;
-            if(m_mouseIsCam)
+            m_mouseCam = !m_mouseCam;
+            if(m_mouseCam)
             {
                 glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             }
@@ -685,45 +654,27 @@ void Scene::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void Scene::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if(m_mouseIsCam)
+    if(m_firstMouse)
     {
-        if(m_firstMouse)
-        {
-            m_firstMouse = false;
-            m_lastMousePosX = xpos;
-            m_lastMousePosY = ypos;
-        }
-        
-        float xoffset = xpos - m_lastMousePosX;
-        float yoffset = -(ypos - m_lastMousePosY);
+        m_firstMouse = false;
         m_lastMousePosX = xpos;
         m_lastMousePosY = ypos;
-        
-        xoffset *= m_mouseSensitivity;
-        yoffset *= m_mouseSensitivity;
+    }
     
+    float xoffset = xpos - m_lastMousePosX;
+    float yoffset = -(ypos - m_lastMousePosY);
+    m_lastMousePosX = xpos;
+    m_lastMousePosY = ypos;
     
+    xoffset *= m_mouseSensitivity;
+    yoffset *= m_mouseSensitivity;
+    
+    if(m_mouseCam)
+    {
         m_cam.turnYaw(xoffset);
         m_cam.turnPitch(yoffset);
     }
     
-}
-
-
-
-void Scene::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
-    {
-        m_mouseIsCam = true;
-        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
-    
-    if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
-    {
-        m_mouseIsCam = false;
-        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
 }
 
 
@@ -735,14 +686,6 @@ void Scene::scroll_callback(GLFWwindow* window, double xInc, double yInc)
     float fov_inc = (float)yInc;
             
     m_cam.incFOV(fov_inc);
-}
-
-
-
-
-Scene::~Scene()
-{
-    delete m_fbo;
 }
 
 

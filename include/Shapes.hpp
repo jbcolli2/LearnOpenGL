@@ -80,7 +80,14 @@ public:
 
     
     
-    
+    // ///////////// loadTexture   ////////////////
+    /**
+     \brief Loads a texture from a file.  Creates texture buffer ID and adds texture struct to m_textures.
+     
+     \param filename - full path to the texture
+    \param textureType - type of texture for the struct.  Diffuse, specular, normal, disp, ...
+     
+     */
     void loadTexture(std::string filename, std::string textureType)
     {
         unsigned int texID = loadTextureFromFile(filename.c_str());
@@ -98,6 +105,35 @@ public:
         m_textures.push_back(texture);
     }
     
+    
+    
+    
+    // ///////////// FlipNormals   ////////////////
+    /**
+     \brief Flips the normals in the vertex data.  Useful for using a cube to make a room, you want the inside to be shown
+     */
+    void FlipNormals()
+    {
+        if(m_verts.size() == 0)
+        {
+            std::cout << "SHAPE::No verts defined in FlipNormals()\n";
+            return;
+        }
+        
+        for (auto& vert : m_verts)
+        {
+            vert.r = -vert.r;
+            vert.g = -vert.g;
+            vert.b = -vert.b;
+        }
+        
+        glBindVertexArray(m_VAO);
+        glDeleteBuffers(1, &m_VBO);
+        m_VBO = loadVBOData(m_verts);
+        glBindVertexArray(0);
+        
+        return;
+    }
     
 };
 

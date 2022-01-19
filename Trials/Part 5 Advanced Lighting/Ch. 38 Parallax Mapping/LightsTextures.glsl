@@ -60,7 +60,7 @@ uniform vec3 cameraPos;
 
 
 
-#define MAX_LIGHTS 5
+#define MAX_LIGHTS 10
 uniform int numDirLights, numPtLights, numSpotLights;
 
 //*********************************************
@@ -101,9 +101,9 @@ void main()
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(cameraPos - FragPos);
     vec3 result = vec3(0.0);
-    if(numDirLights > 0)
+    for(int ii = 0; ii < numDirLights; ++ii)
     {
-        result += computeDirLight(dirLights[0], normal, viewDir);
+        result += computeDirLight(dirLights[ii], normal, viewDir);
     }
 
     for(int ii = 0; ii < numPtLights; ++ii)
@@ -111,9 +111,9 @@ void main()
         result += computePtLight(ptLights[ii], normal, viewDir, FragPos);
     }
     
-    if(numSpotLights > 0)
+    for(int ii = 0; ii < numSpotLights; ++ii)
     {
-        result += computeSpotLight(spotLights[0], normal, viewDir, FragPos);
+        result += computeSpotLight(spotLights[ii], normal, viewDir, FragPos);
     }
     
     FragColor = vec4(result, 1.0);

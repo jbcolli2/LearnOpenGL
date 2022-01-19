@@ -48,13 +48,13 @@ class Framebuffer;
 
 class Scene
 {
-public:
     //*********************************************
     //            Current Demo
     //*********************************************
-    Framebuffer* m_fbo;
-    unsigned int m_tboScene;
-    bool m_doHDR;
+    Shader* m_currentObjShader;
+    Shader m_justTexture, m_normalMap, m_normalParallax;
+    float m_heightScale = .1f;
+    uint m_parallaxType = 1;
     //*********************************************
     //            End Current Demo
     //*********************************************
@@ -65,13 +65,15 @@ public:
     bool m_phong = true;
     
     
-   
-    
-    struct fboQuad
+    struct FBO
     {
-        unsigned int vbo, vao, tbo;
+        unsigned int vao, vbo, fbo, tbo, rbo;
+        Skybox skybox;
     };
-    fboQuad m_fboQuad;
+    
+    FBO m_fbo;
+    
+
     
     
     
@@ -83,9 +85,8 @@ public:
     std::string IMAGE_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/";
     std::string ASSET_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/assets/";
     
-    Shader  m_fboShader, m_debugShader, m_skyboxShader, m_effectShader, m_justTexture;
+    Shader  m_fboShader, m_debugShader, m_skyboxShader, m_effectShader;
     Shader m_geomNormals;
-    Shader* m_currentObjShader;
     
     
     
@@ -120,7 +121,7 @@ public:
     float m_lastMousePosX, m_lastMousePosY;
     bool m_firstMouse;
     const float m_mouseSensitivity = 0.1f;
-    bool m_mouseIsCam = false;
+    bool m_mouseCam = true;
     
     
     //*********************************************
@@ -272,12 +273,10 @@ public:
     
     
     
-    void RenderScene(Shader* shader);
-
+    
     
     
     Scene(GLFWwindow* window, int width, int height, float fov = 45.f, float nearField = .1f, float farField = 100.f);
-    ~Scene();
     
     void draw(float deltaTime);
     
@@ -314,11 +313,6 @@ public:
             GLFWCallbackWrapper::m_scene->mouse_callback(window, xpos, ypos);
         };
         
-        static void mouseButtonCallback(GLFWwindow* window,int button, int action, int mods)
-        {
-            GLFWCallbackWrapper::m_scene->mouse_button_callback(window, button, action, mods);
-        };
-        
         static void scrollCallback(GLFWwindow* window, double xInc, double yInc)
         {
             GLFWCallbackWrapper::m_scene->scroll_callback(window, xInc, yInc);
@@ -343,7 +337,6 @@ private:
     void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-    void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
     void scroll_callback(GLFWwindow* window, double xInc, double yInc);
     
     

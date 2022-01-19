@@ -190,7 +190,7 @@ inline unsigned int loadTextureFromFile(const char* path)
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texID);
         
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
         
         stbi_image_free(data);
