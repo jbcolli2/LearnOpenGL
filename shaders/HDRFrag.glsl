@@ -6,6 +6,7 @@ out vec4 FragColor;
 
 uniform sampler2D fboTex;
 uniform bool hdr;
+uniform float exposure;
 
 void main()
 {
@@ -16,7 +17,10 @@ void main()
     
     if(hdr)
     {
-        ldrColor = hdrColor/(hdrColor + vec3(1.0));
+//        ldrColor = hdrColor/(hdrColor + vec3(1.0));
+        
+        //Exposure mapping
+        ldrColor = vec3(1.0) - exp(-hdrColor*exposure);
     }
     else
     {

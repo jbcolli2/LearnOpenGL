@@ -55,6 +55,7 @@ public:
     Framebuffer* m_fbo;
     unsigned int m_tboScene;
     bool m_doHDR;
+    float m_exposure = 1.f;
     //*********************************************
     //            End Current Demo
     //*********************************************

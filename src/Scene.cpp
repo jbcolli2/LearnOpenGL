@@ -73,7 +73,7 @@ void Scene::createLights()
     temppt.setAtten(0.f, 0.f, 1.f);
     m_ptLights.push_back(temppt);
     
-    temppt = PointLight(glm::vec3(-2.4f, 2.4f, -2.f));
+    temppt = PointLight(glm::vec3(-2.4f, 2.4f, -3.f));
     temppt.setDiffuse(glm::vec3(0.f, 0.f, .1f));
     temppt.setAmbient(0.f);
     temppt.setSpecular(0.f);
@@ -271,6 +271,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_doHDR = true;
     m_fboShader.useProgram();
     m_fboShader.setUniform1ui("hdr", m_doHDR);
+    m_fboShader.setUniform1f("exposure", m_exposure);
     m_fboShader.stopUseProgram();
     //*********************************************
     //            Demo End
@@ -425,6 +426,13 @@ void Scene::SetupImGui()
     {
         m_fboShader.useProgram();
         m_fboShader.setUniform1ui("hdr", m_doHDR);
+        m_fboShader.stopUseProgram();
+    }
+    
+    if(ImGui::DragFloat("Exposure", &m_exposure, 0.01f, 0.f, 10.f, "%.3f"))
+    {
+        m_fboShader.useProgram();
+        m_fboShader.setUniform1f("exposure", m_exposure);
         m_fboShader.stopUseProgram();
     }
     
