@@ -154,10 +154,11 @@ void Scene::setupShapes()
     
     
     m_shapes.push_back((std::make_unique<Cube>(woodPath)));
-    m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, -25.7f);
+    m_shapes[0]->FlipNormals();
+    m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, -25.f);
     m_shapes[0]->m_transform.scale = glm::vec3(5.f, 5.f, 2.f*28.f);
  
-    
+
     
 //    m_models.push_back(std::make_unique<Model>(planetPath.c_str()));
     
@@ -272,22 +273,6 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_fboShader.setUniform1ui("hdr", m_doHDR);
     m_fboShader.setUniform1f("exposure", m_exposure);
     m_fboShader.stopUseProgram();
-    
-    json j = json::array();
-    j.push_back(m_cam);
-    for (const auto& light : m_ptLights)
-    {
-        j.push_back(light);
-    }
-    for (const auto& light : m_dirLights)
-    {
-        j.push_back(light);
-    }
-    for (const auto& light : m_spotLights)
-    {
-        j.push_back(light);
-    }
-    std::cout << j.dump(2) << std::endl;
     //*********************************************
     //            Demo End
     //*********************************************

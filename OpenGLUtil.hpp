@@ -16,7 +16,15 @@
 #include <glm/glm.hpp>
 
 #include "VertexData.hpp"
+#include "nlohmann/json.hpp"
 
+using json = nlohmann::json;
+
+
+
+//*********************************************
+//            Information for any GameObject
+//*********************************************
 struct Transform
 {
     glm::vec3 position = glm::vec3(0.f);
@@ -25,7 +33,169 @@ struct Transform
 };
 
 
+struct Material
+{
+    glm::vec3 ambient = glm::vec3(1.f);
+    glm::vec3 diffuse = glm::vec3(1.f);
+    glm::vec3 specular = glm::vec3(1.f);
+    
+    
+    float shininess = 1;
+};
 
+
+struct Texture
+{
+    const static std::string materialName;
+    const static std::string diffuseName;
+    const static std::string specName;
+    const static std::string normalName;
+    const static std::string dispName;
+    unsigned int id;
+    char unitID;
+    std::string typeName;
+    std::string path;
+};
+
+
+
+
+
+
+//*********************************************
+//            Serialization
+//*********************************************
+enum GameObject
+{
+    CUBE,
+    PLANE,
+    PTLIGHT,
+    DIRLIGHT,
+    SPOTLIGHT,
+    CAMERA,
+    INVALID,
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM(GameObject,
+{
+{INVALID, nullptr},
+{CUBE, "Cube"},
+{PLANE, "Plane"},
+{PTLIGHT, "PointLight"},
+{DIRLIGHT, "DirLight"},
+{CAMERA, "Camera"},
+})
+
+
+//*********************************************
+//            Convert glm <--> json
+//*********************************************
+namespace glm {
+    // ******** vec3  ********** //
+    inline void to_json(json &j, const glm::vec3 &vec) {
+        j = json::array({vec.x, vec.y, vec.z});
+    }
+
+    inline void from_json(const json &j, glm::vec3 &vec) {
+        vec.x = j.at(0).get<float>();
+        vec.y = j.at(1).get<float>();
+        vec.z = j.at(2).get<float>();
+    }
+
+
+    // ******** vec2  ********** //
+   inline void to_json(json &j, const glm::vec2 &vec) {
+        j = json::array({vec.x, vec.y,});
+    }
+
+    inline void from_json(const json &j, glm::vec2 &vec) {
+        vec.x = j.at(0).get<float>();
+        vec.y = j.at(1).get<float>();
+    }
+}
+
+
+
+//*********************************************
+//      Convert std::vector<Textures> --> json
+//*********************************************
+/*
+ * Take the vector of Textures from a shape and turn it into a "texture" block in json.
+ * The block will look like
+ * "texture:
+ *      "diffuse": [path1, path2, ...]
+ *      "specular": [path1, path2, ...]
+ *      ...
+ *
+ * This conversion will not work from json to std::vector<Textures>.  We will take the json
+ *  and feeding the texture portion directly into a Shape, instead of turning it into std::vector<Texture>
+ *  and using that to create the Shape.
+ * This conversion is only used to create a Shape (for right now at least), not to create any other objects.
+ */
+
+inline void to_json(json& j, const std::vector<Texture> textures)
+{
+    std::vector<std::string> diffTexPaths, specTexPaths, normTexPaths, bumpTexPaths;
+    
+    for(int ii = 0; ii < textures.size(); ++ii)
+    {
+        if(textures[ii].typeName == Texture::diffuseName)
+        {
+            diffTexPaths.push_back(textures[ii].path);
+        }
+        else if(textures[ii].typeName == Texture::specName)
+        {
+            specTexPaths.push_back(textures[ii].path);
+        }
+        else if(textures[ii].typeName == Texture::normalName)
+        {
+            normTexPaths.push_back(textures[ii].path);
+        }
+        else if(textures[ii].typeName == Texture::dispName)
+        {
+            bumpTexPaths.push_back(textures[ii].path);
+        }
+    }
+    
+    json jDiffuse, jSpec, jNormal, jBump;
+    j = {{"textures",
+        {
+            {"diffuse", json::array()},
+            {"specular", json::array()},
+            {"normal", json::array()},
+            {"bump", json::array()}
+        }
+        }};
+    for(const auto& paths : diffTexPaths)
+    {
+        j["textures"]["diffuse"].push_back(paths);
+    }
+    for(const auto& paths : specTexPaths)
+    {
+        j["textures"]["specular"].push_back(paths);
+    }
+    for(const auto& paths : normTexPaths)
+    {
+        j["textures"]["normal"].push_back(paths);
+    }
+    for(const auto& paths : bumpTexPaths)
+    {
+        j["textures"]["bump"].push_back(paths);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+//*********************************************
+//            Set Vertex attributes
+//*********************************************
 inline void rglVertexAttribPointer(Vert3f v, int layoutOffset = 0)
 {
     glVertexAttribPointer(0 + layoutOffset, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
@@ -132,6 +302,9 @@ inline void rglVertexAttribPointer(Vert3x2f v, int layoutOffset = 0)
 
 
 
+//*********************************************
+//            Graphics data loading functions
+//*********************************************
 template <class T>
 unsigned int loadVBOData(std::vector<T> vec, int layoutOffset = 0)
 {

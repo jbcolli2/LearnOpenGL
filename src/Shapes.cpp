@@ -327,6 +327,7 @@ Plane::Plane(const Material& material)
 
 Plane::Plane(const Plane& otherPlane)
 {
+    m_shapeType = GameObject::PLANE;
     m_VBO = otherPlane.m_VBO;
     m_verts = otherPlane.m_verts;
     m_numVerts = otherPlane.m_numVerts;
@@ -431,6 +432,7 @@ Cube::Cube(const std::vector<std::string>& diffTexturePaths, const std::vector<s
            const std::vector<std::string>& normalTexturePaths, const std::vector<std::string>& dispTexturePaths,
            const Material& material)
 {
+    m_shapeType = GameObject::CUBE;
     m_verts = fillVerts();
     
     setupMesh(diffTexturePaths, specTexturePaths, normalTexturePaths, dispTexturePaths, material);
@@ -455,6 +457,7 @@ Cube::Cube(const Material& material)
 
 Cube::Cube(const Cube& otherCube)
 {
+    m_shapeType = otherCube.m_shapeType;
     m_VBO = otherCube.m_VBO;
     m_verts = otherCube.m_verts;
     m_numVerts = otherCube.m_numVerts;

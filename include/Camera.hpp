@@ -16,6 +16,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "nlohmann/json.hpp"
+#include "OpenGLUtil.hpp"
+
+
+using json = nlohmann::json;
+
 
 
 
@@ -104,6 +110,34 @@ public:
     
     glm::mat4 getViewMatrix();
     glm::mat4 getProjMatrix();
+    
+    
+    
+    // ///////////// toJson   ////////////////
+    /**
+     \brief Convert the camera into a json object.
+     
+     \returns The json object created to represent the shape.
+     */
+    
+    const json toJson() const
+    {
+        json j;
+        
+        j = {
+            {"type", GameObject::CAMERA},
+            {"position", m_camPos},
+            {"pitch", m_pitch},
+            {"yaw", m_yaw},
+            {"fov", m_fov},
+            {"aspectRatio", m_aspectRatio},
+            {"nearField", m_nearField},
+            {"farField", m_farField}
+        };
+        
+        return j;
+    };
+
     
 };
 

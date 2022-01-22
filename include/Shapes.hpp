@@ -25,16 +25,7 @@
 #include "Shader.hpp"
 
 
-
-struct Material
-{
-    glm::vec3 ambient = glm::vec3(1.f);
-    glm::vec3 diffuse = glm::vec3(1.f);
-    glm::vec3 specular = glm::vec3(1.f);
-    
-    
-    float shininess = 1;
-};
+using json = nlohmann::json;
 
 
 std::vector<Vert3x3x2x3x3f> addTBtoVerts(std::vector<Vert3x3x2f>);
@@ -64,7 +55,10 @@ protected:
 public:
     Material m_material;
     Transform m_transform;
+    GameObject m_shapeType;
     bool m_outlined = false;
+    
+    const std::vector<Texture> getTextures() const {return m_textures;};
     
     
     
@@ -134,6 +128,38 @@ public:
         
         return;
     }
+    
+    
+    
+    // ///////////// toJson   ////////////////
+    /**
+     \brief Convert the shape into a json object.  This should not depend on the type of shape.
+     
+     \returns The json object created to represent the shape.
+     */
+    
+    const json toJson() const
+    {
+        json jTextures = m_textures;
+        
+        json j = {
+            {"type", m_shapeType},
+            {"position", m_transform.position},
+            {"rotation", m_transform.rotation},
+            {"scale", m_transform.scale},
+            {"material",
+                {
+                {"diffuse", m_material.diffuse},
+                {"specular", m_material.specular},
+                {"ambient", m_material.ambient},
+                {"shininess", m_material.shininess}
+                }
+            }
+        };
+        j.insert(jTextures.begin(), jTextures.end());
+
+        return j;
+    };
     
 };
 

@@ -13,8 +13,8 @@
 
 #include "Shapes.hpp"
 #include "Shader.hpp"
+#include "OpenGLUtil.hpp"
 #include "VertexData.hpp"
-
 
 
 class PosLight
@@ -80,9 +80,15 @@ public:
     
     
     
+    
+    
 };
 
 
+
+//*********************************************
+//            Class: Directional Light
+//*********************************************
 class DirLight : public PosLight
 {
 public:
@@ -94,10 +100,36 @@ public:
         
         m_direction = dir;
     };
+    
+    
+    
+    // ///////////// toJson   ////////////////
+    /**
+     \brief Convert a directional light into a json object.
+     */
+    const json toJson() const
+    {
+        json j = {
+            {"type", GameObject::DIRLIGHT},
+            {"diffuse", m_diffuse},
+            {"ambient", m_ambient},
+            {"specular", m_specular},
+            {"direction", m_direction},
+            {"constAtten", m_constAtten},
+            {"linAtten", m_linAtten},
+            {"quadAtten", m_quadAtten}
+        };
+        return j;
+    };
 };
 
 
 
+
+
+//*********************************************
+//            Class: Point Light
+//*********************************************
 class PointLight : public PosLight
 {
 public:
@@ -109,9 +141,36 @@ public:
         
         m_position = position;
     };
+    
+    
+    
+    // ///////////// toJson   ////////////////
+    /**
+     \brief Convert a point light into a json object.
+     */
+    const json toJson() const
+    {
+        json j = {
+            {"type", GameObject::PTLIGHT},
+            {"diffuse", m_diffuse},
+            {"ambient", m_ambient},
+            {"specular", m_specular},
+            {"position", m_position},
+            {"constAtten", m_constAtten},
+            {"linAtten", m_linAtten},
+            {"quadAtten", m_quadAtten}
+        };
+        return j;
+    };
 };
 
 
+
+
+
+//*********************************************
+//            Class: Spot Light
+//*********************************************
 class SpotLight : public PosLight
 {
 public:
@@ -126,6 +185,31 @@ public:
         m_direction = direction;
         m_innerCutoff = innerCutoff;
         m_outerCutoff = outerCutoff;
+    };
+    
+    
+    
+    
+    // ///////////// toJson   ////////////////
+    /**
+     \brief Convert a spot light into a json object.
+     */
+    const json toJson() const
+    {
+        json j = {
+            {"type", GameObject::SPOTLIGHT},
+            {"diffuse", m_diffuse},
+            {"ambient", m_ambient},
+            {"specular", m_specular},
+            {"position", m_position},
+            {"direction", m_direction},
+            {"innerCutoff", m_innerCutoff},
+            {"outerCutoff", m_outerCutoff},
+            {"constAtten", m_constAtten},
+            {"linAtten", m_linAtten},
+            {"quadAtten", m_quadAtten}
+        };
+        return j;
     };
 };
 
