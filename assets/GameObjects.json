@@ -1,0 +1,164 @@
+[
+  {
+    "aspectRatio": 1.2000000476837158,
+    "farField": 100.0,
+    "fov": 45.0,
+    "nearField": 0.10000000149011612,
+    "pitch": 57.80000305175781,
+    "position": [
+      -0.1686781346797943,
+      0.0,
+      -1.5010147094726563
+    ],
+    "type": "Camera",
+    "yaw": 8.099998474121094
+  },
+  {
+    "ambient": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "constAtten": 0.0,
+    "diffuse": [
+      102.83186340332031,
+      102.83186340332031,
+      102.83186340332031
+    ],
+    "linAtten": 0.0,
+    "position": [
+      0.0,
+      0.0,
+      -49.5
+    ],
+    "quadAtten": 1.0,
+    "specular": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "type": "PointLight"
+  },
+  {
+    "ambient": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "constAtten": 0.0,
+    "diffuse": [
+      0.10000000149011612,
+      0.0,
+      0.0
+    ],
+    "linAtten": 0.0,
+    "position": [
+      2.4000000953674316,
+      2.4000000953674316,
+      -8.0
+    ],
+    "quadAtten": 1.0,
+    "specular": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "type": "PointLight"
+  },
+  {
+    "ambient": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "constAtten": 0.0,
+    "diffuse": [
+      0.0,
+      65.30000305175781,
+      0.0
+    ],
+    "linAtten": 0.0,
+    "position": [
+      -2.4000000953674316,
+      -2.4000000953674316,
+      -6.0
+    ],
+    "quadAtten": 1.0,
+    "specular": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "type": "PointLight"
+  },
+  {
+    "ambient": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "constAtten": 0.0,
+    "diffuse": [
+      0.0,
+      0.0,
+      0.10000000149011612
+    ],
+    "linAtten": 0.0,
+    "position": [
+      -2.4000000953674316,
+      2.4000000953674316,
+      -3.0
+    ],
+    "quadAtten": 1.0,
+    "specular": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "type": "PointLight"
+  },
+  {
+    "material": {
+      "ambient": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "diffuse": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "shininess": 1.0,
+      "specular": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "position": [
+      0.0,
+      0.0,
+      -25.700000762939453
+    ],
+    "rotation": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": [
+      5.0,
+      5.0,
+      56.0
+    ],
+    "textures": {
+      "bump": [],
+      "diffuse": [
+        "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/assets/wood.png"
+      ],
+      "normal": [],
+      "specular": []
+    },
+    "type": "Cube"
+  }
+]

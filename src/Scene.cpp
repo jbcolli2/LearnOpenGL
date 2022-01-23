@@ -228,7 +228,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     glfwSetMouseButtonCallback(window, Scene::GLFWCallbackWrapper::mouseButtonCallback);
 
     
-    
+    json j = json::array();
     
     setupShaders();
     
@@ -273,21 +273,6 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_fboShader.setUniform1f("exposure", m_exposure);
     m_fboShader.stopUseProgram();
     
-    json j = json::array();
-    j.push_back(m_cam);
-    for (const auto& light : m_ptLights)
-    {
-        j.push_back(light);
-    }
-    for (const auto& light : m_dirLights)
-    {
-        j.push_back(light);
-    }
-    for (const auto& light : m_spotLights)
-    {
-        j.push_back(light);
-    }
-    std::cout << j.dump(2) << std::endl;
     //*********************************************
     //            Demo End
     //*********************************************
@@ -579,18 +564,15 @@ void Scene::processInput(float deltaTime)
         KeyEvent keyEvent = inputHandler->m_unhandledKeys.front();
         inputHandler->m_unhandledKeys.pop();
         
-        if(keyEvent.key == GLFW_KEY_M && keyEvent.action == GLFW_PRESS)
+        
+        // Control S saves objects into a json file
+        if(keyEvent.key == GLFW_KEY_S && keyEvent.mods == GLFW_MOD_SUPER && keyEvent.action == GLFW_PRESS)
         {
-            m_mouseIsCam = !m_mouseIsCam;
-            if(m_mouseIsCam)
-            {
-                glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            }
-            else
-            {
-                glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            }
+            SerializeObjects();
+            JsonToFile(m_gameObjectJson, JSON_FILE);
         }
+        
+        
         
 //        if(keyEvent.key == GLFW_KEY_SPACE && keyEvent.action == GLFW_PRESS )
 //        {
@@ -761,6 +743,42 @@ void Scene::scroll_callback(GLFWwindow* window, double xInc, double yInc)
 }
 
 
+
+
+
+void Scene::SerializeObjects()
+{
+    m_gameObjectJson = json::array();
+    m_gameObjectJson.push_back(m_cam);
+    for (const auto& light : m_ptLights)
+    {
+        m_gameObjectJson.push_back(light);
+    }
+    for (const auto& light : m_dirLights)
+    {
+        m_gameObjectJson.push_back(light);
+    }
+    for (const auto& light : m_spotLights)
+    {
+        m_gameObjectJson.push_back(light);
+    }
+    for (const auto& shape : m_shapes)
+    {
+        switch(shape->m_shapeType)
+        {
+            case GameObject::CUBE:
+                m_gameObjectJson.push_back(*dynamic_cast<Cube*>(&*shape));
+                break;
+                
+            case GameObject::PLANE:
+                m_gameObjectJson.push_back(*dynamic_cast<Plane*>(&*shape));
+                break;
+                
+            default:
+                break;
+        }
+    }
+}
 
 
 Scene::~Scene()

@@ -27,6 +27,8 @@
 #include "Framebuffer.hpp"
 #include "Serialize.hpp"
 
+using json = nlohmann::json;
+
 
 
 class SelectObjCommand
@@ -75,8 +77,11 @@ public:
     };
     fboQuad m_fboQuad;
     
-    
-    
+    //*********************************************
+    //            Serialization
+    //*********************************************
+    json m_gameObjectJson;
+    std::string JSON_FILE = "../../assets/GameObjects.json";
     
     //*********************************************
     //            Shader variables
@@ -256,6 +261,8 @@ public:
     void drawObjects(Shader shader);
     void RenderFBO(float nearPlane = 0.f, float farPlane = 0.f);
     void updateLights();
+    
+    void SerializeObjects();
     
     
     

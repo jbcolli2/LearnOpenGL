@@ -8,6 +8,8 @@
 #ifndef Serialize_h
 #define Serialize_h
 
+#include <fstream>
+
 #include "glm/glm.hpp"
 #include "nlohmann/json.hpp"
 #include "Mesh.hpp"
@@ -15,31 +17,19 @@
 using json = nlohmann::json;
 
 
-// ///////////// DeserializeDefault   ////////////////
+// ///////////// JsonToFile   ////////////////
 /**
- \brief Creates a default value if key does not exist in json file.  This is use for the conversion functions from
-    GameObjects to json and back.
+ \brief Creates a json file from a json object.
  
- \param j - the json object with the potential key
- \param key - string of the key
- \param defaultVal - the default value
- 
- \returns Either the value associated with the key stored in the json file, or the default value if no key exists in j.
+ \param j - The json object containing all the data
+ \param filename - name of the file
  */
-template <typename T>
-T DeserializeDefault(const json& j, const std::string& key, T defaultVal)
+inline void JsonToFile(const json& j, const std::string& path)
 {
-    T temp;
-    try
-    {
-        temp = j.at(key).get<T>();
-    }
-    catch(json::out_of_range & e)
-    {
-        temp = defaultVal;
-    }
-
-    return temp;
+    std::fstream file;
+    file.open(path, std::ifstream::out);
+    file << j.dump(2);
+    file.close();
 }
 
 
