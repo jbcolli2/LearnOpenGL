@@ -26,6 +26,7 @@
 #include "Skybox.hpp"
 #include "Framebuffer.hpp"
 #include "Serialize.hpp"
+#include "OpenGLUtil.hpp"
 
 using json = nlohmann::json;
 
@@ -262,7 +263,8 @@ public:
     void RenderFBO(float nearPlane = 0.f, float farPlane = 0.f);
     void updateLights();
     
-    void SerializeObjects();
+    void SerializeObjects(const std::string& jsonPath);
+    void DeserializeObjects(const std::string& jsonFilePath);
     
     
     

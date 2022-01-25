@@ -70,6 +70,8 @@ inline void shapeToJson(json& j, const T& shape)
         }
     };
     j.insert(jTextures.begin(), jTextures.end());
+    
+    
 }
 
 
@@ -81,7 +83,7 @@ inline void JsonToShape(const json& j, T& shape)
     json jTex;
     try
     {
-        jTex = j.at("texture");
+        jTex = j.at("textures");
     }
     catch(json::out_of_range& e)
     {
@@ -109,14 +111,18 @@ inline void JsonToShape(const json& j, T& shape)
     shape.m_material.diffuse = jMat.value("diffuse", glm::vec3(1.f));
     shape.m_material.specular = jMat.value("specular", glm::vec3(.5f));
     
+    if(j.value("flipNormals", false))
+    {
+        shape.FlipNormals();
+    }
+    
 }
 
 
 // ********  Cube  ********** //
 inline void to_json(json& j, const Cube& cube)
 {
-    shapeToJson(j, cube);
-    j["type"] = "Cube";
+    j = cube.toJson();
 }
 
 inline void from_json(const json& j, Cube& cube)
@@ -129,8 +135,7 @@ inline void from_json(const json& j, Cube& cube)
 // ********  Plane  ********** //
 inline void to_json(json& j, const Plane& plane)
 {
-    shapeToJson(j, plane);
-    j["type"] = "Plane";
+    j = plane.toJson();
 }
 
 inline void from_json(const json& j, Plane& plane)

@@ -154,6 +154,7 @@ void Scene::setupShapes()
     
     
     m_shapes.push_back((std::make_unique<Cube>(woodPath)));
+    m_shapes[0]->FlipNormals();
     m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, -25.7f);
     m_shapes[0]->m_transform.scale = glm::vec3(5.f, 5.f, 2.f*28.f);
  
@@ -228,7 +229,6 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     glfwSetMouseButtonCallback(window, Scene::GLFWCallbackWrapper::mouseButtonCallback);
 
     
-    json j = json::array();
     
     setupShaders();
     
@@ -237,16 +237,17 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_selectCommands.push_back(std::make_unique<LightSelect>(this));
     selectCommandIndex = 2;
     
-    createLights();
+    DeserializeObjects(JSON_FILE);
+//    createLights();
     setupLights();
     
     
     
     //  Setup the camera
-    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-0.3f, 0.f, 0.f), 0.f, 5.f);
+//    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-0.3f, 0.f, 0.f), 0.f, 5.f);
     
     
-    setupShapes();
+//    setupShapes();
 
 
     
@@ -568,8 +569,12 @@ void Scene::processInput(float deltaTime)
         // Control S saves objects into a json file
         if(keyEvent.key == GLFW_KEY_S && keyEvent.mods == GLFW_MOD_SUPER && keyEvent.action == GLFW_PRESS)
         {
-            SerializeObjects();
-            JsonToFile(m_gameObjectJson, JSON_FILE);
+            SerializeObjects(JSON_FILE);
+        }
+        // Control L loads objects from json file
+        if(keyEvent.key == GLFW_KEY_L && keyEvent.mods == GLFW_MOD_SUPER && keyEvent.action == GLFW_PRESS)
+        {
+            DeserializeObjects(JSON_FILE);
         }
         
         
@@ -690,8 +695,7 @@ void Scene::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void Scene::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if(m_mouseIsCam)
-    {
+    
         if(m_firstMouse)
         {
             m_firstMouse = false;
@@ -707,7 +711,8 @@ void Scene::mouse_callback(GLFWwindow* window, double xpos, double ypos)
         xoffset *= m_mouseSensitivity;
         yoffset *= m_mouseSensitivity;
     
-    
+    if(m_mouseIsCam)
+    {
         m_cam.turnYaw(xoffset);
         m_cam.turnPitch(yoffset);
     }
@@ -745,8 +750,16 @@ void Scene::scroll_callback(GLFWwindow* window, double xInc, double yInc)
 
 
 
-
-void Scene::SerializeObjects()
+// ///////////// SerializeObjects   ////////////////
+/**
+ \brief Initialize a blank json array and store in member m_gameObjectJson.  Loop through each vector of objects and add them to the json array.  Then
+    write json object to file.
+ 
+ \param
+ 
+ \returns
+ */
+void Scene::SerializeObjects(const std::string& jsonPath)
 {
     m_gameObjectJson = json::array();
     m_gameObjectJson.push_back(m_cam);
@@ -764,6 +777,16 @@ void Scene::SerializeObjects()
     }
     for (const auto& shape : m_shapes)
     {
+        /**
+         *  Dynamic casting of shape to particular shape.
+         *
+         *  *shape - convert unique_ptr<Shape> --> Shape object (no idea what a Shape object even is since it's abstract)
+         *  &*shape - convert Shape --> raw pointer to Shape
+         *  dynamic_cast<Cube*>(&*shape) - convert Shape* --> Cube*
+         *  *dynamice_cast<Cube*>(&*shape) - convert Cube* --> Cube
+         *
+         *  TODO: This is ugly and I would have no idea what it means without these comments.  Find a better way to cast from unique_ptr<Shape> to Cube.
+         */
         switch(shape->m_shapeType)
         {
             case GameObject::CUBE:
@@ -774,6 +797,72 @@ void Scene::SerializeObjects()
                 m_gameObjectJson.push_back(*dynamic_cast<Plane*>(&*shape));
                 break;
                 
+            default:
+                break;
+        }
+    }
+    
+    JsonToFile(m_gameObjectJson, JSON_FILE);
+}
+
+
+
+
+
+
+// ///////////// DeserializeObjects   ////////////////
+/**
+ \brief Loop through all objects in a json array and fill all object vectors (shapes, ptLights, ...) with info
+    from the json array.  This will start everything over, so whatever is in those vectors before this method
+    will be completely overridden.
+ 
+ \param jsonFilePath - The json file with the json information
+ */
+void Scene::DeserializeObjects(const std::string& jsonFilePath)
+{
+    std::ifstream file;
+    file.open(jsonFilePath);
+    file >> m_gameObjectJson;
+    
+    // Want to start vector of objects from scatch, so that the loading will not double up
+    m_shapes.erase(m_shapes.begin(), m_shapes.end());
+    m_ptLights.erase(m_ptLights.begin(), m_ptLights.end());
+    m_dirLights.erase(m_dirLights.begin(), m_dirLights.end());
+    m_spotLights.erase(m_spotLights.begin(), m_spotLights.end());
+    
+    for(const auto& j : m_gameObjectJson)
+    {
+        Cube cube{};
+        
+
+        switch(j.value("type", GameObject::INVALID))
+        {
+                // ********  Shapes  ********** //
+            case GameObject::CUBE:
+                cube = j.get<Cube>();
+                m_shapes.push_back(std::make_unique<Cube>(j.get<Cube>()));
+                break;
+            case GameObject::PLANE:
+                m_shapes.push_back(std::make_unique<Plane>(j.get<Plane>()));
+                break;
+                // ********  Lights  ********** //
+            case GameObject::PTLIGHT:
+                m_ptLights.push_back(j);
+                setupLights();
+            
+                break;
+            case GameObject::DIRLIGHT:
+                m_dirLights.push_back(j);
+                setupLights();
+                break;
+            case GameObject::SPOTLIGHT:
+                m_spotLights.push_back(j);
+                setupLights();
+                break;
+                // ********  Camera  ********** //
+            case GameObject::CAMERA:
+                m_cam = j;
+                break;
             default:
                 break;
         }

@@ -112,8 +112,8 @@ public:
         json j = {
             {"type", GameObject::DIRLIGHT},
             {"diffuse", m_diffuse},
-            {"ambient", m_ambient},
-            {"specular", m_specular},
+            {"ambient", m_ambient.x},
+            {"specular", m_specular.x},
             {"direction", m_direction},
             {"constAtten", m_constAtten},
             {"linAtten", m_linAtten},
@@ -153,8 +153,8 @@ public:
         json j = {
             {"type", GameObject::PTLIGHT},
             {"diffuse", m_diffuse},
-            {"ambient", m_ambient},
-            {"specular", m_specular},
+            {"ambient", m_ambient.x},
+            {"specular", m_specular.x},
             {"position", m_position},
             {"constAtten", m_constAtten},
             {"linAtten", m_linAtten},
@@ -199,8 +199,8 @@ public:
         json j = {
             {"type", GameObject::SPOTLIGHT},
             {"diffuse", m_diffuse},
-            {"ambient", m_ambient},
-            {"specular", m_specular},
+            {"ambient", m_ambient.x},
+            {"specular", m_specular.x},
             {"position", m_position},
             {"direction", m_direction},
             {"innerCutoff", m_innerCutoff},

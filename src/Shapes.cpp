@@ -344,7 +344,7 @@ Plane::Plane(const Plane& otherPlane)
 
 
 
-std::vector<Vert3x3x2f> Plane::fillVerts(std::vector<Vert3x3x2f> verts)
+std::vector<Vert3x3x2f> Plane::fillVerts(std::vector<Vert3x3x2f> verts) const
 {
     std::vector<Vert3x3x2f> temp = {
         Vert3x3x2f(-0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f), //top
@@ -369,7 +369,7 @@ std::vector<Vert3x3x2f> Plane::fillVerts(std::vector<Vert3x3x2f> verts)
 
 
 
-std::vector<Vert3x3x2f> Cube::fillVerts(std::vector<Vert3x3x2f> verts)
+std::vector<Vert3x3x2f> Cube::fillVerts(std::vector<Vert3x3x2f> verts) const
 {
     std::vector<Vert3x3x2f> temp = {
         Vert3x3x2f(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f), // front
@@ -463,6 +463,7 @@ Cube::Cube(const Cube& otherCube)
     m_numVerts = otherCube.m_numVerts;
     m_material = otherCube.m_material;
     m_textures = otherCube.m_textures;
+    m_transform = otherCube.m_transform;
     
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);

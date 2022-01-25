@@ -49,7 +49,8 @@ protected:
                    const std::vector<std::string>& dispTexturePaths = std::vector<std::string>(),
                    const Material& material = Material());
     
-    std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) = 0;
+    std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) const
+    = 0;
 
     
 public:
@@ -157,6 +158,14 @@ public:
             }
         };
         j.insert(jTextures.begin(), jTextures.end());
+        
+        // Check if normals are flipped
+        std::vector<Vert3x3x2f> tempVerts = fillVerts();
+        if(m_verts[0].r != tempVerts[0].r || m_verts[0].g != tempVerts[0].g
+           || m_verts[0].b != tempVerts[0].b)
+        {
+            j["flipNormals"] = true;
+        }
 
         return j;
     };
@@ -174,7 +183,7 @@ public:
 class Points : public Shape
 {
     std::vector<Vert3x3f> m_positions;
-    std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) override {return std::vector<Vert3x3x2f>();};
+    std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) const override {return std::vector<Vert3x3x2f>();};
     
 public:
     Points(std::vector<Vert3x3f> positions);
@@ -193,7 +202,7 @@ public:
 class Line : public Shape
 {
     std::vector<Vert3x3f> m_positions;
-    std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) override {return std::vector<Vert3x3x2f>();};
+    std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) const override {return std::vector<Vert3x3x2f>();};
     
 public:
     Line(std::vector<Vert3x3f> positions);
@@ -212,7 +221,7 @@ class Plane : public Shape
 {
     
     
-    std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) override;
+    std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) const override;
     float m_UVCorner;
 
 public:
@@ -242,7 +251,7 @@ class Cube : public Shape
     
     
     
-    std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) override;
+    std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) const override;
 
     
     
