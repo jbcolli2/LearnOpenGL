@@ -389,31 +389,37 @@ void Scene::drawObjects(Shader shader)
 
 void Scene::SetupImGui()
 {
-    static float tempLightBright = m_ptLights[m_selectedLight].getDiffBrightness();
     ImGui::Begin("Display Info");
     ImGui::Text("Cam Position: (%4.2f, %4.2f, %4.2f)", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
     glm::vec3 dir = m_cam.getDirection();
     ImGui::Text("Cam Direction: (%4.2f, %4.2f, %4.2f)", dir.x, dir.y, dir.z);
-    if(ImGui::BeginCombo(("Light " + std::to_string(m_selectedLight)).c_str(), "Light 0", ImGuiComboFlags_NoPreview))
+    
+    if(m_ptLights.size() > 0)
     {
-        for(int ii = 0; ii < m_ptLights.size(); ++ii)
+        static float tempLightBright = m_ptLights[m_selectedLight].getDiffBrightness();
+
+        if(ImGui::BeginCombo(("Light " + std::to_string(m_selectedLight)).c_str(), "Light 0", ImGuiComboFlags_NoPreview))
         {
-            if(ImGui::Selectable(("Light " + std::to_string(ii)).c_str()))
+            for(int ii = 0; ii < m_ptLights.size(); ++ii)
             {
-                m_selectCommands[2]->selectIndex(ii);
-                tempLightBright = m_ptLights[m_selectedLight].getDiffBrightness();
+                if(ImGui::Selectable(("Light " + std::to_string(ii)).c_str()))
+                {
+                    m_selectCommands[2]->selectIndex(ii);
+                    tempLightBright = m_ptLights[m_selectedLight].getDiffBrightness();
+                }
             }
+            
+            ImGui::EndCombo();
+            
+            
         }
         
-        ImGui::EndCombo();
         
-        
-    }
-    
-    
-    if(ImGui::DragFloat("Brightness", &tempLightBright, 0.1f, 0.1f, 500.f, "%.3f"))
-    {
-        m_ptLights[m_selectedLight].setDiffBrightness(tempLightBright);
+        if(ImGui::DragFloat("Brightness", &tempLightBright, 0.1f, 0.1f, 500.f, "%.3f"))
+        {
+            m_ptLights[m_selectedLight].setDiffBrightness(tempLightBright);
+        }
+
     }
     
     if(ImGui::Checkbox("Phong Lighting", &m_phong))
@@ -449,7 +455,21 @@ void Scene::SetupImGui()
 //        setupLights();
 //    }
     
+    if(m_jsonParseError)
+    {
+        
+        ImGui::OpenPopup("JSON Failure");
+        if(ImGui::BeginPopupModal("JSON Failure", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Failure to parse json file");
+            if(ImGui::Button("OK")) {ImGui::CloseCurrentPopup();m_jsonParseError = false;}
+            ImGui::EndPopup();
+        }
+    }
     ImGui::End();
+    
+    
+    
 }
 
 
@@ -460,7 +480,7 @@ void Scene::SetupImGui()
 
 void Scene::clearBuffers()
 {
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClearColor(0.f, 0.f, 0.f, 1.0f);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
@@ -566,13 +586,14 @@ void Scene::processInput(float deltaTime)
         inputHandler->m_unhandledKeys.pop();
         
         
-        // Control S saves objects into a json file
-        if(keyEvent.key == GLFW_KEY_S && keyEvent.mods == GLFW_MOD_SUPER && keyEvent.action == GLFW_PRESS)
+        // Use CTRL Z/X for save/load so that it doesn't interfere with the moving buttons
+        //
+        // TODO: Allow use of S and L by skipping movement code when this code is run
+        if(keyEvent.key == GLFW_KEY_Z && keyEvent.mods == GLFW_MOD_SUPER && keyEvent.action == GLFW_PRESS)
         {
             SerializeObjects(JSON_FILE);
         }
-        // Control L loads objects from json file
-        if(keyEvent.key == GLFW_KEY_L && keyEvent.mods == GLFW_MOD_SUPER && keyEvent.action == GLFW_PRESS)
+        if(keyEvent.key == GLFW_KEY_X && keyEvent.mods == GLFW_MOD_SUPER && keyEvent.action == GLFW_PRESS)
         {
             DeserializeObjects(JSON_FILE);
         }
@@ -822,7 +843,20 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
 {
     std::ifstream file;
     file.open(jsonFilePath);
-    file >> m_gameObjectJson;
+//    file >> m_gameObjectJson;
+    json j;
+    try
+    {
+        j = json::parse(file, nullptr, true, true);
+    }
+    catch (json::parse_error& e)
+    {
+        std::cout << e.what() << std::endl;
+        m_jsonParseError = true;
+        return;
+    }
+    
+    m_gameObjectJson = j;
     
     // Want to start vector of objects from scatch, so that the loading will not double up
     m_shapes.erase(m_shapes.begin(), m_shapes.end());
@@ -834,17 +868,20 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
     {
         Cube cube{};
         
-
+        Plane p{};
         switch(j.value("type", GameObject::INVALID))
         {
+                
                 // ********  Shapes  ********** //
             case GameObject::CUBE:
                 cube = j.get<Cube>();
                 m_shapes.push_back(std::make_unique<Cube>(j.get<Cube>()));
                 break;
             case GameObject::PLANE:
-                m_shapes.push_back(std::make_unique<Plane>(j.get<Plane>()));
+                p = j.get<Plane>();
+                m_shapes.push_back(std::make_unique<Plane>(p));
                 break;
+                
                 // ********  Lights  ********** //
             case GameObject::PTLIGHT:
                 m_ptLights.push_back(j);
@@ -859,6 +896,7 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
                 m_spotLights.push_back(j);
                 setupLights();
                 break;
+                
                 // ********  Camera  ********** //
             case GameObject::CAMERA:
                 m_cam = j;

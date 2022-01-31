@@ -13,7 +13,9 @@ const std::string Texture::materialName = "material";
 const std::string Texture::diffuseName = Texture::materialName + ".diffuse";
 const std::string Texture::specName = Texture::materialName + ".specular";
 const std::string Texture::normalName = Texture::materialName + ".normal";
-const std::string Texture::dispName = Texture::materialName + ".disp";
+const std::string Texture::bumpName = Texture::materialName + ".bump";
+
+const bool Texture::sRGBDefault = false;
 
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) :
@@ -33,12 +35,12 @@ void Mesh::setupTextureForDraw(Shader& shader)
         glActiveTexture(GL_TEXTURE0 + ii);
         m_textures[ii].unitID = ii;
         
-        if(m_textures[ii].typeName == Texture::diffuseName)
+        if(m_textures[ii].type == TextureType::DIFFUSE)
         {
             shader.setUniform1i(Texture::diffuseName + std::to_string(diffUnit), ii);
             diffUnit++;
         }
-        else if(m_textures[ii].typeName == Texture::specName)
+        else if(m_textures[ii].type == TextureType::SPECULAR)
         {
             shader.setUniform1i(Texture::specName + std::to_string(specUnit), ii);
             specUnit++;

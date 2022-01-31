@@ -83,6 +83,7 @@ public:
     //*********************************************
     json m_gameObjectJson;
     std::string JSON_FILE = "../../assets/GameObjects.json";
+    bool m_jsonParseError = false;
     
     //*********************************************
     //            Shader variables
@@ -94,6 +95,7 @@ public:
     Shader  m_fboShader, m_debugShader, m_skyboxShader, m_effectShader, m_justTexture;
     Shader m_geomNormals;
     Shader* m_currentObjShader;
+    
     
     
     

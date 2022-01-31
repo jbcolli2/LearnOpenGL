@@ -22,13 +22,13 @@ using json = nlohmann::json;
  \brief Creates a json file from a json object.
  
  \param j - The json object containing all the data
- \param filename - name of the file
+ \param path - name of the file
  */
 inline void JsonToFile(const json& j, const std::string& path)
 {
     std::fstream file;
     file.open(path, std::ifstream::out);
-    file << j.dump(2);
+    file << j.dump(4);
     file.close();
 }
 
@@ -50,33 +50,6 @@ inline void from_json(const json& j, std::vector<Texture> textures)
 //            Convert Shapes
 //*********************************************
 template <typename T>
-inline void shapeToJson(json& j, const T& shape)
-{
-    json jTextures = shape.getTextures();
-    Material mat = shape.m_material;
-    
-    j = {
-        {"type", shape.m_shapeType},
-        {"position", shape.m_transform.position},
-        {"rotation", shape.m_transform.rotation},
-        {"scale", shape.m_transform.scale},
-        {"material",
-            {
-            {"diffuse", mat.diffuse},
-            {"specular", mat.specular},
-            {"ambient", mat.ambient},
-            {"shininess", mat.shininess}
-            }
-        }
-    };
-    j.insert(jTextures.begin(), jTextures.end());
-    
-    
-}
-
-
-
-template <typename T>
 inline void JsonToShape(const json& j, T& shape)
 {
     // Get all the texture paths ...
@@ -89,13 +62,55 @@ inline void JsonToShape(const json& j, T& shape)
     {
         jTex = json{{"trash", 8}};
     }
+    
+    
     std::vector<std::string> diffTexPaths = jTex.value("diffuse", std::vector<std::string>());
     std::vector<std::string> specTexPaths = jTex.value("specular", std::vector<std::string>());
     std::vector<std::string> normTexPaths = jTex.value("normal", std::vector<std::string>());
     std::vector<std::string> bumpTexPaths = jTex.value("bump", std::vector<std::string>());
     
+    std::vector<bool> diffTexsRGB = jTex.value("sRGBDiff", std::vector<bool>());
+    std::vector<bool> specTexsRGB = jTex.value("sRGBSpec", std::vector<bool>());
+    std::vector<bool> normTexsRGB = jTex.value("sRGBNorm", std::vector<bool>());
+    std::vector<bool> bumpTexsRGB = jTex.value("sRGBBump", std::vector<bool>());
+    
     // ... then create a new shape with these texture paths ...
-    shape = T(diffTexPaths, specTexPaths, normTexPaths, bumpTexPaths);
+    //TODO: Include the UVCorner parameter into the entire serialization pipeline
+    shape = T();
+    
+    //... add all textures to the shape ...
+    if(diffTexPaths.size() > 0)
+    {
+        if(diffTexsRGB.size() > 0)
+            shape.loadTextures(diffTexPaths, TextureType::DIFFUSE, diffTexsRGB);
+        else
+            shape.loadTextures(diffTexPaths, TextureType::DIFFUSE);
+    }
+    
+    if(specTexPaths.size() > 0)
+    {
+        if(specTexsRGB.size() > 0)
+            shape.loadTextures(specTexPaths, TextureType::DIFFUSE, specTexsRGB);
+        else
+            shape.loadTextures(specTexPaths, TextureType::DIFFUSE);
+    }
+    
+    if(normTexPaths.size() > 0)
+    {
+        if(normTexsRGB.size() > 0)
+            shape.loadTextures(normTexPaths, TextureType::DIFFUSE, normTexsRGB);
+        else
+            shape.loadTextures(normTexPaths, TextureType::DIFFUSE);
+    }
+    
+    if(bumpTexPaths.size() > 0)
+    {
+        if(bumpTexsRGB.size() > 0)
+            shape.loadTextures(bumpTexPaths, TextureType::DIFFUSE, bumpTexsRGB);
+        else
+            shape.loadTextures(bumpTexPaths, TextureType::DIFFUSE);
+    }
+        
     
     // ... now modify all the properties of this shape based on the rest of the json file
     shape.m_transform.position = j.value("position", glm::vec3(0.f));
@@ -106,7 +121,12 @@ inline void JsonToShape(const json& j, T& shape)
     {
         jMat = j.at("material");
     }
-    catch(json::out_of_range& e){}
+    catch(json::out_of_range& e)
+    {
+        // Fill `jMat` with something so that we can use `value()` later.  `value()` can't be used
+        //  on a null json object.
+        jMat["trash"] = 4;
+    }
     shape.m_material.ambient = jMat.value("ambient", glm::vec3(.2f));
     shape.m_material.diffuse = jMat.value("diffuse", glm::vec3(1.f));
     shape.m_material.specular = jMat.value("specular", glm::vec3(.5f));

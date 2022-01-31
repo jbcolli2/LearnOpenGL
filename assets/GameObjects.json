@@ -1,133 +1,114 @@
 [
-  {
-    "aspectRatio": 1.2000000476837158,
-    "farField": 100.0,
-    "fov": 45.0,
-    "nearField": 0.10000000149011612,
-    "pitch": -1.9344903230667114,
-    "position": [
-      -0.2941363751888275,
-      0.011600395664572716,
-      -0.06642480939626694
-    ],
-    "type": "Camera",
-    "yaw": 4.991302490234375
-  },
-  {
-    "ambient": 0.0,
-    "constAtten": 0.0,
-    "diffuse": [
-      200.0,
-      200.0,
-      200.0
-    ],
-    "linAtten": 0.0,
-    "position": [
-      0.0,
-      0.0,
-      -49.5
-    ],
-    "quadAtten": 1.0,
-    "specular": 0.0,
-    "type": "PointLight"
-  },
-  {
-    "ambient": 0.0,
-    "constAtten": 0.0,
-    "diffuse": [
-      0.10000000149011612,
-      0.0,
-      0.0
-    ],
-    "linAtten": 0.0,
-    "position": [
-      2.0762557983398438,
-      1.7346343994140625,
-      -8.0
-    ],
-    "quadAtten": 1.0,
-    "specular": 0.0,
-    "type": "PointLight"
-  },
-  {
-    "ambient": 0.0,
-    "constAtten": 0.0,
-    "diffuse": [
-      0.0,
-      0.10000000149011612,
-      0.0
-    ],
-    "linAtten": 0.0,
-    "position": [
-      -2.4000000953674316,
-      -2.4000000953674316,
-      -6.0
-    ],
-    "quadAtten": 1.0,
-    "specular": 0.0,
-    "type": "PointLight"
-  },
-  {
-    "ambient": 0.0,
-    "constAtten": 0.0,
-    "diffuse": [
-      0.0,
-      0.0,
-      0.10000000149011612
-    ],
-    "linAtten": 0.0,
-    "position": [
-      -2.4000000953674316,
-      2.4000000953674316,
-      -3.0
-    ],
-    "quadAtten": 1.0,
-    "specular": 0.0,
-    "type": "PointLight"
-  },
-  {
-    "flipNormals": true,
-    "material": {
-      "ambient": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "diffuse": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "shininess": 1.0,
-      "specular": [
-        1.0,
-        1.0,
-        1.0
-      ]
+    {
+        "aspectRatio": 1.3333333730697632,
+        "farField": 100.0,
+        "fov": 45.0,
+        "nearField": 0.10000000149011612,
+        "pitch": -26.950117111206055,
+        "position": [
+            4.016556739807129,
+            2.9773108959198,
+            5.904153347015381
+        ],
+        "type": "Camera",
+        "yaw": -27.057397842407227
     },
-    "position": [
-      0.0,
-      0.0,
-      -25.700000762939453
-    ],
-    "rotation": [
-      0.0,
-      0.0,
-      0.0
-    ],
-    "scale": [
-      5.0,
-      5.0,
-      56.0
-    ],
-    "textures": {
-      "bump": [],
-      "diffuse": [
-        "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/assets/wood.png"
-      ],
-      "normal": [],
-      "specular": []
+    {
+        "ambient": 0.012960001826286316,
+        "constAtten": 0.0,
+        "diffuse": [
+            3.3093717098236084,
+            3.3093717098236084,
+            3.3093717098236084
+        ],
+        "linAtten": 1.0,
+        "position": [
+            3.328625440597534,
+            0.5343863368034363,
+            -0.5522814393043518
+        ],
+        "quadAtten": 0.0,
+        "specular": 0.0,
+        "type": "PointLight"
     },
-    "type": "Cube"
-  }
+    {
+        "ambient": 0.012960001826286316,
+        "constAtten": 0.0,
+        "diffuse": [
+            3.193901777267456,
+            3.193901777267456,
+            3.193901777267456
+        ],
+        "linAtten": 1.0,
+        "position": [
+            0.3286254405975342,
+            0.5343863368034363,
+            -0.5522814393043518
+        ],
+        "quadAtten": 0.0,
+        "specular": 0.0,
+        "type": "PointLight"
+    },
+    {
+        "ambient": 0.012960001826286316,
+        "constAtten": 0.0,
+        "diffuse": [
+            3.0206968784332275,
+            3.0206968784332275,
+            3.0206968784332275
+        ],
+        "linAtten": 1.0,
+        "position": [
+            -3.328625440597534,
+            0.47817444801330566,
+            -0.5522814393043518
+        ],
+        "quadAtten": 0.0,
+        "specular": 0.0,
+        "type": "PointLight"
+    },
+    {
+        "material": {
+            "ambient": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+            ],
+            "diffuse": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shininess": 1.0,
+            "specular": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        },
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            15.0,
+            1.0,
+            10.0
+        ],
+        "textures": {
+            "bump": [],
+            "diffuse": [
+                "../../assets/wood.png"
+            ],
+            "normal": [],
+            "specular": []
+        },
+        "type": "Plane"
+    }
 ]

@@ -38,33 +38,80 @@ class Shape
 protected:
     unsigned int m_VAO, m_VBO;
     unsigned int m_numVerts;
+    
+    
+    // Vertex data to define the shape
     std::vector<Vert3x3x2f> m_verts;
 
+    // Container for all the textures associated with the shape
     std::vector<Texture> m_textures;
+    // Load texture in linear or sRGB space
+    bool sRGBTexture{false};
+    
+     
     
     
-    void setupMesh(const std::vector<std::string>& diffTexturePaths = std::vector<std::string>(),
-                   const std::vector<std::string>& specTexturePaths = std::vector<std::string>(),
-                   const std::vector<std::string>& normalTexturePaths = std::vector<std::string>(),
-                   const std::vector<std::string>& dispTexturePaths = std::vector<std::string>(),
-                   const Material& material = Material());
+    void setupMesh();
     
     std::vector<Vert3x3x2f> virtual fillVerts(std::vector<Vert3x3x2f> verts = std::vector<Vert3x3x2f>()) const
     = 0;
 
+    // ///////////// loadTexture   ////////////////
+    /**
+     \brief Loads a texture from a file.  Creates texture buffer ID and adds texture struct to m_textures.
+     
+     \param filename - full path to the texture
+    \param textureType - type of texture for the struct.  Diffuse, specular, normal, disp, ...
+     
+     */
+    void loadTexture(std::string filename, std::string textureType);
+    
+    
+    
+    
     
 public:
+    // Material properties of object.  Things like diffuse/specular color and shininess
     Material m_material;
+    // Position/rotation/scale of the object.  This is used to create model matrix for rendering
     Transform m_transform;
+    // What kind of shape (PLANE,CUBE,...)  Used mainly for serialization at the moment.
     GameObject m_shapeType;
+    // Should the object be outlined when rendering.
     bool m_outlined = false;
     
+    
+    //*********************************************
+    //            Getters/Setters
+    //*********************************************
     const std::vector<Texture> getTextures() const {return m_textures;};
     
+    //*********************************************
+    //            Load Texture Methods
+    //*********************************************
+    
+    // ///////////// AttachTextures   //////////////////////////////////////
+    /**
+     * \brief These methods are used attach a texture to the shape.  The texture data is loaded and
+     *      a TBO is created.  Finally all the texture data is stored in a Texture objects and added
+     *      to the `m_textures` vector.
+     *
+     *      The main thing done is to fill the m_textures vector with the texture data.  This
+     *      vector is then used during draw calls to bind the textures and set the uniforms.
+     *      
+     *
+     * \param filename - full path of the texture file
+     * \param type - type of texture being attached (diffuse, specular, ...)
+     * \param sRGB - Should the texture be loaded as sRGB or linear
+     *
+     */
+    // //////////////////////////////////////////////////////////////////////////
+    void loadTextures(std::string filename, TextureType type, bool sRGB = false);
+    void loadTextures(std::vector<std::string> filename, TextureType type, bool sRGB = Texture::sRGBDefault);
+    void loadTextures(std::vector<std::string> filename, TextureType type, std::vector<bool> sRGB);
     
     
-    
-    virtual ~Shape() {};
+    virtual ~Shape();
     
     
     
@@ -75,30 +122,7 @@ public:
 
     
     
-    // ///////////// loadTexture   ////////////////
-    /**
-     \brief Loads a texture from a file.  Creates texture buffer ID and adds texture struct to m_textures.
-     
-     \param filename - full path to the texture
-    \param textureType - type of texture for the struct.  Diffuse, specular, normal, disp, ...
-     
-     */
-    void loadTexture(std::string filename, std::string textureType)
-    {
-        unsigned int texID = loadTextureFromFile(filename.c_str());
-        if(texID == 0)
-        {
-            std::cout << "SHAPE::Failed to load texture " << filename << "\n";
-            return;
-        }
-        
-        Texture texture;
-        texture.id = texID;
-        texture.path = filename;
-        texture.typeName = textureType;
-        
-        m_textures.push_back(texture);
-    }
+
     
     
     
@@ -229,11 +253,7 @@ public:
     
     
     
-    Plane(const std::vector<std::string>& diffTexturePaths = std::vector<std::string>(),
-         const std::vector<std::string>& specTexturePaths = std::vector<std::string>(),
-          const std::vector<std::string>& normalTexturePaths = std::vector<std::string>(),
-          const std::vector<std::string>& dispTexturePaths = std::vector<std::string>(),
-         float UVCorner = 1.f, const Material& material = Material());
+    Plane(float UVCorner = 1.f);
     Plane(const Material& material);
     Plane(const Plane& otherBox);
     
@@ -261,11 +281,7 @@ public:
     
     
     
-    Cube(const std::vector<std::string>& diffTexturePaths = std::vector<std::string>(),
-         const std::vector<std::string>& specTexturePaths = std::vector<std::string>(),
-         const std::vector<std::string>& normalTexturePaths = std::vector<std::string>(),
-         const std::vector<std::string>& dispTexturePaths = std::vector<std::string>(),
-         const Material& material = Material());
+    Cube();
     Cube(const Material& material);
     Cube(const Cube& otherBox);
     

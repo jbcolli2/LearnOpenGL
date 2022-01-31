@@ -44,17 +44,40 @@ struct Material
 };
 
 
+
+enum class TextureType
+{
+    DIFFUSE,
+    SPECULAR,
+    NORMAL,
+    BUMP
+};
+
 struct Texture
 {
     const static std::string materialName;
     const static std::string diffuseName;
     const static std::string specName;
     const static std::string normalName;
-    const static std::string dispName;
+    const static std::string bumpName;
+    
+    // The default sRGB choice for loading texture.  True means textures loaded in sRGB space
+    // False means textures loaded in linear space.
+    const static bool sRGBDefault;
+    
+    // the TBO of the texture
     unsigned int id;
+    // The unit id used in the shader to reference the texture
     char unitID;
-    std::string typeName;
+    // The string of the sampler2D uniform for this texture
+    std::string uniformName;
+    // Full path of the texture file
     std::string path;
+    // Type of texture (diffuse, specular, ...)
+    TextureType type;
+    // Should texture be loaded as sRGB or linear.  This info is mostly
+    //      kept for serialization purposes
+    bool sRGB;
 };
 
 
@@ -136,36 +159,42 @@ namespace glm {
 inline void to_json(json& j, const std::vector<Texture> textures)
 {
     std::vector<std::string> diffTexPaths, specTexPaths, normTexPaths, bumpTexPaths;
+    std::vector<bool> diffsRGB, specsRGB, normsRGB, bumpsRGB;
     
     for(int ii = 0; ii < textures.size(); ++ii)
     {
-        if(textures[ii].typeName == Texture::diffuseName)
+        if(textures[ii].type == TextureType::DIFFUSE)
         {
             diffTexPaths.push_back(textures[ii].path);
+            diffsRGB.push_back(textures[ii].sRGB);
         }
-        else if(textures[ii].typeName == Texture::specName)
+        else if(textures[ii].type == TextureType::SPECULAR)
         {
             specTexPaths.push_back(textures[ii].path);
+            specsRGB.push_back(textures[ii].sRGB);
         }
-        else if(textures[ii].typeName == Texture::normalName)
+        else if(textures[ii].type == TextureType::NORMAL)
         {
             normTexPaths.push_back(textures[ii].path);
+            normsRGB.push_back(textures[ii].sRGB);
         }
-        else if(textures[ii].typeName == Texture::dispName)
+        else if(textures[ii].type == TextureType::BUMP)
         {
             bumpTexPaths.push_back(textures[ii].path);
+            bumpsRGB.push_back(textures[ii].sRGB);
         }
     }
     
-    json jDiffuse, jSpec, jNormal, jBump;
     j = {{"textures",
         {
-            {"diffuse", json::array()},
             {"specular", json::array()},
             {"normal", json::array()},
             {"bump", json::array()}
         }
         }};
+    if(j["textures"].find("diffuse") != j["textures"].end())
+        j["textures"].push_back(json({"diffuse", json::array()}));
+    
     for(const auto& paths : diffTexPaths)
     {
         j["textures"]["diffuse"].push_back(paths);
@@ -337,19 +366,21 @@ unsigned int loadEBOData(std::vector<T> vec)
 
 
 
-inline unsigned int loadTextureFromFile(const char* path)
+inline unsigned int loadTextureFromFile(const char* path, bool sRGB = false)
 {
     unsigned int texID = 0;
     int width, height, nrChannels;
     unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
-    unsigned int rgbFlag;
+    unsigned int textureFormat, internalFormat;
     if(nrChannels == 3)
     {
-        rgbFlag = GL_RGB;
+        textureFormat = GL_RGB;
+        internalFormat = sRGB ? GL_SRGB : GL_RGB;
     }
     else if(nrChannels == 4)
     {
-        rgbFlag = GL_RGBA;
+        textureFormat = GL_RGBA;
+        internalFormat = sRGB ? GL_SRGB_ALPHA : GL_RGBA;
     }
     else
     {
@@ -363,7 +394,7 @@ inline unsigned int loadTextureFromFile(const char* path)
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texID);
         
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, rgbFlag, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, textureFormat, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
         
         stbi_image_free(data);

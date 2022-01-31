@@ -107,11 +107,15 @@ std::vector<Vert3x3x2x3x3f> addTBtoVerts(std::vector<Vert3x3x2f> verts)
 }
 
 
-void Shape::setupMesh(const std::vector<std::string>& diffTexturePaths,
-                      const std::vector<std::string>& specTexturePaths,
-                      const std::vector<std::string>& normalTexturePaths,
-                      const std::vector<std::string>& dispTexturePaths,
-                      const Material& material)
+
+
+// ///////////// setupMesh   //////////////////////////////////////
+/**
+ * \brief Method to setup the VAO and VBO for the shape.  Called during the construction of the shape.
+ *
+ */
+// //////////////////////////////////////////////////////////////////////////
+void Shape::setupMesh()
 {
     
     m_numVerts = m_verts.size();
@@ -120,48 +124,110 @@ void Shape::setupMesh(const std::vector<std::string>& diffTexturePaths,
     //******* VBO/VAO   ***************
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
+    m_VBO = loadVBOData(m_verts);
     
-    // If there is a normal map, add TB to the attributes
-    if(normalTexturePaths.size() > 0)
-    {
-        m_VBO = loadVBOData(addTBtoVerts(m_verts));
-    }
-    // otherwise, just send the 3x3x2 vert data to the VBO
-    else
-    {
-        m_VBO = loadVBOData(m_verts);
-    }
-        
-    
-    
-
-    
-    
-    //Setup material for cube
-    m_material = material;
-    
-    for(auto diffPath : diffTexturePaths)
-    {
-        loadTexture(diffPath, Texture::diffuseName);
-    }
-    for(auto specPath : specTexturePaths)
-    {
-        loadTexture(specPath, Texture::specName);
-    }
-    for(auto normalPath : normalTexturePaths)
-    {
-        loadTexture(normalPath, Texture::normalName);
-    }
-    for(auto dispPath : dispTexturePaths)
-    {
-        loadTexture(dispPath, Texture::dispName);
-    }
-
+//    // If there is a normal map, add TB to the attributes
+//    if(normalTexturePaths.size() > 0)
+//    {
+//        m_VBO = loadVBOData(addTBtoVerts(m_verts));
+//    }
+//    // otherwise, just send the 3x3x2 vert data to the VBO
+//    else
+//    {
+//
+//    }
 }
 
 
 
 
+// ///////////// loadTexture   //////////////////////////////////////
+/**
+ * \brief Loads texture located at `filename` using the utitlity function
+ *  `loadTextureFromFile`.  Then stores texture object in `m_textures`.
+ */
+// //////////////////////////////////////////////////////////////////////////
+void Shape::loadTextures(std::string filename, TextureType type, bool sRGB)
+{
+    unsigned int texID = loadTextureFromFile(filename.c_str(), sRGB);
+    if(texID == 0)
+    {
+        std::cout << "SHAPE::Failed to load texture " << filename << "\n";
+        return;
+    }
+    
+    Texture texture;
+    texture.sRGB = sRGB;
+    texture.id = texID;
+    texture.path = filename;
+    switch(type)
+    {
+        case TextureType::DIFFUSE:
+            texture.uniformName = Texture::diffuseName;
+            break;
+        case TextureType::SPECULAR:
+            texture.uniformName = Texture::specName;
+            break;
+        case TextureType::NORMAL:
+            texture.uniformName = Texture::normalName;
+            break;
+        case TextureType::BUMP:
+            texture.uniformName = Texture::bumpName;
+            break;
+        default:
+            texture.uniformName = "No Uniform Name Set";
+            break;
+    }
+    texture.type = type;
+    
+    m_textures.push_back(texture);
+}
+
+
+
+/**
+ * Same as previous `loadTextures` but multiple filenames can be input.  The sRGB flag will be used
+ *      for all of the files uniformly.
+ */
+void Shape::loadTextures(std::vector<std::string> filenames, TextureType type, bool sRGB)
+{
+    for(const auto& file : filenames)
+    {
+        loadTextures(file, type, sRGB);
+    }
+}
+
+/**
+ * Same as previous `loadTextures` but multiple filenames can be input and multiple sRGB flags.  If there are fewer
+ *      sRGB flags than paths, remaining sRGB flags will be set to Texture::sRGBDefault
+ */
+void Shape::loadTextures(std::vector<std::string> filenames, TextureType type, std::vector<bool> sRGB)
+{
+    for(int ii = 0; ii < filenames.size(); ++ii)
+    {
+        if(ii < sRGB.size())
+            loadTextures(filenames[ii], type, sRGB[ii]);
+        else
+            loadTextures(filenames[ii], type, Texture::sRGBDefault);
+    }
+}
+
+
+
+
+
+
+
+// ///////////// Draw   //////////////////////////////////////
+/**
+ * \brief Render the shape to the current framebuffer
+ *      1. Compute the model matrix and set the uniform in the shader
+ *      2. Set all the uniform sampler2D variables for each texture and bind the texture
+ *          to the correction texture unit
+ *      3. Draw the VAO.  If using instancing, draw `instances` number of the shape
+ *      4. Use stenciling to render an outline around the shape if `m_outlined = true`
+ */
+// //////////////////////////////////////////////////////////////////////////
 void Shape::Draw(Shader shader, int instances)
 {
     // Setup the model matrix
@@ -177,7 +243,7 @@ void Shape::Draw(Shader shader, int instances)
     
     // SEtup the textures for the shape
     Texture tempTexture;
-    unsigned int diffUnit=0, specUnit=0, normalUnit = 0, dispUnit = 0;;
+    unsigned int diffUnit=0, specUnit=0, normalUnit = 0, bumpUnit = 0;;
     for (int ii = 0; ii < m_textures.size(); ++ii)
     {
         glActiveTexture(GL_TEXTURE0 + ii);
@@ -186,25 +252,25 @@ void Shape::Draw(Shader shader, int instances)
         
 
         tempTexture = m_textures[ii];
-        if(tempTexture.typeName == Texture::diffuseName)
+        if(tempTexture.uniformName == Texture::diffuseName)
         {
             shader.setUniform1i(Texture::diffuseName + std::to_string(diffUnit), ii);
             diffUnit++;
         }
-        if(tempTexture.typeName == Texture::specName)
+        if(tempTexture.uniformName == Texture::specName)
         {
             shader.setUniform1i(Texture::specName + std::to_string(specUnit), ii);
             specUnit++;
         }
-        if(tempTexture.typeName == Texture::normalName)
+        if(tempTexture.uniformName == Texture::normalName)
         {
             shader.setUniform1i(Texture::normalName + std::to_string(normalUnit), ii);
             normalUnit++;
         }
-        if(tempTexture.typeName == Texture::dispName)
+        if(tempTexture.uniformName == Texture::bumpName)
         {
-            shader.setUniform1i(Texture::dispName + std::to_string(dispUnit), ii);
-            dispUnit++;
+            shader.setUniform1i(Texture::bumpName + std::to_string(bumpUnit), ii);
+            bumpUnit++;
         }
         
         glBindTexture(GL_TEXTURE_2D, m_textures[ii].id);
@@ -242,6 +308,25 @@ void Shape::Draw(Shader shader, int instances)
     glBindVertexArray(0);
 }
 
+
+
+
+
+// ///////////// Shape Deconstructor   //////////////////////////////////////
+/**
+ * \brief Deletes the texture and vertex buffers.  Then deletes the VAO
+ */
+// //////////////////////////////////////////////////////////////////////////
+Shape::~Shape()
+{
+    for (auto& texture: m_textures)
+    {
+        glDeleteTextures(1, &texture.id);
+    }
+    
+    glDeleteBuffers(1, &m_VBO);
+    glDeleteVertexArrays(1, &m_VAO);
+}
 
 
 
@@ -298,28 +383,15 @@ void Line::Draw(Shader shader, int instances)
 //*********************************************
 
 
-Plane::Plane(const std::vector<std::string>& diffTexturePaths, const std::vector<std::string>& specTexturePaths,
-             const std::vector<std::string>& normalTexturePaths, const std::vector<std::string>& dispTexturePaths,
-             float UVCorner, const Material& material) : m_UVCorner(UVCorner)
+Plane::Plane(float UVCorner) : m_UVCorner(UVCorner)
 {
     m_verts = fillVerts();
     
-    
-    setupMesh(diffTexturePaths, specTexturePaths, normalTexturePaths, dispTexturePaths, material);
+    setupMesh();
 
 }
 
 
-
-
-Plane::Plane(const Material& material)
-{
-    
-    std::vector<std::string> blank;
-    
-    Plane(blank, blank, blank, blank, 1.f, material);
-
-}
 
 
 
@@ -333,6 +405,8 @@ Plane::Plane(const Plane& otherPlane)
     m_numVerts = otherPlane.m_numVerts;
     m_material = otherPlane.m_material;
     m_textures = otherPlane.m_textures;
+    m_transform = otherPlane.m_transform;
+    m_UVCorner = otherPlane.m_UVCorner;
     
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
@@ -365,6 +439,42 @@ std::vector<Vert3x3x2f> Plane::fillVerts(std::vector<Vert3x3x2f> verts) const
 
 
 
+
+
+
+//*********************************************
+//            Cube class definitions
+//*********************************************
+Cube::Cube()
+{
+    m_shapeType = GameObject::CUBE;
+    m_verts = fillVerts();
+    
+    setupMesh();
+
+}
+
+
+
+
+
+
+Cube::Cube(const Cube& otherCube)
+{
+    m_shapeType = otherCube.m_shapeType;
+    m_VBO = otherCube.m_VBO;
+    m_verts = otherCube.m_verts;
+    m_numVerts = otherCube.m_numVerts;
+    m_material = otherCube.m_material;
+    m_textures = otherCube.m_textures;
+    m_transform = otherCube.m_transform;
+    
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    
+    rglVertexAttribPointer(m_verts[0]);
+}
 
 
 
@@ -428,49 +538,7 @@ std::vector<Vert3x3x2f> Cube::fillVerts(std::vector<Vert3x3x2f> verts) const
 
 
 
-Cube::Cube(const std::vector<std::string>& diffTexturePaths, const std::vector<std::string>& specTexturePaths,
-           const std::vector<std::string>& normalTexturePaths, const std::vector<std::string>& dispTexturePaths,
-           const Material& material)
-{
-    m_shapeType = GameObject::CUBE;
-    m_verts = fillVerts();
-    
-    setupMesh(diffTexturePaths, specTexturePaths, normalTexturePaths, dispTexturePaths, material);
 
-}
-
-
-
-
-Cube::Cube(const Material& material)
-{
-    
-    std::vector<std::string> blank;
-    
-    Cube(blank, blank, blank, blank, material);
-
-}
-
-
-
-
-
-Cube::Cube(const Cube& otherCube)
-{
-    m_shapeType = otherCube.m_shapeType;
-    m_VBO = otherCube.m_VBO;
-    m_verts = otherCube.m_verts;
-    m_numVerts = otherCube.m_numVerts;
-    m_material = otherCube.m_material;
-    m_textures = otherCube.m_textures;
-    m_transform = otherCube.m_transform;
-    
-    glGenVertexArrays(1, &m_VAO);
-    glBindVertexArray(m_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    
-    rglVertexAttribPointer(m_verts[0]);
-}
 
 
 
