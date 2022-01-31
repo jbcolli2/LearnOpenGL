@@ -388,6 +388,8 @@ Plane::Plane(float UVCorner) : m_UVCorner(UVCorner)
     m_verts = fillVerts();
     
     setupMesh();
+    
+    
 
 }
 
@@ -400,19 +402,17 @@ Plane::Plane(float UVCorner) : m_UVCorner(UVCorner)
 Plane::Plane(const Plane& otherPlane)
 {
     m_shapeType = GameObject::PLANE;
-    m_VBO = otherPlane.m_VBO;
     m_verts = otherPlane.m_verts;
-    m_numVerts = otherPlane.m_numVerts;
     m_material = otherPlane.m_material;
-    m_textures = otherPlane.m_textures;
     m_transform = otherPlane.m_transform;
     m_UVCorner = otherPlane.m_UVCorner;
     
-    glGenVertexArrays(1, &m_VAO);
-    glBindVertexArray(m_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    setupMesh();
     
-    rglVertexAttribPointer(m_verts[0]);
+    for (const auto& texture : otherPlane.m_textures)
+    {
+        loadTextures(texture.path, texture.type, texture.sRGB);
+    }
 }
 
 
@@ -462,18 +462,17 @@ Cube::Cube()
 Cube::Cube(const Cube& otherCube)
 {
     m_shapeType = otherCube.m_shapeType;
-    m_VBO = otherCube.m_VBO;
     m_verts = otherCube.m_verts;
     m_numVerts = otherCube.m_numVerts;
     m_material = otherCube.m_material;
-    m_textures = otherCube.m_textures;
     m_transform = otherCube.m_transform;
     
-    glGenVertexArrays(1, &m_VAO);
-    glBindVertexArray(m_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    setupMesh();
     
-    rglVertexAttribPointer(m_verts[0]);
+    for (const auto& texture : otherCube.m_textures)
+    {
+        loadTextures(texture.path, texture.type, texture.sRGB);
+    }
 }
 
 

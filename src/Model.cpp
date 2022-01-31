@@ -173,9 +173,14 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
         
         if(!textureAlreadyLoaded)
         {
-            texture.id = loadTextureFromFile(textPath.C_Str(), m_directory);
-            texture.typeName = type;
+            texture.id = loadTextureFromFile(textPath.C_Str(), m_directory, Texture::sRGBDefault);
+            texture.uniformName = type;
             texture.path = textPath.C_Str();
+            if(textType == aiTextureType_DIFFUSE)
+                texture.type = TextureType::DIFFUSE;
+            if(textType == aiTextureType_SPECULAR)
+                texture.type = TextureType::SPECULAR;
+            
             m_texturesLoaded.push_back(texture);
         }
         

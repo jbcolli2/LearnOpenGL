@@ -366,7 +366,7 @@ unsigned int loadEBOData(std::vector<T> vec)
 
 
 
-inline unsigned int loadTextureFromFile(const char* path, bool sRGB = false)
+inline unsigned int loadTextureFromFile(const char* path, bool sRGB)
 {
     unsigned int texID = 0;
     int width, height, nrChannels;
@@ -412,10 +412,10 @@ inline unsigned int loadTextureFromFile(const char* path, bool sRGB = false)
 
 
 
-inline unsigned int loadTextureFromFile(const char* path, std::string directory)
+inline unsigned int loadTextureFromFile(const char* path, std::string directory, bool sRGB)
 {
     const char* fullpath = (directory+'/').append(path).c_str();
-    return loadTextureFromFile(fullpath);
+    return loadTextureFromFile(fullpath, sRGB);
 }
 
 #endif /* OpenGLUtil_h */

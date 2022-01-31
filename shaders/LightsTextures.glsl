@@ -95,7 +95,9 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
 
 
 
-
+//*********************************************
+//           Main()
+//*********************************************
 void main()
 {
     vec3 normal = normalize(Normal);
@@ -121,6 +123,12 @@ void main()
 
 
 
+
+
+
+//*********************************************
+//           Helper functions
+//*********************************************
 float computeDiffCoeff(vec3 light2Frag, vec3 normal)
 {
     return max( dot(normal, -light2Frag), 0.0);
@@ -140,6 +148,10 @@ float computeSpecCoeff(vec3 light2Frag, vec3 normal, vec3 viewDir)
         return pow(max(dot(halfwayDir, normal), 0.0), material.shininess);
     }
 }
+
+
+
+
 
 
 

@@ -153,7 +153,8 @@ void Scene::setupShapes()
     
     
     
-    m_shapes.push_back((std::make_unique<Cube>(woodPath)));
+    m_shapes.push_back((std::make_unique<Cube>()));
+    m_shapes[0]->loadTextures(woodPath, TextureType::DIFFUSE);
     m_shapes[0]->FlipNormals();
     m_shapes[0]->m_transform.position = glm::vec3(0.f, 0.f, -25.7f);
     m_shapes[0]->m_transform.scale = glm::vec3(5.f, 5.f, 2.f*28.f);
@@ -875,11 +876,11 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
                 // ********  Shapes  ********** //
             case GameObject::CUBE:
                 cube = j.get<Cube>();
-                m_shapes.push_back(std::make_unique<Cube>(j.get<Cube>()));
+                m_shapes.push_back(std::make_unique<Cube>(Cube(cube)));
                 break;
             case GameObject::PLANE:
                 p = j.get<Plane>();
-                m_shapes.push_back(std::make_unique<Plane>(p));
+                m_shapes.push_back(std::make_unique<Plane>(Plane(p)));
                 break;
                 
                 // ********  Lights  ********** //
