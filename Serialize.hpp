@@ -188,6 +188,7 @@ inline void from_json(const json& j, PointLight& light)
     light.setAtten(j.value("constAtten", 1.f),
                    j.value("linAtten", .1f),
                    j.value("quadAtten", .02f));
+    light.setScale(j.value("scale", .05f));
 }
 
 // ********  Directional Light  ********** //

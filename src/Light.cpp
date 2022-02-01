@@ -36,20 +36,26 @@ PosLight::PosLight()
 
 
 
-
-void PosLight::draw()
+/*******************  draw(Shader)   ************************************
+ * \brief Draw the light box.  This will used an optional passed in Shader, but by
+ *      default it will use the solidShader.  Since that is the default, a uniform `color`
+ *      will be set, even if not used by the passed shader.  Though it makes sense to always
+ *      have the light shader use a color uniform.
+ *
+ * \param shader - Shader to draw light box
+ **************************************************************/
+void PosLight::draw(Shader shader)
 {
     m_box.m_transform.position = m_position;
-    m_box.m_transform.scale = glm::vec3(m_uniformScale);
 
-    Shader::solidShader.useProgram();
+    shader.useProgram();
     
     
-    Shader::solidShader.setUniform4f("color", m_color.r, m_color.g, m_color.b, 1.f);
+    shader.setUniform4f("color", m_color.r, m_color.g, m_color.b, 1.f);
         
     m_box.Draw(Shader::solidShader);
     
-    Shader::solidShader.stopUseProgram();
+    shader.stopUseProgram();
 }
 
 
