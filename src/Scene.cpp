@@ -38,47 +38,14 @@ void Scene::setupShaders()
 
 void Scene::createLights()
 {
-//    DirLight tempdir{glm::vec3(0.5f, 0.2f, 1.9f)};
-//    tempdir.setDiffuse(glm::vec3(1.f));
-//    tempdir.setSpecular(0.2f);
-//    tempdir.setAmbient(0.1f);
-//    m_dirLights.push_back(tempdir);
-//
-//    SpotLight tempspot;
-//    tempspot.setAmbient(.15f);
-//    tempspot.setDiffuse(glm::vec3(1.f));
-//    tempspot.setSpecular(.3f);
-//    tempspot.m_position =glm::vec3(-.11f, 2.f, 2.14f);
-//    tempspot.m_direction = glm::vec3(0.f, -.64f, -.77f);
-//    m_spotLights.push_back(tempspot);
     
-    PointLight temppt{glm::vec3(0.f, 0.f, -49.5f)};
+    PointLight temppt{glm::vec3(0.f, 0.5f, -0.5f)};
     temppt.setDiffuse(glm::vec3(200.f));
     temppt.setAmbient(.0f);
     temppt.setSpecular(0.0f);
     temppt.setAtten(0.f, 0.f, 1.f);
     m_ptLights.push_back(temppt);
     
-    temppt = PointLight(glm::vec3(2.4f, 2.4f, -8.f));
-    temppt.setDiffuse(glm::vec3(.1f, 0.f, 0.f));
-    temppt.setAmbient(0.f);
-    temppt.setSpecular(0.f);
-    temppt.setAtten(0.f, 0.f, 1.f);
-    m_ptLights.push_back(temppt);
-    
-    temppt = PointLight(glm::vec3(-2.4f, -2.4f, -6.f));
-    temppt.setDiffuse(glm::vec3(0.f, .1f, 0.f));
-    temppt.setAmbient(0.f);
-    temppt.setSpecular(0.f);
-    temppt.setAtten(0.f, 0.f, 1.f);
-    m_ptLights.push_back(temppt);
-    
-    temppt = PointLight(glm::vec3(-2.4f, 2.4f, -3.f));
-    temppt.setDiffuse(glm::vec3(0.f, 0.f, .1f));
-    temppt.setAmbient(0.f);
-    temppt.setSpecular(0.f);
-    temppt.setAtten(0.f, 0.f, 1.f);
-    m_ptLights.push_back(temppt);
 
 }
 
@@ -230,31 +197,39 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     glfwSetMouseButtonCallback(window, Scene::GLFWCallbackWrapper::mouseButtonCallback);
 
     
-    
+    // *************  Shaders setup  ************** //
     setupShaders();
     
+    // *************  Select object setup  ************** //
     m_selectCommands.push_back(std::make_unique<NoSelect>(this));
     m_selectCommands.push_back(std::make_unique<ShapeSelect>(this));
     m_selectCommands.push_back(std::make_unique<LightSelect>(this));
     selectCommandIndex = 2;
     
-    DeserializeObjects(JSON_FILE);
-//    createLights();
-    setupLights();
     
     
+    //Use this as flag to choose whether to create objects through JSON or
+    // by hard-coding.  Don't want objects created both ways.
+    // TODO: This is only used for debuging purposes, when done debugging remove this flag
+    bool serializeObjects = true;
     
-    //  Setup the camera
-//    m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(-0.3f, 0.f, 0.f), 0.f, 5.f);
+    if(serializeObjects)
+    {
+        DeserializeObjects(JSON_FILE);
+    }
+    else
+    {
+        createLights();
+        m_cam = Camera(fov, float(m_width)/float(m_height), nearField, farField, glm::vec3(0.0f, 0.f, 1.0f), 0.f, 5.f);
+    //    setupShapes();
+    }
     
-    
-//    setupShapes();
 
 
     
     
     
-    // Uniform buffer for view/proj
+    // *************  Uniform buffer for view/proj  ************** //
     glGenBuffers(1, &m_uboVP);
     glBindBuffer(GL_UNIFORM_BUFFER, m_uboVP);
     glBufferData(GL_UNIFORM_BUFFER, 16*8, NULL, GL_STATIC_DRAW);
@@ -336,6 +311,7 @@ void Scene::draw(float deltaTime)
     m_fboQuad.tbo = m_fbo->RenderToTexture2D(m_currentObjShader);
     
     RenderFBO();
+    
     
 }
 
@@ -481,7 +457,7 @@ void Scene::SetupImGui()
 
 void Scene::clearBuffers()
 {
-    glClearColor(0.f, 0.f, 0.f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
@@ -842,6 +818,10 @@ void Scene::SerializeObjects(const std::string& jsonPath)
  */
 void Scene::DeserializeObjects(const std::string& jsonFilePath)
 {
+    // This flag is set if a light is deserialized to make sure that `setupLights()` is called at the end
+    bool addLight = false;
+    
+    // *************  JSON file parsing  ************** //
     std::ifstream file;
     file.open(jsonFilePath);
 //    file >> m_gameObjectJson;
@@ -865,8 +845,6 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
     m_dirLights.erase(m_dirLights.begin(), m_dirLights.end());
     m_spotLights.erase(m_spotLights.begin(), m_spotLights.end());
     
-    Cube cube{};
-    Plane p{};
     
     for(const auto& j : m_gameObjectJson)
     {
@@ -876,27 +854,24 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
                 
                 // ********  Shapes  ********** //
             case GameObject::CUBE:
-                cube = j.get<Cube>();
-                m_shapes.push_back(std::make_unique<Cube>(Cube(cube)));
+                m_shapes.push_back(std::make_unique<Cube>(Cube(j.get<Cube>())));
                 break;
             case GameObject::PLANE:
-                p = j.get<Plane>();
-                m_shapes.push_back(std::make_unique<Plane>(Plane(p)));
+                m_shapes.push_back(std::make_unique<Plane>(Plane(j.get<Plane>())));
                 break;
                 
                 // ********  Lights  ********** //
             case GameObject::PTLIGHT:
                 m_ptLights.push_back(j.get<PointLight>());
-                setupLights();
-            
+                addLight = true;
                 break;
             case GameObject::DIRLIGHT:
                 m_dirLights.push_back(j);
-                setupLights();
+                addLight = true;
                 break;
             case GameObject::SPOTLIGHT:
                 m_spotLights.push_back(j);
-                setupLights();
+                addLight = true;
                 break;
                 
                 // ********  Camera  ********** //
@@ -906,6 +881,10 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
             default:
                 break;
         }
+        
+        
+        if(addLight)
+            setupLights();
     }
 }
 

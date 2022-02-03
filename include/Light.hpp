@@ -25,7 +25,7 @@ protected:
     glm::mat4 m_model;
     static constexpr glm::mat4 id = glm::mat4(1.f);
     
-    Cube m_box;
+    Cube m_box{};
     
     glm::vec3 m_ambient{.15f}, m_diffuse{.6f}, m_specular{.3f};
     glm::vec3 m_color{1.f};

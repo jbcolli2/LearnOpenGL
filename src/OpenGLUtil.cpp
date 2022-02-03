@@ -113,7 +113,7 @@ void to_json(json& j, const std::vector<Texture> textures)
     // *************  Diffuse Textures  ************** //
     for(const auto& paths : diffTexPaths)
     {
-        if(j["textures"].find("diffuse") != j["textures"].end())
+        if(j["textures"].find("diffuse") == j["textures"].end())
             j["textures"]["diffuse"] = json::array();
         
         j["textures"]["diffuse"].push_back(paths);

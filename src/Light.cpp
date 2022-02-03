@@ -28,7 +28,6 @@ PosLight::PosLight()
     
     
                
-    m_box = Cube();
     m_box.m_transform.position = m_position;
     m_box.m_transform.scale = glm::vec3(m_uniformScale);
     

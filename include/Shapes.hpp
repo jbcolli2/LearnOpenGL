@@ -256,6 +256,9 @@ public:
     Plane(float UVCorner = 1.f);
     Plane(const Material& material);
     Plane(const Plane& otherBox);
+    Plane& operator=(const Plane& otherPlane);
+    Plane(Plane&& otherPlane);
+    Plane& operator=(Plane&& otherPlane);
     
     
     

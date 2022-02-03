@@ -268,6 +268,8 @@ void Framebuffer::SetupToTexture2D(GLint internalFormat)
     
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Framebuffer NOT complete\n";
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 

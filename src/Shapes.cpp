@@ -324,7 +324,6 @@ Shape::~Shape()
         glDeleteTextures(1, &texture.id);
     }
     
-    std::cerr << "Destroy VBO: " << m_VBO << " Object Type: " << m_shapeType << "\n";
     glDeleteBuffers(1, &m_VBO);
     glDeleteVertexArrays(1, &m_VAO);
     
@@ -420,6 +419,91 @@ Plane::Plane(const Plane& otherPlane)
 
 
 
+Plane& Plane::operator=(const Plane& otherPlane)
+{
+
+    m_shapeType = otherPlane.m_shapeType;
+    m_verts = otherPlane.m_verts;
+    m_numVerts = otherPlane.m_numVerts;
+    m_material = otherPlane.m_material;
+    m_transform = otherPlane.m_transform;
+    
+    setupMesh();
+    
+    for (const auto& texture : otherPlane.m_textures)
+    {
+        loadTextures(texture.path, texture.type, texture.sRGB);
+    }
+    
+    return *this;
+}
+
+
+
+Plane::Plane(Plane&& otherPlane)
+{
+    m_shapeType = otherPlane.m_shapeType;
+    m_verts = otherPlane.m_verts;
+    m_numVerts = otherPlane.m_numVerts;
+    m_material = otherPlane.m_material;
+    m_transform = otherPlane.m_transform;
+    
+    m_VAO = otherPlane.m_VAO;
+    m_VBO = otherPlane.m_VBO;
+    
+    otherPlane.m_VAO = 0;
+    otherPlane.m_VBO = 0;
+    
+    m_textures = otherPlane.m_textures;
+    
+    for (auto& texture : otherPlane.m_textures)
+    {
+        texture.id = 0;
+    }
+}
+
+
+Plane& Plane::operator=(Plane&& otherPlane)
+{
+    // Clean up current buffers and textures
+    glDeleteVertexArrays(1, &m_VAO);
+    m_VAO = 0;
+    glDeleteBuffers(1, &m_VBO);
+    m_VBO = 0;
+    
+    for (auto& texture : m_textures)
+    {
+        glDeleteTextures(1, &texture.id);
+        texture.id = 0;
+    }
+    
+    m_shapeType = otherPlane.m_shapeType;
+    m_verts = otherPlane.m_verts;
+    m_numVerts = otherPlane.m_numVerts;
+    m_material = otherPlane.m_material;
+    m_transform = otherPlane.m_transform;
+    
+    m_VAO = otherPlane.m_VAO;
+    m_VBO = otherPlane.m_VBO;
+    
+    m_textures = otherPlane.m_textures;
+    
+    // Need otherCube to no longer have control over buffers, so they don't get destroyed when otherCube is destructed
+    otherPlane.m_VAO = 0;
+    otherPlane.m_VBO = 0;
+    for(auto& texture : otherPlane.m_textures)
+    {
+        texture.id = 0;
+    }
+    
+    return *this;
+}
+
+
+
+
+
+
 
 std::vector<Vert3x3x2f> Plane::fillVerts(std::vector<Vert3x3x2f> verts) const
 {
@@ -455,6 +539,7 @@ Cube::Cube()
     
     setupMesh();
 
+    int x = 5;
 }
 
 
@@ -483,7 +568,6 @@ Cube::Cube(const Cube& otherCube)
 
 Cube& Cube::operator=(const Cube& otherCube)
 {
-
     m_shapeType = otherCube.m_shapeType;
     m_verts = otherCube.m_verts;
     m_numVerts = otherCube.m_numVerts;
@@ -501,7 +585,6 @@ Cube& Cube::operator=(const Cube& otherCube)
 }
 
 
-// TODO: I've just used the copy ctor here, need to change it to a move ctor.
 Cube::Cube(Cube&& otherCube)
 {
     m_shapeType = otherCube.m_shapeType;
@@ -510,18 +593,54 @@ Cube::Cube(Cube&& otherCube)
     m_material = otherCube.m_material;
     m_transform = otherCube.m_transform;
     
-    setupMesh();
+    m_VAO = otherCube.m_VAO;
+    m_VBO = otherCube.m_VBO;
     
-    for (const auto& texture : otherCube.m_textures)
+    otherCube.m_VAO = 0;
+    otherCube.m_VBO = 0;
+    
+    m_textures = otherCube.m_textures;
+    
+    for (auto& texture : otherCube.m_textures)
     {
-        loadTextures(texture.path, texture.type, texture.sRGB);
+        texture.id = 0;
     }
 }
 
 
-// TODO: This obviously needs to be changed to actually do something.
 Cube& Cube::operator=(Cube&& otherCube)
 {
+    // Clean up current buffers and textures
+    glDeleteVertexArrays(1, &m_VAO);
+    m_VAO = 0;
+    glDeleteBuffers(1, &m_VBO);
+    m_VBO = 0;
+    
+    for (auto& texture : m_textures)
+    {
+        glDeleteTextures(1, &texture.id);
+        texture.id = 0;
+    }
+    
+    m_shapeType = otherCube.m_shapeType;
+    m_verts = otherCube.m_verts;
+    m_numVerts = otherCube.m_numVerts;
+    m_material = otherCube.m_material;
+    m_transform = otherCube.m_transform;
+    
+    m_VAO = otherCube.m_VAO;
+    m_VBO = otherCube.m_VBO;
+    
+    m_textures = otherCube.m_textures;
+    
+    // Need otherCube to no longer have control over buffers, so they don't get destroyed when otherCube is destructed
+    otherCube.m_VAO = 0;
+    otherCube.m_VBO = 0;
+    for(auto& texture : otherCube.m_textures)
+    {
+        texture.id = 0;
+    }
+    
     return *this;
 }
 

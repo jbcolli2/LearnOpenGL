@@ -180,7 +180,6 @@ unsigned int loadVBOData(std::vector<T> vec, int layoutOffset = 0)
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vec.size()*sizeof(T), &vec[0], GL_STATIC_DRAW);
-    std::cerr << "Create VBO: " << VBO << " with " << vec.size() << "verts\n";
     
     rglVertexAttribPointer(vec[0], layoutOffset);
     
