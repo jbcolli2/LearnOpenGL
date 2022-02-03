@@ -284,6 +284,9 @@ public:
     Cube();
     Cube(const Material& material);
     Cube(const Cube& otherBox);
+    Cube &operator=(const Cube& otherCube);
+    Cube(Cube&& otherCube);
+    Cube& operator=(Cube&& otherCube);
     
     
     

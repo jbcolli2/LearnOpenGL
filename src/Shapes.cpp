@@ -324,8 +324,11 @@ Shape::~Shape()
         glDeleteTextures(1, &texture.id);
     }
     
+    std::cerr << "Destroy VBO: " << m_VBO << " Object Type: " << m_shapeType << "\n";
     glDeleteBuffers(1, &m_VBO);
     glDeleteVertexArrays(1, &m_VAO);
+    
+
 }
 
 
@@ -473,6 +476,53 @@ Cube::Cube(const Cube& otherCube)
     {
         loadTextures(texture.path, texture.type, texture.sRGB);
     }
+}
+
+
+
+
+Cube& Cube::operator=(const Cube& otherCube)
+{
+
+    m_shapeType = otherCube.m_shapeType;
+    m_verts = otherCube.m_verts;
+    m_numVerts = otherCube.m_numVerts;
+    m_material = otherCube.m_material;
+    m_transform = otherCube.m_transform;
+    
+    setupMesh();
+    
+    for (const auto& texture : otherCube.m_textures)
+    {
+        loadTextures(texture.path, texture.type, texture.sRGB);
+    }
+    
+    return *this;
+}
+
+
+// TODO: I've just used the copy ctor here, need to change it to a move ctor.
+Cube::Cube(Cube&& otherCube)
+{
+    m_shapeType = otherCube.m_shapeType;
+    m_verts = otherCube.m_verts;
+    m_numVerts = otherCube.m_numVerts;
+    m_material = otherCube.m_material;
+    m_transform = otherCube.m_transform;
+    
+    setupMesh();
+    
+    for (const auto& texture : otherCube.m_textures)
+    {
+        loadTextures(texture.path, texture.type, texture.sRGB);
+    }
+}
+
+
+// TODO: This obviously needs to be changed to actually do something.
+Cube& Cube::operator=(Cube&& otherCube)
+{
+    return *this;
 }
 
 

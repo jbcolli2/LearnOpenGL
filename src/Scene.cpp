@@ -865,11 +865,12 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
     m_dirLights.erase(m_dirLights.begin(), m_dirLights.end());
     m_spotLights.erase(m_spotLights.begin(), m_spotLights.end());
     
+    Cube cube{};
+    Plane p{};
+    
     for(const auto& j : m_gameObjectJson)
     {
-        Cube cube{};
-        
-        Plane p{};
+        std::cerr << "Load 1 object\n";
         switch(j.value("type", GameObject::INVALID))
         {
                 
@@ -885,7 +886,7 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
                 
                 // ********  Lights  ********** //
             case GameObject::PTLIGHT:
-                m_ptLights.push_back(j);
+                m_ptLights.push_back(j.get<PointLight>());
                 setupLights();
             
                 break;
