@@ -6,15 +6,15 @@
         "nearField": 0.10000000149011612,
         "pitch": -16.469310760498047,
         "position": [
-            8.39154052734375,
+            7.630036354064941,
             4.167176723480225,
-            11.048012733459473
+            11.528728485107422
         ],
         "type": "Camera",
         "yaw": -32.26298904418945
     },
     {
-        "ambient": 0.036000002175569534,
+        "ambient": 0.012960001826286316,
         "constAtten": 0.0,
         "diffuse": [
             8.581734657287598,
@@ -29,7 +29,7 @@
         ],
         "quadAtten": 0.0,
         "scale": 0.30000001192092896,
-        "specular": 0.0,
+        "specular": 0.5,
         "type": "PointLight"
     },
     {
@@ -76,15 +76,49 @@
         },
         "type": "Plane"
     },
-    
     {
-        "type": "Cube",
-        "position": [0.0, 0.5, 1.0],
-        "rotation": [30, -40, 15],
-        "scale": [2,2,2],
+        "material": {
+            "ambient": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+            ],
+            "diffuse": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shininess": 25.0,
+            "specular": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        },
+        "position": [
+            0.0,
+            0.5,
+            1.0
+        ],
+        "rotation": [
+            30.0,
+            -40.0,
+            15.0
+        ],
+        "scale": [
+            2.0,
+            2.0,
+            2.0
+        ],
         "textures": {
-            "diffuse": ["../../assets/container2.png"],
-            "specular": ["../../assets/container2_specular.png"]
-        }
+            "diffuse": [
+                "../../assets/container2.png"
+            ],
+            "specular": ["../../assets/container2_specular.png"],
+            "sRGBDiff": [
+                false
+            ]
+        },
+        "type": "Cube"
     }
 ]

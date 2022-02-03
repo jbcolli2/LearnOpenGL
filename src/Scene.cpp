@@ -848,7 +848,6 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
     
     for(const auto& j : m_gameObjectJson)
     {
-        std::cerr << "Load 1 object\n";
         switch(j.value("type", GameObject::INVALID))
         {
                 

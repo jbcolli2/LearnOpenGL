@@ -59,6 +59,28 @@ namespace glm {
 }
 
 
+/*******************  addToJsonArray   ************************************
+ * \brief Add a vector of objects to a json array at a particular key.  If the key doesn't already
+ *      exist, this method will create the key.
+ *
+ * \param j - The json array to modify by adding an array
+ * \param key - The name of the key for the array
+ * \param values - a std::vector of values to be transfered into a json array
+ **************************************************************/
+template <typename T>
+void addToJsonArray(json& j, const std::string& key, const std::vector<T>& values)
+{
+    for(T val : values)
+    {
+        if(j.find(key) == j.end())
+            j[key] = json::array();
+        
+        j[key].push_back(val);
+    }
+}
+
+
+
 
 
 //*********************************************
@@ -110,71 +132,19 @@ void to_json(json& j, const std::vector<Texture> textures)
     j = {{"textures", json()}};
     
     
-    // *************  Diffuse Textures  ************** //
-    for(const auto& paths : diffTexPaths)
-    {
-        if(j["textures"].find("diffuse") == j["textures"].end())
-            j["textures"]["diffuse"] = json::array();
-        
-        j["textures"]["diffuse"].push_back(paths);
-    }
-    for(bool sRGBflag : diffsRGB)
-    {
-        if(j["textures"].find("sRGBDiff") != j["textures"].end())
-            j["textures"].push_back(json({"sRGBDiff", json::array()}));
-        
-        j["textures"]["sRGBDiff"].push_back(sRGBflag);
-    }
+    addToJsonArray<std::string>(j["textures"], "diffuse", diffTexPaths);
+    addToJsonArray(j["textures"], "sRGBDiff", diffsRGB);
     
-    // *************  Specular Textures  ************** //
-    for(const auto& paths : specTexPaths)
-    {
-        if(j["textures"].find("specular") != j["textures"].end())
-            j["textures"].push_back(json({"specular", json::array()}));
-        
-        j["textures"]["specular"].push_back(paths);
-    }
-    for(bool sRGBflag : specsRGB)
-    {
-        if(j["textures"].find("sRGBSpec") != j["textures"].end())
-            j["textures"].push_back(json({"sRGBSpec", json::array()}));
-        
-        j["textures"]["sRGBSpec"].push_back(sRGBflag);
-    }
+    addToJsonArray<std::string>(j["textures"], "specular", specTexPaths);
+    addToJsonArray(j["textures"], "sRGBSpec", specsRGB);
     
-    // *************  Normal Textures  ************** //
-    for(const auto& paths : specTexPaths)
-    {
-        if(j["textures"].find("normal") != j["textures"].end())
-            j["textures"].push_back(json({"normal", json::array()}));
-        
-        j["textures"]["normal"].push_back(paths);
-    }
-    for(bool sRGBflag : normsRGB)
-    {
-        if(j["textures"].find("sRGBNorm") != j["textures"].end())
-            j["textures"].push_back(json({"sRGBNorm", json::array()}));
-        
-        j["textures"]["sRGBNorm"].push_back(sRGBflag);
-    }
+    addToJsonArray<std::string>(j["textures"], "normal", normTexPaths);
+    addToJsonArray(j["textures"], "sRGBNorm", normsRGB);
     
-    // *************  Bump Textures  ************** //
-    for(const auto& paths : bumpTexPaths)
-    {
-        if(j["textures"].find("bump") != j["textures"].end())
-            j["textures"].push_back(json({"bump", json::array()}));
-        
-        j["textures"]["bump"].push_back(paths);
-    }
-    for(bool sRGBflag : bumpsRGB)
-    {
-        if(j["textures"].find("sRGBBump") != j["textures"].end())
-            j["textures"].push_back(json({"sRGBBump", json::array()}));
-        
-        j["textures"]["sRGBBump"].push_back(sRGBflag);
-    }
+    addToJsonArray<std::string>(j["textures"], "bump", bumpTexPaths);
+    addToJsonArray(j["textures"], "sRGBBump", bumpsRGB);
+    
 }
-
 
 
 
