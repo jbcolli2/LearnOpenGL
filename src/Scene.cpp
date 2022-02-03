@@ -329,14 +329,16 @@ void Scene::draw(float deltaTime)
 void Scene::RenderScene(Shader* shader)
 {    
     
-    // This will draw the point lights onto the scene
-    //TODO: This call still has shader program being started and stoped within it.  Should move all shader program logic out of a draw call I think.
-    updateLights();
+    
     
     shader->useProgram();
     updateLightUniforms();
     drawObjects(*m_currentObjShader);
     shader->stopUseProgram();
+    
+    // This will draw the point lights onto the scene
+    //TODO: This call still has shader program being started and stoped within it.  Should move all shader program logic out of a draw call I think.
+    updateLights();
 
 }
 

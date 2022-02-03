@@ -57,7 +57,7 @@ public:
     void setDiffuse(const glm::vec3& diff) {m_diffuse = diff; m_color = diff;};
     void setDiffBrightness(float brightness) {m_diffuse = brightness*glm::normalize(m_diffuse); m_color = m_diffuse;};
     float getDiffBrightness() {return glm::length(m_diffuse);};
-    void setSpecular(float specIntensity) {m_specular = glm::vec3(specIntensity);};
+    void setSpecular(float specIntensity) {m_specular = specIntensity*m_diffuse;};
     void setAtten(float constant, float lin, float quad) {m_constAtten = constant; m_linAtten = lin; m_quadAtten = quad;};
     
     void setUniformPos(Shader obj_Shader, int index = -1);

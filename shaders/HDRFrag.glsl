@@ -28,7 +28,7 @@ void main()
     }
     
     
-//    ldrColor = pow(ldrColor, vec3(1.0/gamma));
+    ldrColor = pow(ldrColor, vec3(1.0/gamma));
 
     
     FragColor = vec4(ldrColor, 1.0);

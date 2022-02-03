@@ -130,6 +130,7 @@ inline void JsonToShape(const json& j, T& shape)
     shape.m_material.ambient = jMat.value("ambient", glm::vec3(.2f));
     shape.m_material.diffuse = jMat.value("diffuse", glm::vec3(1.f));
     shape.m_material.specular = jMat.value("specular", glm::vec3(.5f));
+    shape.m_material.shininess = jMat.value("shininess", 32.0);
     
     if(j.value("flipNormals", false))
     {
@@ -184,7 +185,7 @@ inline void from_json(const json& j, PointLight& light)
     light = PointLight{j.value("position", glm::vec3(0.f))};
     light.setAmbient(j.value("ambient", .1f));
     light.setDiffuse(j.value("diffuse", glm::vec3(1.f)));
-    light.setSpecular(j.value("specular", .5f));
+    light.setSpecular(j.value("specular", .4f));
     light.setAtten(j.value("constAtten", 1.f),
                    j.value("linAtten", .1f),
                    j.value("quadAtten", .02f));

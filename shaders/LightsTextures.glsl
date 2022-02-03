@@ -172,7 +172,7 @@ vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
     }
     else
     {
-        specMat = vec3(1.0);
+        specMat = vec3(texture(material.diffuse0, UV));
     }
     
     //////////  Compute Amb/Diff/Spec contributions /////////////
