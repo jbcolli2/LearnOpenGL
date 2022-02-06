@@ -16,19 +16,26 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_justTexture = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.glsl");
+    m_justTexture = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "BloomMRT.glsl");
     m_justTexture.makeProgram();
+    
+    m_solidMRT = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColorMRT.glsl");
+    m_solidMRT.makeProgram();
+    
+    m_gaussianBlurPingPong = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "GaussianBlurPingPong.glsl");
+    m_gaussianBlurPingPong.makeProgram();
     
 //    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
 //    m_effectShader.makeProgram();
 //    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
 //    m_skyboxShader.makeProgram();
-    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "HDRFrag.glsl");
+    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "BloomHDRFrag.glsl");
     m_fboShader.makeProgram();
     
 
     m_debugShader = Shader(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl");
     m_debugShader.makeProgram();
+    
     Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
     Shader::solidShader.makeProgram();
     
@@ -241,9 +248,13 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     //*********************************************
     //            Demo Begin
     //*********************************************
+    m_gaussianFilter = new PingPongFilter(window, GL_RGB16F);
+    
     SetupFBORender();
     m_fbo = new Framebuffer(this, m_window);
-    m_fbo->SetupToTexture2D(GL_RGBA16F);
+    m_fbo->SetupToTexture2D(GL_RGBA16F, 2);
+    m_fboQuad.tbo = m_fbo->getColorBufferTBO(0);
+    m_fboQuad.tbo_aux = m_fbo->getColorBufferTBO(1);
     m_doHDR = true;
     m_fboShader.useProgram();
     m_fboShader.setUniform1ui("hdr", m_doHDR);
@@ -308,9 +319,17 @@ void Scene::draw(float deltaTime)
     SetupImGui();
     
     // Render scene to a texture
-    m_fboQuad.tbo = m_fbo->RenderToTexture2D(m_currentObjShader);
+    m_fbo->RenderToTexture2D(m_currentObjShader);
+    m_fboQuad.tbo_aux = m_fbo->getColorBufferTBO(1);
+    if(m_doBloom)
+    {
+        m_gaussianBlurPingPong.useProgram();
+        m_fboQuad.tbo_aux = m_gaussianFilter->Filter(&m_gaussianBlurPingPong, m_fbo->getColorBufferTBO(1), "horizontal", true, m_numBlurs);
+        m_gaussianBlurPingPong.stopUseProgram();
+    }
     
-    RenderFBO();
+    
+    RenderFBO(m_fboQuad.tbo, m_fboQuad.tbo_aux);
     
     
 }
@@ -415,6 +434,9 @@ void Scene::SetupImGui()
         m_fboShader.stopUseProgram();
     }
     
+    ImGui::Checkbox("Bloom", &m_doBloom);
+    ImGui::SliderInt("Number of Blurs", &m_numBlurs, 1, 30);
+    
     if(ImGui::DragFloat("Exposure", &m_exposure, 0.01f, 0.f, 10.f, "%.3f"))
     {
         m_fboShader.useProgram();
@@ -459,7 +481,7 @@ void Scene::SetupImGui()
 
 void Scene::clearBuffers()
 {
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClearColor(0.f, 0.f, 0.f, 1.0f);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
@@ -503,13 +525,18 @@ void Scene::updateLightUniforms()
 
 
 
-void Scene::RenderFBO(float nearPlane, float farPlane)
+void Scene::RenderFBO(unsigned int tbo, unsigned int tbo_aux)
 {
     m_fboShader.useProgram();
     glBindVertexArray(m_fboQuad.vao);
     glActiveTexture(GL_TEXTURE0 + 7);
-    glBindTexture(GL_TEXTURE_2D, m_fboQuad.tbo);
+    glBindTexture(GL_TEXTURE_2D, tbo);
     m_fboShader.setUniform1i("fboTex", 7);
+    
+    glActiveTexture(GL_TEXTURE0 + 8);
+    glBindTexture(GL_TEXTURE_2D, tbo_aux);
+    m_fboShader.setUniform1i("brightTex", 8);
+    
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
@@ -520,7 +547,7 @@ void Scene::updateLights()
 {
     for(int ii = 0; ii < m_ptLights.size(); ++ii)
     {
-        m_ptLights[ii].draw();
+        m_ptLights[ii].draw(m_solidMRT);
     }
     
     

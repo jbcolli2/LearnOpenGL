@@ -49,6 +49,7 @@ public:
 
 
 class Framebuffer;
+class PingPongFilter;
 
 class Scene
 {
@@ -59,7 +60,12 @@ public:
     Framebuffer* m_fbo;
     unsigned int m_tboScene;
     bool m_doHDR;
+    bool m_doBloom{true};
+    int m_numBlurs{5};
     float m_exposure = 1.f;
+    Shader m_solidMRT;
+    Shader m_gaussianBlurPingPong;
+    PingPongFilter* m_gaussianFilter;
     //*********************************************
     //            End Current Demo
     //*********************************************
@@ -74,7 +80,7 @@ public:
     
     struct fboQuad
     {
-        unsigned int vbo, vao, tbo;
+        unsigned int vbo, vao, tbo, tbo_aux;
     };
     fboQuad m_fboQuad;
     
@@ -262,7 +268,7 @@ public:
     void updateVP(Shader shader);
     void updateLightUniforms();
     void drawObjects(Shader shader);
-    void RenderFBO(float nearPlane = 0.f, float farPlane = 0.f);
+    void RenderFBO(unsigned int tbo, unsigned int aux_tbo = 0);
     void updateLights();
     
     void SerializeObjects(const std::string& jsonPath);
