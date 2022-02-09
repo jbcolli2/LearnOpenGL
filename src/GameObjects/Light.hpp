@@ -11,10 +11,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Shapes.hpp"
-#include "Shader.hpp"
-#include "OpenGLUtil.hpp"
-#include "VertexData.hpp"
+#include "GameObjects/Shapes.hpp"
+#include "Rendering/Shader.hpp"
+#include "Utilities/OpenGLUtil.hpp"
+#include "Utilities/VertexData.hpp"
 
 
 class PosLight

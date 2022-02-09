@@ -20,9 +20,9 @@
 #include <stb_image.h>
 
 #include <glm/glm.hpp>
-#include "OpenGLUtil.hpp"
-#include "Mesh.hpp"
-#include "Shader.hpp"
+#include "Utilities/OpenGLUtil.hpp"
+#include "GameObjects/Mesh.hpp"
+#include "Rendering/Shader.hpp"
 
 
 using json = nlohmann::json;
@@ -36,17 +36,20 @@ class Shape
 {
     
 protected:
+    // IDs for Vertex Array Object and Vertex Buffer Object
     unsigned int m_VAO, m_VBO;
+    
+    //Number of vertices for the shape
     unsigned int m_numVerts;
-    
-    
     // Vertex data to define the shape
     std::vector<Vert3x3x2f> m_verts;
 
     // Container for all the textures associated with the shape
     std::vector<Texture> m_textures;
     // Load texture in linear or sRGB space
-    bool sRGBTexture{false};
+//    bool m_sRGBTexture{false};
+    // Is there a specular map texture loaded?  If not, shader will use constant 1.0 for specular map
+    bool m_isSpecMap{false};
     
      
     

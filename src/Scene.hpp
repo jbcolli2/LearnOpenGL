@@ -18,15 +18,18 @@
 
 
 
-#include "Shapes.hpp"
-#include "Shader.hpp"
-#include "Camera.hpp"
-#include "Light.hpp"
-#include "Model.hpp"
-#include "Skybox.hpp"
-#include "Framebuffer.hpp"
-#include "Serialize.hpp"
-#include "OpenGLUtil.hpp"
+#include "GameObjects/Shapes.hpp"
+#include "GameObjects/Camera.hpp"
+#include "GameObjects/Light.hpp"
+#include "GameObjects/Model.hpp"
+#include "GameObjects/Skybox.hpp"
+
+#include "Rendering/Shader.hpp"
+#include "Rendering/Framebuffer.hpp"
+
+#include "Engine/Serialize.hpp"
+
+#include "Utilities/OpenGLUtil.hpp"
 
 using json = nlohmann::json;
 

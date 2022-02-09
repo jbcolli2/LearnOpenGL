@@ -12,8 +12,8 @@
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
 
-#include "Mesh.hpp"
-#include "OpenGLUtil.hpp"
+#include "GameObjects/Mesh.hpp"
+#include "Utilities/OpenGLUtil.hpp"
 
 
 class Model

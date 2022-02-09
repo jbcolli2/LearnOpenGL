@@ -14,8 +14,8 @@
 
 #include <stb_image.h>
 
-#include "OpenGLUtil.hpp"
-#include "Shader.hpp"
+#include "Utilities/OpenGLUtil.hpp"
+#include "Rendering/Shader.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

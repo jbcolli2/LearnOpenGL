@@ -11,7 +11,7 @@
 #include "stb_image.h"
 
 #include "Scene.hpp"
-#include "Input.hpp"
+#include "Engine/Input.hpp"
 
 Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
@@ -210,7 +210,7 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     m_selectCommands.push_back(std::make_unique<LightSelect>(this));
     selectCommandIndex = 2;
     
-    
+    stbi_set_flip_vertically_on_load(true);
     
     //Use this as flag to choose whether to create objects through JSON or
     // by hard-coding.  Don't want objects created both ways.

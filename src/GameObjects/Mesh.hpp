@@ -14,8 +14,8 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
-#include "Shader.hpp"
-#include "OpenGLUtil.hpp"
+#include "Rendering/Shader.hpp"
+#include "Utilities/OpenGLUtil.hpp"
 
 
 

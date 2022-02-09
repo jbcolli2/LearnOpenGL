@@ -9,8 +9,8 @@
 #define Framebuffer_h
 
 
-#include "OpenGLUtil.hpp"
-#include "Camera.hpp"
+#include "Utilities/OpenGLUtil.hpp"
+#include "GameObjects/Camera.hpp"
 #include "Scene.hpp"
 
 class Scene;

@@ -15,7 +15,7 @@
 #include <stb_image.h>
 #include <glm/glm.hpp>
 
-#include "VertexData.hpp"
+#include "Utilities/VertexData.hpp"
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;

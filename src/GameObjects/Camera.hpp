@@ -17,7 +17,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "nlohmann/json.hpp"
-#include "OpenGLUtil.hpp"
+#include "Utilities/OpenGLUtil.hpp"
 
 
 using json = nlohmann::json;

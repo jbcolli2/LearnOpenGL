@@ -12,7 +12,7 @@
 
 #include "glm/glm.hpp"
 #include "nlohmann/json.hpp"
-#include "Mesh.hpp"
+#include "GameObjects/Mesh.hpp"
 
 using json = nlohmann::json;
 

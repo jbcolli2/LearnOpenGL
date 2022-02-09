@@ -14,7 +14,7 @@
         "yaw": -23.78062629699707
     },
     {
-        "ambient": 0.0003627972037065774,
+        "ambient": 0.0002176783309550956,
         "constAtten": 0.0,
         "diffuse": [
             4.099186897277832,
@@ -23,13 +23,13 @@
         ],
         "linAtten": 1.0,
         "position": [
-            3.7546308040618896,
-            1.8411860466003418,
-            1.4991812705993652
+            0.9920358061790466,
+            2.810063600540161,
+            1.1993056535720825
         ],
         "quadAtten": 0.0,
         "scale": 0.05000000074505806,
-        "specular": 0.19402818381786346,
+        "specular": 0.7953577637672424,
         "type": "PointLight"
     },
     {
@@ -96,7 +96,6 @@
         ],
         "type": "Model"
     },
-    
     {
         "path": "../../assets/backpack/backpack.obj",
         "position": [
@@ -117,7 +116,6 @@
         ],
         "type": "Model"
     },
-    
     {
         "path": "../../assets/backpack/backpack.obj",
         "position": [
@@ -138,7 +136,6 @@
         ],
         "type": "Model"
     },
-    
     {
         "path": "../../assets/backpack/backpack.obj",
         "position": [
@@ -159,7 +156,6 @@
         ],
         "type": "Model"
     },
-    
     {
         "path": "../../assets/backpack/backpack.obj",
         "position": [
@@ -180,7 +176,6 @@
         ],
         "type": "Model"
     },
-    
     {
         "path": "../../assets/backpack/backpack.obj",
         "position": [
@@ -201,7 +196,6 @@
         ],
         "type": "Model"
     },
-    
     {
         "path": "../../assets/backpack/backpack.obj",
         "position": [
@@ -222,7 +216,6 @@
         ],
         "type": "Model"
     },
-    
     {
         "path": "../../assets/backpack/backpack.obj",
         "position": [
@@ -243,7 +236,6 @@
         ],
         "type": "Model"
     },
-    
     {
         "path": "../../assets/backpack/backpack.obj",
         "position": [
@@ -264,7 +256,206 @@
         ],
         "type": "Model"
     },
-    
+    {
+        "path": "../../assets/backpack/backpack.obj",
+        "position": [
+            -4.0,
+            1.0,
+            -2.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "sRGB": true,
+        "scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "type": "Model"
+    },
+    {
+        "path": "../../assets/backpack/backpack.obj",
+        "position": [
+            0.0,
+            1.0,
+            0.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "sRGB": true,
+        "scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "type": "Model"
+    },
+    {
+        "path": "../../assets/backpack/backpack.obj",
+        "position": [
+            2.0,
+            1.0,
+            0.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "sRGB": true,
+        "scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "type": "Model"
+    },
+    {
+        "path": "../../assets/backpack/backpack.obj",
+        "position": [
+            4.0,
+            1.0,
+            0.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "sRGB": true,
+        "scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "type": "Model"
+    },
+    {
+        "path": "../../assets/backpack/backpack.obj",
+        "position": [
+            -2.0,
+            1.0,
+            0.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "sRGB": true,
+        "scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "type": "Model"
+    },
+    {
+        "path": "../../assets/backpack/backpack.obj",
+        "position": [
+            -4.0,
+            1.0,
+            0.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "sRGB": true,
+        "scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "type": "Model"
+    },
+    {
+        "path": "../../assets/backpack/backpack.obj",
+        "position": [
+            0.0,
+            1.0,
+            -2.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "sRGB": true,
+        "scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "type": "Model"
+    },
+    {
+        "path": "../../assets/backpack/backpack.obj",
+        "position": [
+            2.0,
+            1.0,
+            -2.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "sRGB": true,
+        "scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "type": "Model"
+    },
+    {
+        "path": "../../assets/backpack/backpack.obj",
+        "position": [
+            4.0,
+            1.0,
+            -2.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "sRGB": true,
+        "scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "type": "Model"
+    },
+    {
+        "path": "../../assets/backpack/backpack.obj",
+        "position": [
+            -2.0,
+            1.0,
+            -2.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "sRGB": true,
+        "scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "type": "Model"
+    },
     {
         "path": "../../assets/backpack/backpack.obj",
         "position": [
@@ -285,5 +476,4 @@
         ],
         "type": "Model"
     }
-    
 ]
