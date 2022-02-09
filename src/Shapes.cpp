@@ -538,8 +538,6 @@ Cube::Cube()
     m_verts = fillVerts();
     
     setupMesh();
-
-    int x = 5;
 }
 
 

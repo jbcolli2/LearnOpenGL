@@ -6,6 +6,7 @@
 //
 
 #include <stdio.h>
+#include <chrono>
 
 #include "stb_image.h"
 
@@ -16,20 +17,16 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_justTexture = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "BloomMRT.glsl");
+    m_justTexture = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.glsl");
     m_justTexture.makeProgram();
     
-    m_solidMRT = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColorMRT.glsl");
-    m_solidMRT.makeProgram();
-    
-    m_gaussianBlurPingPong = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "GaussianBlurPingPong.glsl");
-    m_gaussianBlurPingPong.makeProgram();
+
     
 //    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
 //    m_effectShader.makeProgram();
 //    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
 //    m_skyboxShader.makeProgram();
-    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "BloomHDRFrag.glsl");
+    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "HDRFrag.glsl");
     m_fboShader.makeProgram();
     
 
@@ -320,16 +317,9 @@ void Scene::draw(float deltaTime)
     
     // Render scene to a texture
     m_fbo->RenderToTexture2D(m_currentObjShader);
-    m_fboQuad.tbo_aux = m_fbo->getColorBufferTBO(1);
-    if(m_doBloom)
-    {
-        m_gaussianBlurPingPong.useProgram();
-        m_fboQuad.tbo_aux = m_gaussianFilter->Filter(&m_gaussianBlurPingPong, m_fbo->getColorBufferTBO(1), "horizontal", true, m_numBlurs);
-        m_gaussianBlurPingPong.stopUseProgram();
-    }
     
     
-    RenderFBO(m_fboQuad.tbo, m_fboQuad.tbo_aux);
+    RenderFBO(m_fboQuad.tbo);
     
     
 }
@@ -375,9 +365,14 @@ void Scene::drawObjects(Shader shader)
 //    m_skyboxShader.setUniformTex("skybox", 10);
 //    m_skybox.Draw(m_skyboxShader);
     
-    for(auto& shape: m_shapes)
+    for(int ii = 0; ii < m_shapes.size(); ++ii)
     {
-        shape->Draw(shader);
+        m_shapes[ii]->Draw(shader);
+    }
+    
+    for(int ii = 0; ii < m_models.size(); ++ii)
+    {
+        m_models[ii]->Draw(shader);
     }
 }
 
@@ -434,8 +429,6 @@ void Scene::SetupImGui()
         m_fboShader.stopUseProgram();
     }
     
-    ImGui::Checkbox("Bloom", &m_doBloom);
-    ImGui::SliderInt("Number of Blurs", &m_numBlurs, 1, 30);
     
     if(ImGui::DragFloat("Exposure", &m_exposure, 0.01f, 0.f, 10.f, "%.3f"))
     {
@@ -547,7 +540,7 @@ void Scene::updateLights()
 {
     for(int ii = 0; ii < m_ptLights.size(); ++ii)
     {
-        m_ptLights[ii].draw(m_solidMRT);
+        m_ptLights[ii].draw(Shader::solidShader);
     }
     
     
@@ -782,7 +775,7 @@ void Scene::scroll_callback(GLFWwindow* window, double xInc, double yInc)
  \brief Initialize a blank json array and store in member m_gameObjectJson.  Loop through each vector of objects and add them to the json array.  Then
     write json object to file.
  
- \param
+ \param jsonPath - Path to the json file
  
  \returns
  */
@@ -827,6 +820,11 @@ void Scene::SerializeObjects(const std::string& jsonPath)
             default:
                 break;
         }
+    }
+    
+    for (const auto& model : m_models)
+    {
+        m_gameObjectJson.push_back(*model);
     }
     
     JsonToFile(m_gameObjectJson, JSON_FILE);
@@ -888,6 +886,15 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
                 m_shapes.push_back(std::make_unique<Plane>(Plane(j.get<Plane>())));
                 break;
                 
+                
+                
+                // *************  Models  ************** //
+            case GameObject::MODEL:
+                m_models.push_back(std::make_unique<Model>(Model(j.get<Model>())));
+                break;
+                
+                
+                
                 // ********  Lights  ********** //
             case GameObject::PTLIGHT:
                 m_ptLights.push_back(j.get<PointLight>());
@@ -902,6 +909,9 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
                 addLight = true;
                 break;
                 
+                
+                
+                
                 // ********  Camera  ********** //
             case GameObject::CAMERA:
                 m_cam = j;
@@ -913,7 +923,10 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
         
         if(addLight)
             setupLights();
+        
+        
     }
+    
 }
 
 

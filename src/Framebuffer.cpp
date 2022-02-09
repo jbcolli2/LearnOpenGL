@@ -490,6 +490,7 @@ unsigned int PingPongFilter::Filter(Shader* shader, unsigned int initialTexture,
     unsigned int currentTBO{0};
     
     glBindVertexArray(m_vao);
+    glActiveTexture(GL_TEXTURE0);
     
     for(int iter = 0; iter < numIterations; ++iter)
     {
@@ -500,12 +501,10 @@ unsigned int PingPongFilter::Filter(Shader* shader, unsigned int initialTexture,
         
         glBindFramebuffer(GL_FRAMEBUFFER, m_fbo[0]);
         
-        glActiveTexture(GL_TEXTURE0);
+        
         glBindTexture(GL_TEXTURE_2D, currentTBO);
         shader->setUniform1ui(switchUniform, switchValue);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         
         
         // *************  Render to fbo 1  ************** //
@@ -517,8 +516,6 @@ unsigned int PingPongFilter::Filter(Shader* shader, unsigned int initialTexture,
         glBindTexture(GL_TEXTURE_2D, currentTBO);
         shader->setUniform1ui(switchUniform, switchValue);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

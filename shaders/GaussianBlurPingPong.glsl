@@ -15,18 +15,20 @@ void main()
     vec3 blurColor = texture(image, UV).rgb*weights[0];
     if(horizontal)
     {
+        vec2 offset = vec2(texelSize.x, 0.0);
         for(int ii = 1; ii < 5; ++ii)
         {
-            blurColor += texture(image, vec2(UV.x + texelSize.x * ii, UV.y)).rgb * weights[ii];
-            blurColor += texture(image, vec2(UV.x - texelSize.x * ii, UV.y)).rgb * weights[ii];
+            blurColor += texture(image, UV + offset*ii).rgb * weights[ii];
+            blurColor += texture(image, UV - offset*ii).rgb * weights[ii];
         }
     }
     else
     {
+        vec2 offset = vec2(0.0, texelSize.y);
         for(int ii = 1; ii < 5; ++ii)
         {
-            blurColor += texture(image, vec2(UV.x, UV.y + texelSize.y * ii)).rgb * weights[ii];
-            blurColor += texture(image, vec2(UV.x, UV.y - texelSize.y * ii)).rgb * weights[ii];
+            blurColor += texture(image, UV + offset*ii).rgb * weights[ii];
+            blurColor += texture(image, UV - offset*ii).rgb * weights[ii];
         }
     }
 

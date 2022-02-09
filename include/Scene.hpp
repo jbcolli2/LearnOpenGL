@@ -60,11 +60,7 @@ public:
     Framebuffer* m_fbo;
     unsigned int m_tboScene;
     bool m_doHDR;
-    bool m_doBloom{true};
-    int m_numBlurs{5};
     float m_exposure = 1.f;
-    Shader m_solidMRT;
-    Shader m_gaussianBlurPingPong;
     PingPongFilter* m_gaussianFilter;
     //*********************************************
     //            End Current Demo

@@ -169,6 +169,23 @@ inline void from_json(const json& j, Plane& plane)
 
 
 
+//***************************************************************
+//            Model Objects
+//***************************************************************
+inline void to_json(json& j, const Model& model)
+{
+    j = model.toJson();
+}
+
+inline void from_json(const json& j, Model& model)
+{
+    std::string path = j.value("path", std::string());
+    bool sRGB = j.value("sRGB", Texture::sRGBDefault);
+    model = Model(path.c_str(), sRGB);
+    model.m_transform.position = j.value("position", glm::vec3(0.f));
+    model.m_transform.rotation = j.value("rotation", glm::vec3(0.f));
+    model.m_transform.scale = j.value("scale", glm::vec3(1.f));
+}
 
 
 //*********************************************

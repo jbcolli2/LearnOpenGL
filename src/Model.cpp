@@ -10,7 +10,7 @@
 
 #include "Model.hpp"
 
-
+std::vector<Texture> Model::m_texturesLoaded{};
 
 
 void Model::Draw(Shader &shader, int instances)
@@ -25,16 +25,16 @@ void Model::Draw(Shader &shader, int instances)
 
     if(instances <= 1)
     {
-        for(auto mesh : m_Meshes)
+        for(int ii = 0; ii < m_Meshes.size(); ++ii)
         {
-            mesh.Draw(shader);
+            m_Meshes[ii].Draw(shader);
         }
     }
     else
     {
-        for(auto mesh : m_Meshes)
+        for(int ii = 0; ii < m_Meshes.size(); ++ii)
         {
-            mesh.Draw(shader, instances);
+            m_Meshes[ii].Draw(shader, instances);
         }
     }
     
@@ -100,8 +100,12 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
         
         if(mesh->mTextureCoords[0])
         {
-            vertex.textureUV.x = mesh->mTextureCoords[0][ii].x;
-            vertex.textureUV.y = mesh->mTextureCoords[0][ii].y;
+            glm::vec2 vec;
+            vec.x = mesh->mTextureCoords[0][ii].x;
+            vec.y = mesh->mTextureCoords[0][ii].y;
+            vertex.textureUV = vec;
+//            vertex.textureUV.x = mesh->mTextureCoords[0][ii].x;
+//            vertex.textureUV.y = mesh->mTextureCoords[0][ii].y;
         }
         else
         {
@@ -173,9 +177,10 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
         
         if(!textureAlreadyLoaded)
         {
-            texture.id = loadTextureFromFile(textPath.C_Str(), m_directory, Texture::sRGBDefault);
+            texture.id = loadTextureFromFile(textPath.C_Str(), m_directory, m_sRGB);
             texture.uniformName = type;
             texture.path = textPath.C_Str();
+            texture.sRGB = m_sRGB;
             if(textType == aiTextureType_DIFFUSE)
                 texture.type = TextureType::DIFFUSE;
             if(textType == aiTextureType_SPECULAR)
@@ -189,4 +194,35 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     
     
     return textures;
+}
+
+
+
+/*******************  setsRGB   ************************************
+ * \brief Change the sRGB value.  This will reload the model so that the
+ *      textures can be reloaded with the changed color space.
+ *
+ * \param sRGB - new value to set sRGB to
+ **************************************************************///
+void Model::setsRGB(bool sRGB)
+{
+    m_sRGB = sRGB;
+    loadModel(m_path);
+}
+
+
+
+/*******************  toJson   ************************************
+ * \brief Convert model object to json file.
+ **************************************************************///
+const json Model::toJson() const
+{
+    return json{
+        {"type", "Model"},
+        {"path", m_path},
+        {"position", m_transform.position},
+        {"rotation", m_transform.rotation},
+        {"scale", m_transform.scale},
+        {"sRGB", m_sRGB}
+    };
 }

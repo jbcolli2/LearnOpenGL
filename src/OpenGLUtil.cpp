@@ -270,6 +270,11 @@ unsigned int loadTextureFromFile(const char* path, bool sRGB)
         textureFormat = GL_RGBA;
         internalFormat = sRGB ? GL_SRGB_ALPHA : GL_RGBA;
     }
+    else if(nrChannels == 1)
+    {
+        textureFormat = GL_RED;
+        internalFormat = GL_RED;
+    }
     else
     {
         std::cout << "Number of channels in image is not 3 or 4, it is " << nrChannels << "\n";

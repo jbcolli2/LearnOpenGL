@@ -13,7 +13,7 @@ void main()
 {
     float gamma = 2.2;
     
-    vec3 hdrColor = texture(fboTex, UV).rgb + texture(brightTex, UV).rgb;
+    vec3 hdrColor = texture(fboTex, UV).rgb + .5*texture(brightTex, UV).rgb;
     vec3 ldrColor;
     
     if(hdr)
