@@ -50,11 +50,12 @@ public:
     
     void SetupShadowMap(std::string vertSource, std::string fragSource, int width, int height);
     void SetupShadowCubeMap(std::string vertSource, std::string geomSource, std::string fragSource, const glm::vec3& lightPos, float near, float far, int width, int height);
-    void SetupToTexture2D(GLint internalFormat = GL_RGBA, int numColorBuffers = 1);
-    
-    
     unsigned int RenderShadowMap(const glm::mat4& lightVP);
     unsigned int RenderShadowCubeMap(const glm::vec3& position);
+    
+    
+    void SetupToTexture2D(GLint internalFormat = GL_RGBA, int numColorBuffers = 1);
+    void SetupToTexture2D(const std::vector<GLint>& internalFormats, int numColorBuffers = 1);
     void RenderToTexture2D(Shader* shader, const glm::vec3& position, const glm::vec3& direction);
     void RenderToTexture2D(Shader* shader);
     void RenderToCubemap(unsigned int tbo, const glm::vec3& position, const glm::mat4& proj);

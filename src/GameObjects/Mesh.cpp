@@ -12,8 +12,8 @@
 
 
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) :
-m_vertices(vertices), m_indices(indices), m_textures(textures)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, bool specMap) :
+m_vertices(vertices), m_indices(indices), m_textures(textures), m_isSpecMap(specMap)
 {
     setupMesh();
 }
@@ -23,6 +23,8 @@ m_vertices(vertices), m_indices(indices), m_textures(textures)
 void Mesh::setupTextureForDraw(Shader& shader)
 {
     unsigned int diffUnit = 0, specUnit = 0;
+    
+    shader.setUniform1ui("specularMap", m_isSpecMap);
     
     for(int ii = 0; ii < m_textures.size(); ++ii)
     {

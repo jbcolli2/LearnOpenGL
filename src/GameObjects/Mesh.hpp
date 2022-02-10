@@ -43,7 +43,7 @@ public:
     std::vector<unsigned int>    m_indices;
     std::vector<Texture>         m_textures;
     
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, bool specMap = false);
     
     void Draw(Shader& shader);
     void Draw(Shader& shader, int instances);
@@ -57,6 +57,7 @@ public:
     
 private:
     unsigned int m_VAO, m_VBO, m_EBO;
+    bool m_isSpecMap{false};
     void setupMesh();
     void setupTextureForDraw(Shader& shader);
     

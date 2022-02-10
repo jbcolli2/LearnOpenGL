@@ -248,8 +248,10 @@ unsigned int Framebuffer::RenderShadowCubeMap(const glm::vec3& position)
     framebuffer and checking for completeness.  The FBO should be totally ready for rendering after this method.
 
  */
-void Framebuffer::SetupToTexture2D(GLint internalFormat, int numColorBuffers)
+void Framebuffer::SetupToTexture2D(const std::vector<GLint>& internalFormats, int numColorBuffers)
 {
+    assert("Framebuffer::SetupToTexture2D" && internalFormats.size() == numColorBuffers);
+    
     m_tbo2D.clear();
     m_colorAttachments.clear();
     
@@ -263,7 +265,7 @@ void Framebuffer::SetupToTexture2D(GLint internalFormat, int numColorBuffers)
         m_tbo2D.push_back(0);
         glGenTextures(1, &m_tbo2D[ii]);
         glBindTexture(GL_TEXTURE_2D, m_tbo2D[ii]);
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormats[ii], m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         
@@ -278,6 +280,16 @@ void Framebuffer::SetupToTexture2D(GLint internalFormat, int numColorBuffers)
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+}
+
+
+
+
+void Framebuffer::SetupToTexture2D(GLint internalFormat, int numColorBuffers)
+{
+    std::vector<GLint> internalFormats(numColorBuffers, internalFormat);
+    
+    SetupToTexture2D(internalFormats, numColorBuffers);
 }
 
 

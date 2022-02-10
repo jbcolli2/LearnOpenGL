@@ -17,6 +17,7 @@ struct Material
 };
 
 uniform Material material;
+uniform bool specularMap;
 
 
 
@@ -25,5 +26,15 @@ uniform Material material;
 void main()
 {
     gDiffSpec.rgb = texture(material.diffuse0, UV).rgb;
-    gDiffSpec.rgb = 
+    if(specularMap)
+    {
+        gDiffSpec.a = texture(material.specular0, UV).r;
+    }
+    else
+    {
+        gDiffSpec.a = 1.0;
+    }
+    
+    gPosition = FragPos;
+    gNormal = Normal;
 }

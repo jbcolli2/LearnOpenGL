@@ -84,6 +84,8 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
     
+    bool hasSpecMap{false};
+    
     
     //Load vertex data
     for(int ii = 0; ii < mesh->mNumVertices; ++ii)
@@ -133,6 +135,11 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     if(mesh->mMaterialIndex >=0)
     {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        // Store that this model has a specular map
+        if(material->GetTextureCount(aiTextureType_SPECULAR) > 0)
+        {
+            hasSpecMap = true;
+        }
         
         //load Diffuse maps
         std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE,
@@ -145,7 +152,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     }
     
-    return Mesh(vertices, indices, textures);
+    return Mesh(vertices, indices, textures, hasSpecMap);
     
 }
 
@@ -158,6 +165,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
 {
     std::vector<Texture> textures;
     bool textureAlreadyLoaded;
+    
     for(int ii = 0; ii < mat->GetTextureCount(textType); ++ii)
     {
         aiString textPath;

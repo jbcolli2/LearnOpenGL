@@ -167,6 +167,7 @@ void Shape::loadTextures(std::string filename, TextureType type, bool sRGB)
             break;
         case TextureType::SPECULAR:
             texture.uniformName = Texture::specName;
+            m_isSpecMap = true;
             break;
         case TextureType::NORMAL:
             texture.uniformName = Texture::normalName;
@@ -238,6 +239,7 @@ void Shape::Draw(Shader shader, int instances)
     model = glm::rotate(model, glm::radians(m_transform.rotation.z), glm::vec3(0.f, 0.f, 1.f));
     model = glm::scale(model, m_transform.scale);
     shader.setUniformMatrix4f("model", model);
+    shader.setUniform1ui("specularMap", m_isSpecMap);
     
     
     

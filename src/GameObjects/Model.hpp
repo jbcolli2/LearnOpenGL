@@ -60,6 +60,7 @@ private:
     std::vector<Mesh> m_Meshes;
     std::string m_directory;
     static std::vector<Texture> m_texturesLoaded;
+
     
     void loadModel(std::string path);
     void processNode(aiNode* node, const aiScene* scene);

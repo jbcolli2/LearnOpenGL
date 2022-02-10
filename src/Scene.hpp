@@ -79,7 +79,7 @@ public:
     
     struct fboQuad
     {
-        unsigned int vbo, vao, tbo, tbo_aux;
+        unsigned int vbo, vao, tboPos, tboNorm, tboDiff;
     };
     fboQuad m_fboQuad;
     
@@ -267,7 +267,7 @@ public:
     void updateVP(Shader shader);
     void updateLightUniforms();
     void drawObjects(Shader shader);
-    void RenderFBO(unsigned int tbo, unsigned int aux_tbo = 0);
+    void RenderFBO(unsigned int tbo, unsigned int tbo1 = 0, unsigned int tbo2 = 0);
     void updateLights();
     
     void SerializeObjects(const std::string& jsonPath);

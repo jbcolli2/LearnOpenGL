@@ -17,7 +17,7 @@ Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_justTexture = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "LightsTextures.glsl");
+    m_justTexture = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "GBufferFrag.glsl");
     m_justTexture.makeProgram();
     
 
@@ -26,7 +26,7 @@ void Scene::setupShaders()
 //    m_effectShader.makeProgram();
 //    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
 //    m_skyboxShader.makeProgram();
-    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "HDRFrag.glsl");
+    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "LightsTexturesDefer.glsl");
     m_fboShader.makeProgram();
     
 
@@ -55,7 +55,7 @@ void Scene::createLights()
 
 void Scene::setupLights()
 {
-    
+    m_currentObjShader = &m_fboShader;
     m_currentObjShader->useProgram();
     
     m_currentObjShader->setUniform1i("numDirLights", m_dirLights.size());
@@ -79,6 +79,8 @@ void Scene::setupLights()
     m_currentObjShader->setUniform1i("phong", m_phong);
     
     m_currentObjShader->stopUseProgram();
+    
+    m_currentObjShader = &m_justTexture;
 }
 
 
@@ -245,13 +247,12 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     //*********************************************
     //            Demo Begin
     //*********************************************
-    m_gaussianFilter = new PingPongFilter(window, GL_RGB16F);
-    
     SetupFBORender();
     m_fbo = new Framebuffer(this, m_window);
-    m_fbo->SetupToTexture2D(GL_RGBA16F, 2);
-    m_fboQuad.tbo = m_fbo->getColorBufferTBO(0);
-    m_fboQuad.tbo_aux = m_fbo->getColorBufferTBO(1);
+    m_fbo->SetupToTexture2D(GL_RGBA16F, 3);
+    m_fboQuad.tboPos = m_fbo->getColorBufferTBO(0);
+    m_fboQuad.tboNorm = m_fbo->getColorBufferTBO(1);
+    m_fboQuad.tboDiff = m_fbo->getColorBufferTBO(2);
     m_doHDR = true;
     m_fboShader.useProgram();
     m_fboShader.setUniform1ui("hdr", m_doHDR);
@@ -319,7 +320,7 @@ void Scene::draw(float deltaTime)
     m_fbo->RenderToTexture2D(m_currentObjShader);
     
     
-    RenderFBO(m_fboQuad.tbo);
+    RenderFBO(m_fboQuad.tboPos, m_fboQuad.tboNorm, m_fboQuad.tboDiff);
     
     
 }
@@ -336,10 +337,7 @@ void Scene::draw(float deltaTime)
  \param shader - The shader program used to render the scene.
  */
 void Scene::RenderScene(Shader* shader)
-{    
-    
-    
-    
+{
     shader->useProgram();
     updateLightUniforms();
     drawObjects(*m_currentObjShader);
@@ -518,20 +516,32 @@ void Scene::updateLightUniforms()
 
 
 
-void Scene::RenderFBO(unsigned int tbo, unsigned int tbo_aux)
+void Scene::RenderFBO(unsigned int tbo, unsigned int tbo1, unsigned int tbo2)
 {
+    m_currentObjShader = & m_fboShader;
     m_fboShader.useProgram();
+    updateLightUniforms();
+    
     glBindVertexArray(m_fboQuad.vao);
     glActiveTexture(GL_TEXTURE0 + 7);
     glBindTexture(GL_TEXTURE_2D, tbo);
-    m_fboShader.setUniform1i("fboTex", 7);
+    m_fboShader.setUniform1i("FragPos", 7);
     
     glActiveTexture(GL_TEXTURE0 + 8);
-    glBindTexture(GL_TEXTURE_2D, tbo_aux);
-    m_fboShader.setUniform1i("brightTex", 8);
+    glBindTexture(GL_TEXTURE_2D, tbo1);
+    m_fboShader.setUniform1i("Normal", 8);
+    
+    glActiveTexture(GL_TEXTURE0 + 9);
+    glBindTexture(GL_TEXTURE_2D, tbo2);
+    m_fboShader.setUniform1i("DiffSpec", 9);
     
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
+    m_fboShader.stopUseProgram();
+    m_currentObjShader = &m_justTexture;
+    
+    updateLights();
+
 }
 
 

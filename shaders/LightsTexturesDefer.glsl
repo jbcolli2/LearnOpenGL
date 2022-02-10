@@ -1,18 +1,14 @@
 #version 330 core
 
-in vec3 Normal;
-in vec3 FragPos;
+
 in vec2 UV;
 
 out vec4 FragColor;
 
+uniform sampler2D FragPos;
+uniform sampler2D Normal;
+uniform sampler2D DiffSpec;
 
-struct Material
-{
-    sampler2D diffuse0;
-    sampler2D specular0;
-    float shininess;
-};
 
 struct PointLight
 {
@@ -54,7 +50,8 @@ struct SpotLight
 };
 
 uniform bool phong;
-
+uniform bool hdr;
+uniform float exposure;
 uniform bool specularMap;
 uniform vec3 cameraPos;
 
@@ -66,7 +63,6 @@ uniform int numDirLights, numPtLights, numSpotLights;
 //*********************************************
 //            Material and light uniforms
 //*********************************************
-uniform Material material;
 uniform PointLight ptLights[MAX_LIGHTS];
 uniform DirLight dirLights[MAX_LIGHTS];
 uniform SpotLight spotLights[MAX_LIGHTS];
@@ -91,7 +87,7 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
 
 
 
-
+vec3 toneMap(vec3 hdrColor);
 
 
 
@@ -100,8 +96,9 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
 //*********************************************
 void main()
 {
-    vec3 normal = normalize(Normal);
-    vec3 viewDir = normalize(cameraPos - FragPos);
+    vec3 normal = normalize(texture(Normal,UV).rgb);
+    vec3 Pos = vec3(texture(FragPos, UV));
+    vec3 viewDir = normalize(cameraPos - Pos);
     vec3 result = vec3(0.0);
     if(numDirLights > 0)
     {
@@ -110,21 +107,45 @@ void main()
 
     for(int ii = 0; ii < numPtLights; ++ii)
     {
-        result += computePtLight(ptLights[ii], normal, viewDir, FragPos);
+        result += computePtLight(ptLights[ii], normal, viewDir, Pos);
     }
     
     if(numSpotLights > 0)
     {
-        result += computeSpotLight(spotLights[0], normal, viewDir, FragPos);
+        result += computeSpotLight(spotLights[0], normal, viewDir, Pos);
     }
     
+    result = toneMap(result);
     FragColor = vec4(result, 1.0);
+    
+//    FragColor = vec4(vec3(texture(DiffSpec,UV)), 1.0);
     
 
 }
 
 
+vec3 toneMap(vec3 hdrColor)
+{
+    float gamma = 2.2;
+    
+    vec3 ldrColor;
+    
+    if(hdr)
+    {
+//        ldrColor = hdrColor/(hdrColor + vec3(1.0));
+        
+        //Exposure mapping
+        ldrColor = vec3(1.0) - exp(-hdrColor*exposure);
+    }
+    else
+    {
+        ldrColor = hdrColor;
+    }
+    
+    
+    return pow(ldrColor, vec3(1.0/gamma));
 
+}
 
 
 
@@ -142,12 +163,12 @@ float computeSpecCoeff(vec3 light2Frag, vec3 normal, vec3 viewDir)
     if(phong)
     {
         vec3 reflectDir = normalize(reflect(light2Frag, normal));
-        return pow(max(dot(reflectDir, viewDir), 0.0), material.shininess);
+        return pow(max(dot(reflectDir, viewDir), 0.0), 16.0);
     }
     else
     {
         vec3 halfwayDir = normalize(-light2Frag + viewDir);
-        return pow(max(dot(halfwayDir, normal), 0.0), material.shininess);
+        return pow(max(dot(halfwayDir, normal), 0.0), 16.0);
     }
 }
 
@@ -165,17 +186,11 @@ vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     // The precomputed variables for the calculations
     vec3 light2Frag = normalize(light.direction);
-    vec3 diffuseMat = vec3(texture(material.diffuse0, UV));
+    vec3 diffuseMat = vec3(texture(DiffSpec, UV));
     vec3 specMat;
     // If not specular map, assume constant specularity of 1.0 across texture
-    if(specularMap)
-    {
-        specMat = vec3(texture(material.specular0, UV));
-    }
-    else
-    {
-        specMat = vec3(texture(material.diffuse0, UV));
-    }
+    specMat = vec3(texture(DiffSpec, UV).a);
+    
     
     //////////  Compute Amb/Diff/Spec contributions /////////////
 
@@ -205,16 +220,10 @@ vec3 computeDirLight(DirLight light, vec3 normal, vec3 viewDir)
 vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPosition)
 {
     // The precomputed variables for the calculation
-    vec3 diffuseMat = vec3(texture(material.diffuse0, UV));
+    vec3 diffuseMat = vec3(texture(DiffSpec, UV));
     vec3 specMat;
-    if(specularMap)
-    {
-        specMat = vec3(texture(material.specular0, UV).r);
-    }
-    else
-    {
-        specMat = vec3(1.0);
-    }
+    specMat = vec3(texture(DiffSpec, UV).a);
+
     
     vec3 light2Frag = fragPosition - light.position;
     float distLight2Frag = length(light2Frag);
@@ -253,16 +262,10 @@ vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPositi
 vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosition)
 {
     // The precomputed variables for the calculation
-    vec3 diffuseMat = vec3(texture(material.diffuse0, UV));
+    vec3 diffuseMat = vec3(texture(DiffSpec, UV));
     vec3 specMat;
-    if(specularMap)
-    {
-        specMat = vec3(texture(material.specular0, UV));
-    }
-    else
-    {
-        specMat = vec3(1.0);
-    }
+    specMat = vec3(texture(DiffSpec, UV).a);
+    
     
     vec3 light2Frag = fragPosition - light.position;
     float distLight2Frag = length(light2Frag);
@@ -276,7 +279,7 @@ vec3 computeSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPosit
     float spotAngle = dot(spotDirection, light2Frag);
     
     // Ambient light if fragment is outside of the cone of light
-    vec3 result = light.ambient * vec3(texture(material.diffuse0,UV));
+    vec3 result = light.ambient * diffuseMat;
     vec3 ambComponent = result;
     
     // Calculations of all light types if fragment is inside the outer edge of the light cone
