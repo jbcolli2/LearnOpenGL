@@ -219,6 +219,8 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     // TODO: This is only used for debuging purposes, when done debugging remove this flag
     bool serializeObjects = true;
     
+    
+    
     if(serializeObjects)
     {
         DeserializeObjects(JSON_FILE);
@@ -230,7 +232,22 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     //    setupShapes();
     }
     
-
+    
+    PointLight temp{glm::vec3(0.f)};
+    temp.setSpecular(.8);
+    temp.setDiffuse(glm::vec3(4.f));
+    temp.setAtten(0.f, 1.f, 0.f);
+    for(int ii = 0; ii < 3; ++ii)
+    {
+        for(int jj = 0; jj < 10; ++jj)
+        {
+            temp.m_position = glm::vec3(-4.f + (8.f/9.f)*jj, 2.5, .5f - ii*.75);
+            m_ptLights.push_back(temp);
+        }
+    }
+    setupLights();
+    
+    
 
     
     
