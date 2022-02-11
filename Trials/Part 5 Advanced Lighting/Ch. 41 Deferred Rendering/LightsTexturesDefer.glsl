@@ -57,7 +57,7 @@ uniform vec3 cameraPos;
 
 
 
-#define MAX_LIGHTS 32
+#define MAX_LIGHTS 5
 uniform int numDirLights, numPtLights, numSpotLights;
 
 //*********************************************

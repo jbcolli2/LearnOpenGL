@@ -45,7 +45,6 @@ PosLight::PosLight()
  **************************************************************/
 void PosLight::draw(Shader shader)
 {
-//    glDisable(GL_DEPTH_TEST);
     m_box.m_transform.position = m_position;
 
     shader.useProgram();
@@ -56,7 +55,6 @@ void PosLight::draw(Shader shader)
     m_box.Draw(Shader::solidShader);
     
     shader.stopUseProgram();
-//    glEnable(GL_DEPTH_TEST);
 }
 
 
