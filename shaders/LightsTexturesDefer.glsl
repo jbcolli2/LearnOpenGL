@@ -21,6 +21,8 @@ struct PointLight
     float constAtten;
     float linAtten;
     float quadAtten;
+    
+    float radius;
 };
 
 struct DirLight
@@ -107,7 +109,12 @@ void main()
 
     for(int ii = 0; ii < numPtLights; ++ii)
     {
-        result += computePtLight(ptLights[ii], normal, viewDir, Pos);
+        float distToLight = length(Pos - ptLights[ii].position);
+        if(distToLight < ptLights[ii].radius)
+        {
+            result += computePtLight(ptLights[ii], normal, viewDir, Pos);
+        }
+        
     }
     
     if(numSpotLights > 0)

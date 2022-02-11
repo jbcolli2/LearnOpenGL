@@ -11,6 +11,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <cmath>
+
 #include "GameObjects/Shapes.hpp"
 #include "Rendering/Shader.hpp"
 #include "Utilities/OpenGLUtil.hpp"
@@ -29,6 +31,7 @@ protected:
     
     glm::vec3 m_ambient{.15f}, m_diffuse{.6f}, m_specular{.3f};
     glm::vec3 m_color{1.f};
+    float m_radius{0.f};
     
     // Size of the cube representing the light
     float m_uniformScale{.05f};
@@ -38,7 +41,7 @@ protected:
     float m_innerCutoff{glm::cos(glm::radians(12.f))}, m_outerCutoff{glm::cos(glm::radians(17.f))};
     
     std::string structName;
-    std::string posName, dirName, ambName, diffName, specName, constName, linName, quadName, innerName, outerName;
+    std::string posName, dirName, ambName, diffName, specName, constName, linName, quadName, innerName, outerName, radiusName;
     
 public:
     glm::vec3 m_position{0.f}, m_direction{0.f, 0.f, -1.f};
@@ -58,13 +61,15 @@ public:
     void setDiffBrightness(float brightness) {m_diffuse = brightness*glm::normalize(m_diffuse); m_color = m_diffuse;};
     float getDiffBrightness() {return glm::length(m_diffuse);};
     void setSpecular(float specIntensity) {m_specular = specIntensity*glm::normalize(m_diffuse);};
-    void setAtten(float constant, float lin, float quad) {m_constAtten = constant; m_linAtten = lin; m_quadAtten = quad;};
+    void setAtten(float constant, float lin, float quad);
     
     void setUniformPos(Shader obj_Shader, int index = -1);
     void setUniformDir(Shader obj_Shader, int index = -1);
     void setUniformColor(Shader obj_Shader, int index = -1);
     void setUniformAtten(Shader obj_Shader, int index = -1);
     void setUniformCutoff(Shader obj_Shader, int index = -1);
+    
+    void setUniformRadius(Shader obj_Shader, int index = -1);
     
     void setUniformDirLight(Shader obj_Shader, int index = -1);
     void setUniformPtLight(Shader obj_Shader, int index = -1);

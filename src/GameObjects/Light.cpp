@@ -24,6 +24,7 @@ PosLight::PosLight()
     quadName = "quadAtten";
     innerName = "innerCutoff";
     outerName = "outerCutoff";
+    radiusName = "radius";
     
     
     
@@ -63,6 +64,33 @@ void PosLight::translate(const glm::vec3& delta)
     m_position += delta;
 }
 
+
+
+/*******************  setAtten   ************************************
+ * \brief Set the attenuation values for the light.  Also compute the radius.
+ *      This is done by taking the attenuation * max light component and setting equal to
+ *      some small value.  We then solve for the distance needed for the light
+ *      to reach this small value after attenuation.  We assume the light is zero
+ *      beyond this distance.
+ **************************************************************///
+void PosLight::setAtten(float constant, float lin, float quad)
+{
+    m_constAtten = constant;
+    m_linAtten = lin;
+    m_quadAtten = quad;
+    
+    constexpr float lightCutoffInv = 256.f/5.f;
+    float maxIntensity = std::fmax(std::fmax(m_diffuse.x, m_diffuse.y), m_diffuse.z);
+    if(quad != 0.f)
+    {
+        m_radius = -lin + std::sqrtf(lin*lin - 4.f*quad*(constant - lightCutoffInv*maxIntensity));
+        m_radius = m_radius/(2.f*quad);
+    }
+    else
+    {
+        m_radius = (lightCutoffInv*maxIntensity - constant)/lin;
+    }
+}
 
 
 
@@ -148,6 +176,21 @@ void PosLight::setUniformCutoff(Shader obj_Shader, int index)
     }
     obj_Shader.setUniform1f(uniformName + innerName, m_innerCutoff);
     obj_Shader.setUniform1f(uniformName + outerName, m_outerCutoff);
+}
+
+
+void PosLight::setUniformRadius(Shader obj_Shader, int index)
+{
+    std::string uniformName;
+    if(index < 0)
+    {
+        uniformName = structName + ".";
+    }
+    else
+    {
+        uniformName = structName + "[" + std::to_string(index) + "].";
+    }
+    obj_Shader.setUniform1f(uniformName + radiusName, m_radius);
 }
 
 

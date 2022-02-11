@@ -65,6 +65,8 @@ void Scene::setupLights()
     for(int ii = 0; ii < m_ptLights.size(); ++ii)
     {
         m_ptLights[ii].setUniformPtLight(*m_currentObjShader, ii);
+        // TODO: Only for deferred rendering trial
+        m_ptLights[ii].setUniformRadius(*m_currentObjShader, ii);
     }
     for(int ii = 0; ii < m_dirLights.size(); ++ii)
     {
