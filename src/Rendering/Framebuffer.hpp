@@ -60,6 +60,8 @@ public:
     void RenderToTexture2D(Shader* shader);
     void RenderToCubemap(unsigned int tbo, const glm::vec3& position, const glm::mat4& proj);
     
+    void BlitDepthBuffer();
+    
     
     unsigned int getColorBufferTBO(int index) {return m_tbo2D[index];};
     

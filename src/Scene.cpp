@@ -337,9 +337,14 @@ void Scene::draw(float deltaTime)
     m_fbo->RenderToTexture2D(m_currentObjShader);
     
     
+    
+    
     RenderFBO(m_fboQuad.tboPos, m_fboQuad.tboNorm, m_fboQuad.tboDiff);
     
+    // Now blit the depth information onto the default buffer
+    m_fbo->BlitDepthBuffer();
     
+    updateLights();
 }
 
 
@@ -362,7 +367,7 @@ void Scene::RenderScene(Shader* shader)
     
     // This will draw the point lights onto the scene
     //TODO: This call still has shader program being started and stoped within it.  Should move all shader program logic out of a draw call I think.
-    updateLights();
+//    updateLights();
 
 }
 
