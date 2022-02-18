@@ -8,8 +8,8 @@ uniform sampler2D fboTex;
 
 void main()
 {
-    vec4 color = texture(fboTex, UV);
+    float color = texture(fboTex, UV).r;
 
     
-    FragColor = color;
+    FragColor = vec4( vec3(color), 1.0);
 }

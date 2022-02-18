@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <vector>
 #include <string>
+#include <random>
 
 #include <glm/gtc/random.hpp>
 
@@ -53,6 +54,7 @@ public:
 
 class Framebuffer;
 class PingPongFilter;
+class Tex2QuadFilter;
 
 class Scene
 {
@@ -65,6 +67,9 @@ public:
     bool m_doHDR;
     float m_exposure = 1.f;
     PingPongFilter* m_gaussianFilter;
+    
+    
+    
     //*********************************************
     //            End Current Demo
     //*********************************************
@@ -77,11 +82,28 @@ public:
     
    
     
-    struct fboQuad
+    struct SSAO
     {
-        unsigned int vbo, vao, tboPos, tboNorm, tboDiff;
+        unsigned int vao{0}, vbo{0};  //  vao and vbo of the full screen quad
+        unsigned int tboPosition{0}, tboNormal{0}, tboAlbedo{0};  // texture objects for geometry pass
+        unsigned int tboRotations{0}; // tbo for rotation vector texture
+        unsigned int tboSSAO{0}, tboSSAOBlur{0}; // tbo for output of initial SSAO pass and then the blur of the SSAO
+        
+        const unsigned int numSamples{64};  // number of samples
+        const unsigned int NRotations{4}; // width of NxN rotation texture
+        float radius{.5f};  // radius to modify how far from the fragment the samples spread
+        
+        std::vector<glm::vec3> samples{}; // samples taken within the hemisphere
+        std::vector<glm::vec3> rotations{}; // rotations to add noise to occlusion calculations
+        
+        Tex2QuadFilter* ssaoFilter;
+        Tex2QuadFilter* blurFilter;
+        Tex2QuadFilter* lightFilter;
+        
+        Shader ssaoShader{}, blurShader{};
     };
-    fboQuad m_fboQuad;
+    SSAO m_ssao;
+    Tex2QuadFilter* debugFilter;
     
     //*********************************************
     //            Serialization
@@ -93,13 +115,12 @@ public:
     //*********************************************
     //            Shader variables
     //*********************************************
-    std::string SHADER_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/shaders/";
-    std::string IMAGE_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/include/";
-    std::string ASSET_FOLDER = "/Users/jebcollins/Documents/Personal/GameDev/C++/LearnOpenGL/LearnOpenGL/assets/";
+    std::string SHADER_FOLDER = "../../shaders/";
+    std::string IMAGE_FOLDER = "../../include/";
+    std::string ASSET_FOLDER = "../../assets/";
     
-    Shader  m_fboShader, m_debugShader, m_skyboxShader, m_effectShader, m_justTexture;
-    Shader m_geomNormals;
-    Shader* m_currentObjShader;
+    Shader  m_gPass{}, m_lightShader{}, m_debugShader{};
+    Shader* m_currentObjShader{nullptr};
     
     
     
@@ -259,13 +280,13 @@ public:
     
     void setupShaders();
     void createLights();
-    void setupLights();
+    void setupLights(Shader* shader);
     void setupShapes();
     void SetupFBORender();
     
     void clearBuffers();
     void updateVP(Shader shader);
-    void updateLightUniforms();
+    void updateLightUniforms(Shader* shader);
     void drawObjects(Shader shader);
     void RenderFBO(unsigned int tbo, unsigned int tbo1 = 0, unsigned int tbo2 = 0);
     void updateLights();

@@ -44,14 +44,14 @@ int main(int argc, const char * argv[]) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_SAMPLES, 4);
+//    glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     
     
     
     
-    int width = 1200;
-    int height = 1000;
+    int width = 800;
+    int height = 600;
     
     
     GLFWwindow* window = glfwCreateWindow(width, height, "LearnOpenGL", NULL, NULL);

@@ -21,6 +21,9 @@ class Shader
     
     std::string m_vertShaderStr, m_fragShaderStr, m_geomShaderStr;
     
+    // flag to store if shader is currently being used
+    bool m_beingUsed{false};
+    
 
 public:
     static Shader solidShader;
@@ -31,8 +34,9 @@ public:
     
     void makeProgram();
     
-    void useProgram(){ glUseProgram(m_program);};
-    void stopUseProgram() {glUseProgram(0);};
+    void useProgram(){ glUseProgram(m_program); m_beingUsed = true;};
+    void stopUseProgram() {glUseProgram(0); m_beingUsed = false;};
+    bool InUse() {return m_beingUsed;};
     
     void setUniform1f(const std::string& uniformName, float f)
     {

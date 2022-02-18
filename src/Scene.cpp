@@ -13,30 +13,35 @@
 #include "Scene.hpp"
 #include "Engine/Input.hpp"
 
+float lerp(float a, float b, float param)
+{
+    return a + param * (b-a);
+}
+
 Scene* Scene::GLFWCallbackWrapper::m_scene = nullptr;
 
 void Scene::setupShaders()
 {
-    m_justTexture = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "GBufferFrag.glsl");
-    m_justTexture.makeProgram();
-    
+    m_gPass = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "GBufferFrag.glsl");
+    m_gPass.makeProgram();
 
+    m_lightShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "LightsTexturesDefer.glsl");
+    m_lightShader.makeProgram();
     
-//    m_effectShader = Shader(SHADER_FOLDER + "MVPNormalUVInstVert.glsl", SHADER_FOLDER + "Texture.frag");
-//    m_effectShader.makeProgram();
-//    m_skyboxShader = Shader(SHADER_FOLDER + "SkyboxVert.vert", SHADER_FOLDER + "SkyboxFrag.frag");
-//    m_skyboxShader.makeProgram();
-    m_fboShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "LightsTexturesDefer.glsl");
-    m_fboShader.makeProgram();
+    m_ssao.ssaoShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "SSAOFrag.glsl");
+    m_ssao.ssaoShader.makeProgram();
     
-
-    m_debugShader = Shader(SHADER_FOLDER + "ShadowDirLightVert.glsl", SHADER_FOLDER + "EmptyFrag.glsl");
-    m_debugShader.makeProgram();
+    m_ssao.blurShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "SSAOBlurFrag.glsl");
+    m_ssao.blurShader.makeProgram();
+    
     
     Shader::solidShader = Shader(SHADER_FOLDER + "MVPNormalUV.vert", SHADER_FOLDER + "SolidColor.frag");
     Shader::solidShader.makeProgram();
     
-    m_currentObjShader = &m_justTexture;
+    m_debugShader = Shader(SHADER_FOLDER + "FBOVert.glsl", SHADER_FOLDER + "DebugFrag.glsl");
+    m_debugShader.makeProgram();
+    
+    m_currentObjShader = &m_gPass;
 }
 
 
@@ -53,36 +58,29 @@ void Scene::createLights()
 
 }
 
-void Scene::setupLights()
+void Scene::setupLights(Shader* shader)
 {
-    m_currentObjShader = &m_fboShader;
-    m_currentObjShader->useProgram();
-    
-    m_currentObjShader->setUniform1i("numDirLights", m_dirLights.size());
-    m_currentObjShader->setUniform1i("numPtLights", m_ptLights.size());
-    m_currentObjShader->setUniform1i("numSpotLights", m_spotLights.size());
+    shader->setUniform1i("numDirLights", m_dirLights.size());
+    shader->setUniform1i("numPtLights", m_ptLights.size());
+    shader->setUniform1i("numSpotLights", m_spotLights.size());
     
     for(int ii = 0; ii < m_ptLights.size(); ++ii)
     {
-        m_ptLights[ii].setUniformPtLight(*m_currentObjShader, ii);
+        m_ptLights[ii].setUniformPtLight(*shader, ii);
         // TODO: Only for deferred rendering trial
-        m_ptLights[ii].setUniformRadius(*m_currentObjShader, ii);
+        m_ptLights[ii].setUniformRadius(*shader, ii);
     }
     for(int ii = 0; ii < m_dirLights.size(); ++ii)
     {
-        m_dirLights[ii].setUniformDirLight(*m_currentObjShader, ii);
+        m_dirLights[ii].setUniformDirLight(*shader, ii);
     }
     for(int ii = 0; ii < m_spotLights.size(); ++ii)
     {
-        m_spotLights[ii].setUniformSpotLight(*m_currentObjShader, ii);
+        m_spotLights[ii].setUniformSpotLight(*shader, ii);
     }
     
     m_currentObjShader->setUniform1i("specularMap", 0);
     m_currentObjShader->setUniform1i("phong", m_phong);
-    
-    m_currentObjShader->stopUseProgram();
-    
-    m_currentObjShader = &m_justTexture;
 }
 
 
@@ -168,16 +166,10 @@ void Scene::SetupFBORender()
     };
     
 
-    glGenVertexArrays(1, &m_fboQuad.vao);
-    glBindVertexArray(m_fboQuad.vao);
-    m_fboQuad.vbo = loadVBOData(fbo_vert);
+    glGenVertexArrays(1, &m_ssao.vao);
+    glBindVertexArray(m_ssao.vao);
+    m_ssao.vbo = loadVBOData(fbo_vert);
     glBindVertexArray(0);
-
-    
-//    m_fboQuad.skybox = Skybox(0);
-    
-    
-
 }
 
 
@@ -258,25 +250,99 @@ Scene::Scene(GLFWwindow* window, int width, int height, float fov,
     SetupFBORender();
     m_fbo = new Framebuffer(this, m_window);
     m_fbo->SetupToTexture2D(GL_RGBA16F, 3);
-    m_fboQuad.tboPos = m_fbo->getColorBufferTBO(0);
-    m_fboQuad.tboNorm = m_fbo->getColorBufferTBO(1);
-    m_fboQuad.tboDiff = m_fbo->getColorBufferTBO(2);
+    m_ssao.tboPosition = m_fbo->getColorBufferTBO(0);
+    m_ssao.tboNormal = m_fbo->getColorBufferTBO(1);
+    m_ssao.tboAlbedo = m_fbo->getColorBufferTBO(2);
     m_doHDR = true;
-    m_fboShader.useProgram();
-    m_fboShader.setUniform1ui("hdr", m_doHDR);
-    m_fboShader.setUniform1f("exposure", m_exposure);
-    m_fboShader.stopUseProgram();
+    m_lightShader.useProgram();
+    m_lightShader.setUniform1ui("hdr", m_doHDR);
+    m_lightShader.setUniform1f("exposure", m_exposure);
+    m_lightShader.stopUseProgram();
     
+    // *************  Generate sample points  ************** //
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dist(0.0, 1.0);
+    
+    glm::vec3 sample{};
+    m_ssao.ssaoShader.useProgram();
+    m_ssao.ssaoShader.setUniform1i("numSamples", m_ssao.numSamples);
+    for(int ii = 0; ii < m_ssao.numSamples; ++ii)
+    {
+        sample.x = 2.f * dist(gen) - 1.f;
+        sample.y = 2.f * dist(gen) - 1.f;
+        sample.z = dist(gen);
+        
+        sample = glm::normalize(sample);
+        sample *= dist(gen);
+        
+        float scale = static_cast<float>(ii)/static_cast<float>(m_ssao.numSamples);
+        sample *= lerp(0.1f, 1.f, scale*scale);
+        
+        m_ssao.samples.push_back(sample);
+        m_ssao.ssaoShader.setUniform3f("samples["+std::to_string(ii)+"]", sample.x, sample.y, sample.z);
+    }
+    m_ssao.ssaoShader.setUniform1f("width", m_width);
+    m_ssao.ssaoShader.setUniform1f("height", m_height);
+    m_ssao.ssaoShader.setUniform1f("radius", m_ssao.radius);
+    m_ssao.ssaoShader.stopUseProgram();
+    
+    
+    // *************  Generate rotation vectors  ************** //
+    for(int ii = 0; ii < m_ssao.NRotations*m_ssao.NRotations; ++ii)
+    {
+        sample.x = 2.f * dist(gen) - 1.f;
+        sample.y = 2.f * dist(gen) - 1.f;
+        sample.z = 0.f;
+        
+        m_ssao.rotations.push_back(sample);
+    }
+    
+    
+    // *************  Store rotation in texture  ************** //
+    glGenTextures(1, &m_ssao.tboRotations);
+    glBindTexture(GL_TEXTURE_2D, m_ssao.tboRotations);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, &m_ssao.rotations[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    
+    
+    
+    
+    
+    // *************  Filters  ************** //
+    m_ssao.ssaoFilter = new Tex2QuadFilter(window, GL_RED, 1);
+    m_ssao.ssaoFilter->AddInputTex(m_ssao.tboPosition, "FragPos");
+    m_ssao.ssaoFilter->AddInputTex(m_ssao.tboNormal, "Normal");
+    m_ssao.ssaoFilter->AddInputTex(m_ssao.tboRotations, "Rotations");
+    
+    m_ssao.blurFilter = new Tex2QuadFilter(window, GL_RED, 1);
+    m_ssao.blurFilter->AddInputTex(m_ssao.ssaoFilter->GetOutputTex(0), "Occlusion");
+    
+    m_ssao.lightFilter = new Tex2QuadFilter(window, 0, 0);
+    m_ssao.lightFilter->AddInputTex(m_ssao.tboPosition, "FragPos");
+    m_ssao.lightFilter->AddInputTex(m_ssao.tboNormal, "Normal");
+    m_ssao.lightFilter->AddInputTex(m_ssao.tboAlbedo, "DiffSpec");
+    
+    debugFilter = new Tex2QuadFilter(window, 0, 0);
+    debugFilter->AddInputTex(m_ssao.ssaoFilter->GetOutputTex(0), "fboTex");
+    
+    
+        
     //*********************************************
     //            Demo End
     //*********************************************
     
     
     
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
-    glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
+//    glEnable(GL_STENCIL_TEST);
+//    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+//    glStencilMask(0xFF);
+//    glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
       
 }
 
@@ -300,9 +366,6 @@ void Scene::draw(float deltaTime)
 {
     // ********  Uniform buffer for VP matrices  ********** //
     m_proj = m_cam.getProjMatrix();
-    m_view = glm::mat4(glm::mat3(m_cam.getViewMatrix()));
-//    updateVP(m_skyboxShader);
-    
     m_view = m_cam.getViewMatrix();
     
     // Fill the UBO with view and proj
@@ -325,17 +388,30 @@ void Scene::draw(float deltaTime)
     SetupImGui();
     
     // Render scene to a texture
-    m_fbo->RenderToTexture2D(m_currentObjShader);
+    m_fbo->RenderToTexture2D(&m_gPass);
+    
+    m_ssao.ssaoShader.useProgram();
+    m_ssao.ssaoShader.setUniformMatrix4f("proj", m_proj);
+    m_ssao.ssaoFilter->Render(&m_ssao.ssaoShader);
+    m_ssao.ssaoShader.stopUseProgram();
+    
+    m_debugShader.useProgram();
+    debugFilter->Render(&m_debugShader);
+    m_debugShader.stopUseProgram();
     
     
     
+//    m_ssao.lightFilter->Render(&m_lightShader);
+//    m_lightShader.useProgram();
+//    updateLightUniforms(&m_lightShader);
+//    m_lightShader.stopUseProgram();
     
-    RenderFBO(m_fboQuad.tboPos, m_fboQuad.tboNorm, m_fboQuad.tboDiff);
+//    RenderFBO(m_ssao.tboPosition, m_ssao.tboNormal, m_ssao.tboAlbedo);
     
     // Now blit the depth information onto the default buffer
-    m_fbo->BlitDepthBuffer();
-    
-    updateLights();
+//    m_fbo->BlitDepthBuffer();
+//
+//    updateLights();
 }
 
 
@@ -352,8 +428,7 @@ void Scene::draw(float deltaTime)
 void Scene::RenderScene(Shader* shader)
 {
     shader->useProgram();
-    updateLightUniforms();
-    drawObjects(*m_currentObjShader);
+    drawObjects(*shader);
     shader->stopUseProgram();
     
     // This will draw the point lights onto the scene
@@ -435,30 +510,29 @@ void Scene::SetupImGui()
     
     if(ImGui::Checkbox("HDR", &m_doHDR))
     {
-        m_fboShader.useProgram();
-        m_fboShader.setUniform1ui("hdr", m_doHDR);
-        m_fboShader.stopUseProgram();
+        m_lightShader.useProgram();
+        m_lightShader.setUniform1ui("hdr", m_doHDR);
+        m_lightShader.stopUseProgram();
     }
     
     
     if(ImGui::DragFloat("Exposure", &m_exposure, 0.01f, 0.f, 10.f, "%.3f"))
     {
-        m_fboShader.useProgram();
-        m_fboShader.setUniform1f("exposure", m_exposure);
-        m_fboShader.stopUseProgram();
+        m_lightShader.useProgram();
+        m_lightShader.setUniform1f("exposure", m_exposure);
+        m_lightShader.stopUseProgram();
     }
     
-//    if(ImGui::RadioButton("Just texture", m_currentObjShader == &m_justTexture))
-//    {
-//        m_currentObjShader = &m_justTexture;
-//        setupLights();
-//    }
-//    ImGui::SameLine();
-//    if(ImGui::RadioButton("Normal map", m_currentObjShader == &m_normalMap))
-//    {
-//        m_currentObjShader = &m_normalMap;
-//        setupLights();
-//    }
+    if(ImGui::DragFloat("Radius", &m_ssao.radius, 0.01f, 0.f, 1.f, "%.3f"))
+    {
+        m_ssao.ssaoShader.useProgram();
+        m_ssao.ssaoShader.setUniform1f("radius", m_ssao.radius);
+        m_ssao.ssaoShader.stopUseProgram();
+    }
+    
+    
+
+
     
     if(m_jsonParseError)
     {
@@ -501,24 +575,24 @@ void Scene::updateVP(Shader shader)
 
 
 
-void Scene::updateLightUniforms()
+void Scene::updateLightUniforms(Shader* shader)
 {
-    m_currentObjShader->setUniform3f("cameraPos", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
+    shader->setUniform3f("cameraPos", m_cam.m_camPos.x, m_cam.m_camPos.y, m_cam.m_camPos.z);
     
     for (int ii = 0; ii < m_dirLights.size(); ++ii)
     {
-        m_dirLights[ii].setUniformDir(*m_currentObjShader, ii);
+        m_dirLights[ii].setUniformDir(*shader, ii);
     }
     for (int ii = 0; ii < m_ptLights.size(); ++ii)
     {
-        m_ptLights[ii].setUniformPos(*m_currentObjShader, ii);
-        m_ptLights[ii].setUniformColor(*m_currentObjShader, ii);
+        m_ptLights[ii].setUniformPos(*shader, ii);
+        m_ptLights[ii].setUniformColor(*shader, ii);
     }
 
     for (int ii = 0; ii < m_spotLights.size(); ++ii)
     {
-        m_spotLights[ii].setUniformPos(*m_currentObjShader, ii);
-        m_spotLights[ii].setUniformDir(*m_currentObjShader, ii);
+        m_spotLights[ii].setUniformPos(*shader, ii);
+        m_spotLights[ii].setUniformDir(*shader, ii);
     }
 }
 
@@ -531,29 +605,29 @@ void Scene::updateLightUniforms()
 
 void Scene::RenderFBO(unsigned int tbo, unsigned int tbo1, unsigned int tbo2)
 {
-    m_currentObjShader = & m_fboShader;
-    m_fboShader.useProgram();
-    updateLightUniforms();
+    m_currentObjShader = &m_lightShader;
+    m_lightShader.useProgram();
+    updateLightUniforms(&m_lightShader);
     
-    glBindVertexArray(m_fboQuad.vao);
+    glBindVertexArray(m_ssao.vao);
     glActiveTexture(GL_TEXTURE0 + 7);
     glBindTexture(GL_TEXTURE_2D, tbo);
-    m_fboShader.setUniform1i("FragPos", 7);
+    m_lightShader.setUniform1i("FragPos", 7);
     
     glActiveTexture(GL_TEXTURE0 + 8);
     glBindTexture(GL_TEXTURE_2D, tbo1);
-    m_fboShader.setUniform1i("Normal", 8);
+    m_lightShader.setUniform1i("Normal", 8);
     
     glActiveTexture(GL_TEXTURE0 + 9);
     glBindTexture(GL_TEXTURE_2D, tbo2);
-    m_fboShader.setUniform1i("DiffSpec", 9);
+    m_lightShader.setUniform1i("DiffSpec", 9);
     
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
-    m_fboShader.stopUseProgram();
-    m_currentObjShader = &m_justTexture;
+    m_lightShader.stopUseProgram();
+    m_currentObjShader = &m_gPass;
     
-    updateLights();
+//    updateLights();
 
 }
 
@@ -945,9 +1019,11 @@ void Scene::DeserializeObjects(const std::string& jsonFilePath)
         
         
         if(addLight)
-            setupLights();
-        
-        
+        {
+            m_lightShader.useProgram();
+            setupLights(&m_lightShader);
+            m_lightShader.stopUseProgram();
+        }
     }
     
 }

@@ -453,9 +453,6 @@ PingPongFilter::PingPongFilter(GLFWwindow* window, unsigned int internalFormat)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glBindTexture(GL_TEXTURE_2D, 0);
         
-//        glBindRenderbuffer(GL_RENDERBUFFER, m_rbo[ii]);
-//        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_width, m_height);
-//        glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
     
     
@@ -465,7 +462,6 @@ PingPongFilter::PingPongFilter(GLFWwindow* window, unsigned int internalFormat)
         glBindFramebuffer(GL_FRAMEBUFFER, m_fbo[ii]);
         
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_tbo[ii], 0);
-//        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo[ii]);
         
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cout << "Framebuffer NOT complete\n";
@@ -547,3 +543,140 @@ unsigned int PingPongFilter::Filter(Shader* shader, unsigned int initialTexture,
     
     return m_tbo[1];
 }
+
+
+
+
+
+
+
+
+
+
+
+/*******************  Tex2QuadFilter ctor   ************************************
+ * \brief Get the width and height of the window.  Initialize the rbo to be a depth buffer.
+ *      Generate the fbo and all output textures.  Attach textures and rbo to framebuffer.
+ *
+ **************************************************************///
+Tex2QuadFilter::Tex2QuadFilter(GLFWwindow* window, const std::vector<unsigned int>& internalFormats, int numOutputs)
+{
+    // Even if rendering to default buffer, need vao and vbo to be initialized
+    glGenVertexArrays(1, &m_vao);
+    glGenBuffers(1, &m_vbo);
+    
+    
+    std::vector<Vert3x2f> screenVerts = {
+        Vert3x2f(-1.0f,  1.0f, 0.0f, 0.0f, 1.0f),
+        Vert3x2f(-1.0f, -1.0f, 0.0f, 0.0f, 0.0f),
+        Vert3x2f(1.0f,  1.0f, 0.0f, 1.0f, 1.0f),
+        Vert3x2f(1.0f, -1.0f, 0.0f, 1.0f, 0.0f),
+        };
+    
+    glBindVertexArray(m_vao);
+    m_vbo = loadVBOData(screenVerts);
+    glBindVertexArray(0);
+    
+    
+    // If no output textures are given, we render to default framebuffer and so don't need the rest
+    //  of the initialization
+    if(numOutputs == 0)
+        return;
+    
+    
+    // *************  Setup variables and buffers  ************** //
+    glfwGetFramebufferSize(window, &m_width, &m_height);
+    
+    glGenFramebuffers(1, &m_fbo);
+    m_tboOutput = std::vector<unsigned int>(numOutputs, 0);
+    glGenTextures(numOutputs, &m_tboOutput[0]);
+    glGenRenderbuffers(1, &m_rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
+    
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    
+    std::vector<unsigned int> colorAttachments{};
+    // *************  Textures  ************** //
+    for(int ii = 0; ii < numOutputs; ++ii)
+    {
+        // if there are less internal formats than output, use the last format for the remaining output
+        // This allows us to input just one format to work for all of them
+        int formatIndex = std::min(ii, static_cast<int>(internalFormats.size()) );
+        
+        glBindTexture(GL_TEXTURE_2D, m_tboOutput[ii]);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormats[formatIndex], m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + ii, GL_TEXTURE_2D, m_tboOutput[ii], 0);
+        
+        colorAttachments.push_back(GL_COLOR_ATTACHMENT0 + ii);
+    }
+    
+//    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
+    
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer NOT complete\n";
+    
+    
+    // TODO: Check to see if this call to `glDrawBuffers` will permanently set the state of the framebuffer
+    //      That is, so it doesn't have to be called at each render call.  If this doesn't work, then this will
+    //      have to be moved to the `Render` method and the `colorAttachments` will have to become a member of the class
+    glDrawBuffers(numOutputs, &colorAttachments[0]);
+    
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+
+
+/*******************  Tex2QuadFilter ctor   ************************************
+ * \brief Want to set all outputs to the same format, so we pack up the single format into a
+ *      vector and send it off to the other constructor
+ *
+ **************************************************************///
+Tex2QuadFilter::Tex2QuadFilter(GLFWwindow* window, unsigned int internalFormat, int numOutputs) :
+    Tex2QuadFilter(window, std::vector<unsigned int>(numOutputs, internalFormat), numOutputs)
+{
+    
+}
+
+
+
+
+
+
+
+/*******************  Render   ************************************
+ * \brief Use the shader and added input textures to render to the
+ *      output textures attached to the framebuffer.
+ *
+ *      Note that if no output textures were set at the ctor, then this will
+ *      render to the default framebuffer, that is the screen.
+ **************************************************************///
+void Tex2QuadFilter::Render(Shader* shader)
+{
+    
+        
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    for(int ii = 0; ii < m_tboInput.size(); ++ii)
+    {
+        bindTexture(shader, m_tboInput[ii], m_tboInputName[ii], ii);
+    }
+
+    
+    glBindVertexArray(m_vao);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+    
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+}
+

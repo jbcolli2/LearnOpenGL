@@ -110,7 +110,7 @@ void main()
     for(int ii = 0; ii < numPtLights; ++ii)
     {
         float distToLight = length(Pos - ptLights[ii].position);
-        if(distToLight < ptLights[ii].radius)
+//        if(distToLight < ptLights[ii].radius)
         {
             result += computePtLight(ptLights[ii], normal, viewDir, Pos);
         }
@@ -125,7 +125,8 @@ void main()
     result = toneMap(result);
     FragColor = vec4(result, 1.0);
     
-//    FragColor = vec4(vec3(texture(DiffSpec,UV)), 1.0);
+//    FragColor = vec4(vec3(texture(DiffSpec, UV)), 1.0);
+//    FragColor = vec4(1.0);
     
 
 }
@@ -251,9 +252,9 @@ vec3 computePtLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPositi
     float specAngleCoeff = computeSpecCoeff(light2Frag, normal, viewDir);
     vec3 specComponent = specAngleCoeff * specMat * light.specular;
     
-    ambComponent *= attenuation;
-    diffComponent *= attenuation;
-    specComponent *= attenuation;
+//    ambComponent *= attenuation;
+//    diffComponent *= attenuation;
+//    specComponent *= attenuation;
 
     return ambComponent + diffComponent + specComponent;
 }
